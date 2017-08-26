@@ -81,6 +81,7 @@ namespace Lykke.Frontend.WampHost
             app.UseMvc();
             app.UseSwagger();
             app.UseSwaggerUi();
+            app.UseStaticFiles();
 
             ConfigureWamp(app);
 
