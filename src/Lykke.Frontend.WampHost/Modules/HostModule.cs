@@ -5,6 +5,8 @@ using Lykke.Frontend.WampHost.Core;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Services;
 using Microsoft.Extensions.DependencyInjection;
+using WampSharp.V2;
+using WampSharp.V2.Realm;
 
 namespace Lykke.Frontend.WampHost.Modules
 {
@@ -36,7 +38,14 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IHealthService>()
                 .SingleInstance();
 
-            // TODO: Add your dependencies here
+            var host = new WampSharp.V2.WampHost();
+            var realm = host.RealmContainer.GetRealmByName("main");
+
+            builder.RegisterInstance(host)
+                .As<IWampHost>();
+
+            builder.RegisterInstance(realm)
+                .As<IWampHostedRealm>();
 
             builder.Populate(_services);
         }

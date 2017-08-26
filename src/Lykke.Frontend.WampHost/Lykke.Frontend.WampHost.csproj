@@ -31,12 +31,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="4.1.1" />
     <PackageReference Include="Lykke.Common" Version="1.1.86" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.0.11" />
     <PackageReference Include="Lykke.Logs" Version="1.0.29" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
     <PackageReference Include="Lykke.SettingsReader" Version="1.0.38" />
     <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="1.0.4" />
+    <PackageReference Include="Lykke.WampSharp.AspNetCore.WebSockets.Server" Version="0.1.29-beta001" />
+    <PackageReference Include="Lykke.WampSharp.NewtonsoftJson" Version="0.1.29-beta001" />
+    <PackageReference Include="Lykke.WampSharp.NewtonsoftMsgpack" Version="0.1.29-beta001" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />

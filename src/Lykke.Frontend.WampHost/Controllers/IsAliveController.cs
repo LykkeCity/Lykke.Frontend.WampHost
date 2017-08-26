@@ -52,7 +52,8 @@ namespace Lykke.Frontend.WampHost.Controllers
                     {
                         Type = i.Type,
                         Value = i.Value
-                    })
+                    }),
+                SessionCount = _healthService.SessionCount
             });
         }
     }

@@ -14,6 +14,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WampSharp.AspNetCore.WebSockets.Server;
+using WampSharp.Binding;
+using WampSharp.V2;
+using WampSharp.V2.MetaApi;
+using WampSharp.V2.Realm;
+using Lykke.Frontend.WampHost.Core.Services;
 
 namespace Lykke.Frontend.WampHost
 {
@@ -76,21 +82,48 @@ namespace Lykke.Frontend.WampHost
             app.UseSwagger();
             app.UseSwaggerUi();
 
+            ConfigureWamp(app);
+
             appLifetime.ApplicationStopping.Register(StopApplication);
             appLifetime.ApplicationStopped.Register(CleanUp);
         }
 
+        private void ConfigureWamp(IApplicationBuilder app)
+        {
+            var host = ApplicationContainer.Resolve<IWampHost>();
+            
+            app.Map("/ws", builder =>
+            {
+                builder.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromMinutes(1) });
+
+                host.RegisterTransport(new AspNetCoreWebSocketTransport(builder),
+                    new JTokenJsonBinding(),
+                    new JTokenMsgpackBinding());
+            });
+
+            var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
+            var healthService = ApplicationContainer.Resolve<IHealthService>();
+
+            realm.SessionCreated += healthService.TraceWampSessionCreated;
+            realm.SessionClosed += healthService.TraceWampSessionClosed;
+
+            host.Open();
+        }
+
         private void StopApplication()
         {
-            // TODO: Implement your shutdown logic here. 
-            // Host still can recieve and process web-requests here, so take care about it.
+            var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
+            var realmMetaService = realm.HostMetaApiService();
+            var healthService = ApplicationContainer.Resolve<IHealthService>();
+
+            realm.SessionCreated -= healthService.TraceWampSessionCreated;
+            realm.SessionClosed -= healthService.TraceWampSessionClosed;
+            
+            realmMetaService.Dispose();
         }
 
         private void CleanUp()
         {
-            // TODO: Implement your clean up logic here.
-            // Host can't recieve and process web-requests here, so you can destroy all resources
-
             ApplicationContainer.Dispose();
         }
 

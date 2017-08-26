@@ -8,6 +8,7 @@ namespace Lykke.Frontend.WampHost.Models
         public string Env { get; set; }
         public bool IsDebug { get; set; }
         public IEnumerable<IssueIndicator> IssueIndicators { get; set; }
+        public int SessionCount { get; set; }
 
         public class IssueIndicator
         {
