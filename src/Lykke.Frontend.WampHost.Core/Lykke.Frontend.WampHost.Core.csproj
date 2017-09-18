@@ -9,11 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="1.1.86" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Domain\" />
-    <Folder Include="Services\" />
+    <PackageReference Include="Lykke.Domain.Prices" Version="0.9.11" />
   </ItemGroup>
 
 </Project>

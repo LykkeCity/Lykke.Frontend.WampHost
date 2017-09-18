@@ -20,6 +20,7 @@ using WampSharp.V2;
 using WampSharp.V2.MetaApi;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Services;
 
 namespace Lykke.Frontend.WampHost
 {
@@ -85,6 +86,7 @@ namespace Lykke.Frontend.WampHost
 
             ConfigureWamp(app);
 
+            appLifetime.ApplicationStarted.Register(StartApplication);
             appLifetime.ApplicationStopping.Register(StopApplication);
             appLifetime.ApplicationStopped.Register(CleanUp);
         }
@@ -109,6 +111,17 @@ namespace Lykke.Frontend.WampHost
             realm.SessionClosed += healthService.TraceWampSessionClosed;
 
             host.Open();
+        }
+
+        private void StartApplication()
+        {
+            Console.WriteLine("Starting...");
+
+            var startupManager = ApplicationContainer.Resolve<IStartupManager>();
+
+            startupManager.StartAsync().Wait();
+
+            Console.WriteLine("Started");
         }
 
         private void StopApplication()

@@ -1,4 +1,6 @@
-﻿namespace Lykke.Frontend.WampHost.Core
+﻿using Lykke.Frontend.WampHost.Services;
+
+namespace Lykke.Frontend.WampHost
 {
     public class AppSettings
     {
@@ -9,6 +11,9 @@
     public class WampHostSettings
     {
         public DbSettings Db { get; set; }
+
+        public RabbitMqSettings RabbitMqSettings { get; set; }
+        public RabbitMqSettings MtRabbitMqSettings { get; set; }
     }
 
     public class DbSettings

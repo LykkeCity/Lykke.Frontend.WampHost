@@ -4,6 +4,7 @@ using Common.Log;
 using Lykke.Frontend.WampHost.Core;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Services;
+using Lykke.Frontend.WampHost.Services.Candles;
 using Microsoft.Extensions.DependencyInjection;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
@@ -27,15 +28,34 @@ namespace Lykke.Frontend.WampHost.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterInstance(_settings)
-                .SingleInstance();
-
             builder.RegisterInstance(_log)
                 .As<ILog>()
                 .SingleInstance();
 
             builder.RegisterType<HealthService>()
                 .As<IHealthService>()
+                .SingleInstance();
+
+            builder.RegisterType<CandlesSubscriber>()
+                .As<ICandlesSubscriber>()                
+                .SingleInstance()
+                .Keyed("spot", typeof(ICandlesSubscriber))
+                .WithParameter("marketType", "spot")
+                .WithParameter("rabbitMqSettings", _settings.RabbitMqSettings); ;
+
+            builder.RegisterType<CandlesSubscriber>()
+                .As<ICandlesSubscriber>()
+                .SingleInstance()
+                .Keyed("mt", typeof(ICandlesSubscriber))
+                .WithParameter("marketType", "mt")
+                .WithParameter("rabbitMqSettings", _settings.MtRabbitMqSettings);
+
+            builder.RegisterType<CandlesManager>()
+                .As<ICandlesManager>()
+                .SingleInstance();
+
+            builder.RegisterType<StartupManager>()
+                .As<IStartupManager>()
                 .SingleInstance();
 
             var host = new WampSharp.V2.WampHost();
