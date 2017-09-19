@@ -21,9 +21,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Home\Index.cshtml" />
+    <None Remove="Views\Shared\MethodsListPartial.cshtml" />
+    <None Remove="Views\Shared\TypesListPartial.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Shared\MethodsListPartial.cshtml" />
+    <Content Include="Views\Shared\TypesListPartial.cshtml" />
   </ItemGroup>
   
   <ItemGroup>
@@ -62,10 +71,6 @@
     <ProjectReference Include="..\Lykke.Frontend.WampHost.AzureRepositories\Lykke.Frontend.WampHost.AzureRepositories.csproj" />
     <ProjectReference Include="..\Lykke.Frontend.WampHost.Core\Lykke.Frontend.WampHost.Core.csproj" />
     <ProjectReference Include="..\Lykke.Frontend.WampHost.Services\Lykke.Frontend.WampHost.Services.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Views\Home\" />
   </ItemGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
