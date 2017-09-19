@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lykke.Frontend.WampHost.Documentation
+namespace Lykke.Frontend.WampHost.Services.Documentation
 {
     public class DocMeAttribute : Attribute
     {

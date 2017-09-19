@@ -1,7 +1,6 @@
-﻿using Lykke.Frontend.WampHost.Documentation;
-using Lykke.Frontend.WampHost.Models;
+﻿using Lykke.Frontend.WampHost.Models;
+using Lykke.Frontend.WampHost.Services.Documentation;
 using Microsoft.AspNetCore.Mvc;
-using WampSharp.V2.PubSub;
 
 namespace Lykke.Frontend.WampHost.Controllers
 {
@@ -14,7 +13,8 @@ namespace Lykke.Frontend.WampHost.Controllers
         {
             var doc = new TypeDocGenerator();
             var model = new MethodInfoModel
-            {                
+            {
+                Rpc = doc.GetDocumentation(typeof(IRpcFrontend)),
                 Topic = doc.GetDocumentation(typeof(IWampTopics))
             };
 

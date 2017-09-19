@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Lykke.Frontend.WampHost.Documentation
+namespace Lykke.Frontend.WampHost.Services.Documentation
 {
     public class TypeDocGenerator
     {

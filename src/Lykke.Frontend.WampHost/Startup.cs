@@ -104,11 +104,13 @@ namespace Lykke.Frontend.WampHost
                     new JTokenMsgpackBinding());
             });
 
+            var rpcMethods = ApplicationContainer.Resolve<IRpcFrontend>();
             var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
             var healthService = ApplicationContainer.Resolve<IHealthService>();
 
             realm.SessionCreated += healthService.TraceWampSessionCreated;
             realm.SessionClosed += healthService.TraceWampSessionClosed;
+            realm.Services.RegisterCallee(rpcMethods).Wait();
 
             host.Open();
         }

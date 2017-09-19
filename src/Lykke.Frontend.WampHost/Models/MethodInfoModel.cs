@@ -1,4 +1,4 @@
-﻿using Lykke.Frontend.WampHost.Documentation;
+﻿using Lykke.Frontend.WampHost.Services.Documentation;
 
 namespace Lykke.Frontend.WampHost.Models
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace Lykke.Frontend.WampHost.Documentation
+namespace Lykke.Frontend.WampHost.Services.Documentation
 {
     public static class TypeExtensions
     {

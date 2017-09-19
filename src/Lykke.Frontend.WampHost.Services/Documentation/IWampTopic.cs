@@ -1,6 +1,6 @@
 ﻿using Lykke.Frontend.WampHost.Services.Candles;
 
-namespace Lykke.Frontend.WampHost.Documentation
+namespace Lykke.Frontend.WampHost.Services.Documentation
 {
     public interface IWampTopics
     {

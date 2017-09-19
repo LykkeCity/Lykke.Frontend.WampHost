@@ -36,6 +36,10 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IHealthService>()
                 .SingleInstance();
 
+            builder.RegisterType<RpcFrontend>()
+                .As<IRpcFrontend>()
+                .SingleInstance();
+
             builder.RegisterType<CandlesSubscriber>()
                 .As<ICandlesSubscriber>()                
                 .SingleInstance()
