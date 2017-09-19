@@ -1,0 +1,11 @@
+﻿@using Lykke.Frontend.WampHost.Documentation
+@model Type[]
+
+<pre>
+<code>
+        @foreach (var type in Model)
+        {
+            @type.GetTypeDefinition()
+        }
+    </code>
+</pre>

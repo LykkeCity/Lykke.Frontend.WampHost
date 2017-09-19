@@ -1,0 +1,10 @@
+﻿using Lykke.Frontend.WampHost.Services.Candles;
+
+namespace Lykke.Frontend.WampHost.Documentation
+{
+    public interface IWampTopics
+    {
+        [DocMe(Name = "candle.{spot|mt}.{instrument}.{bid|ask|mid}.{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}", Description = "sends candles")]
+        CandleMessage CandlesUpdate();        
+    }
+}

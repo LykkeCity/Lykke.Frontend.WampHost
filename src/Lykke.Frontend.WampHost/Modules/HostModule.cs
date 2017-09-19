@@ -59,7 +59,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 .SingleInstance();
 
             var host = new WampSharp.V2.WampHost();
-            var realm = host.RealmContainer.GetRealmByName("main");
+            var realm = host.RealmContainer.GetRealmByName("prices");
 
             builder.RegisterInstance(host)
                 .As<IWampHost>();
