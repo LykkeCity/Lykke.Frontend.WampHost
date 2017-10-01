@@ -22,7 +22,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public Task ProcessCandleAsync(CandleMessage candle, string marketType)
         {
-            var topic = $"candle.{marketType}.{candle.AssetPairId.ToLower()}.{nameof(candle.PriceType).ToLower()}.{nameof(candle.TimeInterval).ToLower()}";
+            var topic = $"candle.{marketType}.{candle.AssetPairId.ToLower()}.{candle.PriceType.ToString().ToLower()}.{candle.TimeInterval.ToString().ToLower()}";
 
             var subject = _realm.Services.GetSubject<CandleMessage>(topic);
             subject.OnNext(candle);
