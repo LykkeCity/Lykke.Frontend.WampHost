@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using Common.Log;
+using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Services;
 
 namespace Lykke.Frontend.WampHost.Services
@@ -20,11 +21,11 @@ namespace Lykke.Frontend.WampHost.Services
         {
             await _log.WriteInfoAsync(nameof(StartupManager), nameof(StartAsync), "", "Starting spot candles subscriber...");
 
-            _candlesSubscribers["spot"].Start();
+            _candlesSubscribers[nameof(MarketType.Spot)].Start();
 
             await _log.WriteInfoAsync(nameof(StartupManager), nameof(StartAsync), "", "Starting mt candles subscriber...");
 
-            _candlesSubscribers["mt"].Start();
+            _candlesSubscribers[nameof(MarketType.Mt)].Start();
         }
     }
 

@@ -5,52 +5,29 @@ using System.Threading.Tasks;
 using Autofac.Features.Indexed;
 using Common;
 using Common.Log;
-using Lykke.Domain.Prices;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
-using Newtonsoft.Json;
 
 namespace Lykke.Frontend.WampHost.Services.Candles
 {
-    public class CandleMessage : ICandle
-    {
-        [JsonProperty("a")]
-        public string AssetPairId { get; set; }
-
-        [JsonProperty("p")]
-        public PriceType PriceType { get; set; }
-
-        [JsonProperty("i")]
-        public TimeInterval TimeInterval { get; set; }
-
-        [JsonProperty("t")]
-        public DateTime Timestamp { get; set; }
-
-        [JsonProperty("o")]
-        public double Open { get; set; }
-
-        [JsonProperty("c")]
-        public double Close { get; set; }
-
-        [JsonProperty("h")]
-        public double High { get; set; }
-
-        [JsonProperty("l")]
-        public double Low { get; set; }
-    }
-
     public class CandlesSubscriber : ICandlesSubscriber
-    {       
+    {   
+        private Dictionary<MarketType, string> _namespaceMap = new Dictionary<MarketType, string>
+        {
+            [MarketType.Spot] = "lykke",
+            [MarketType.Mt] = "lykke.mt"
+        };
+
         private readonly ILog _log;
         private readonly ICandlesManager _candlesManager;
         private readonly RabbitMqSettings _rabbitMqSettings;
-        private readonly string _marketType;
+        private readonly MarketType _marketType;
 
         private RabbitMqSubscriber<CandleMessage> _subscriber;
 
-        public CandlesSubscriber(ILog log, ICandlesManager candlesManager, RabbitMqSettings rabbitMqSettings, string marketType)
+        public CandlesSubscriber(ILog log, ICandlesManager candlesManager, RabbitMqSettings rabbitMqSettings, MarketType marketType)
         {
             _log = log;
             _candlesManager = candlesManager;
@@ -60,8 +37,10 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void Start()
         {
+            var ns = _namespaceMap[_marketType];
+
             var settings = RabbitMqSubscriptionSettings
-                .CreateForSubscriber(_rabbitMqSettings.ConnectionString, $"{_marketType}.candles", "wamp")
+                .CreateForSubscriber(_rabbitMqSettings.ConnectionString, ns, "candles", ns, "wamp")
                 .MakeDurable();
 
             try

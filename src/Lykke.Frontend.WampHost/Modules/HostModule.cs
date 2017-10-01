@@ -2,6 +2,7 @@
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.Frontend.WampHost.Core;
+using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
@@ -43,15 +44,15 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<CandlesSubscriber>()
                 .As<ICandlesSubscriber>()                
                 .SingleInstance()
-                .Keyed("spot", typeof(ICandlesSubscriber))
-                .WithParameter("marketType", "spot")
+                .Keyed(MarketType.Spot, typeof(ICandlesSubscriber))
+                .WithParameter("marketType", MarketType.Spot)
                 .WithParameter("rabbitMqSettings", _settings.RabbitMqSettings); ;
 
             builder.RegisterType<CandlesSubscriber>()
                 .As<ICandlesSubscriber>()
                 .SingleInstance()
-                .Keyed("mt", typeof(ICandlesSubscriber))
-                .WithParameter("marketType", "mt")
+                .Keyed(MarketType.Mt, typeof(ICandlesSubscriber))
+                .WithParameter("marketType", MarketType.Mt)
                 .WithParameter("rabbitMqSettings", _settings.MtRabbitMqSettings);
 
             builder.RegisterType<CandlesManager>()
