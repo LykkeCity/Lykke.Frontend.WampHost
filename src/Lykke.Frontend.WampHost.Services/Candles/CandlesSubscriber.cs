@@ -60,15 +60,9 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void Start()
         {
-            var settings = new RabbitMqSubscriptionSettings
-            {
-                ConnectionString = _rabbitMqSettings.ConnectionString,
-                QueueName = $"{_rabbitMqSettings.ExchangeName}.wamp.candles",
-                ExchangeName = _rabbitMqSettings.ExchangeName,
-                DeadLetterExchangeName = _rabbitMqSettings.DeadLetterExchangeName,
-                RoutingKey = "",
-                IsDurable = true
-            };
+            var settings = RabbitMqSubscriptionSettings
+                .CreateForSubscriber(_rabbitMqSettings.ConnectionString, $"{_marketType}.candles", "wamp")
+                .MakeDurable();
 
             try
             {
