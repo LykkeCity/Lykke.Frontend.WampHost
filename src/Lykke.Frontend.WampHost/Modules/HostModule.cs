@@ -6,6 +6,7 @@ using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
+using Lykke.SettingsReader;
 using Microsoft.Extensions.DependencyInjection;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
@@ -14,12 +15,12 @@ namespace Lykke.Frontend.WampHost.Modules
 {
     public class HostModule : Module
     {
-        private readonly WampHostSettings _settings;
+        private readonly IReloadingManager<WampHostSettings> _settings;
         private readonly ILog _log;
         // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
-        public HostModule(WampHostSettings settings, ILog log)
+        public HostModule(IReloadingManager<WampHostSettings> settings, ILog log)
         {
             _settings = settings;
             _log = log;
@@ -44,16 +45,16 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<CandlesSubscriber>()
                 .As<ICandlesSubscriber>()                
                 .SingleInstance()
-                .Keyed(MarketType.Spot, typeof(ICandlesSubscriber))
+                .Keyed(MarketType.Spot.ToString(), typeof(ICandlesSubscriber))
                 .WithParameter("marketType", MarketType.Spot)
-                .WithParameter("rabbitMqSettings", _settings.RabbitMqSettings); ;
+                .WithParameter("rabbitMqSettings", _settings.CurrentValue.RabbitMqSettings);
 
             builder.RegisterType<CandlesSubscriber>()
                 .As<ICandlesSubscriber>()
                 .SingleInstance()
-                .Keyed(MarketType.Mt, typeof(ICandlesSubscriber))
+                .Keyed(MarketType.Mt.ToString(), typeof(ICandlesSubscriber))
                 .WithParameter("marketType", MarketType.Mt)
-                .WithParameter("rabbitMqSettings", _settings.MtRabbitMqSettings);
+                .WithParameter("rabbitMqSettings", _settings.CurrentValue.MtRabbitMqSettings);
 
             builder.RegisterType<CandlesManager>()
                 .As<ICandlesManager>()

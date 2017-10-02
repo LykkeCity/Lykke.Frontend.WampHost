@@ -58,12 +58,10 @@ namespace Lykke.Frontend.WampHost
             });
 
             var builder = new ContainerBuilder();
-            var appSettings = Environment.IsDevelopment()
-                ? Configuration.Get<AppSettings>()
-                : HttpSettingsLoader.Load<AppSettings>(Configuration.GetValue<string>("SettingsUrl"));
-            var log = CreateLogWithSlack(services, appSettings);
+            var appSettings = Configuration.LoadSettings<AppSettings>();
+            var log = CreateLogWithSlack(services, appSettings.CurrentValue.SlackNotifications, appSettings.ConnectionString(x => x.WampHost.Db.LogsConnString));
 
-            builder.RegisterModule(new HostModule(appSettings.WampHost, log));
+            builder.RegisterModule(new HostModule(appSettings.Nested(x => x.WampHost), log));
             builder.Populate(services);
             ApplicationContainer = builder.Build();
 
@@ -143,7 +141,7 @@ namespace Lykke.Frontend.WampHost
             ApplicationContainer.Dispose();
         }
 
-        private static ILog CreateLogWithSlack(IServiceCollection services, AppSettings settings)
+        private static ILog CreateLogWithSlack(IServiceCollection services, SlackNotificationsSettings slackNotificationsSettings, IReloadingManager<string> dbLogConnectionStringManager)
         {
             var consoleLogger = new LogToConsole();
             var aggregateLogger = new AggregateLogger();
@@ -153,20 +151,19 @@ namespace Lykke.Frontend.WampHost
             // Creating slack notification service, which logs own azure queue processing messages to aggregate log
             var slackService = services.UseSlackNotificationsSenderViaAzureQueue(new AzureQueueIntegration.AzureQueueSettings
             {
-                ConnectionString = settings.SlackNotifications.AzureQueue.ConnectionString,
-                QueueName = settings.SlackNotifications.AzureQueue.QueueName
+                ConnectionString = slackNotificationsSettings.AzureQueue.ConnectionString,
+                QueueName = slackNotificationsSettings.AzureQueue.QueueName
             }, aggregateLogger);
 
-            var dbLogConnectionString = settings.WampHost.Db.LogsConnString;
+            var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
             // Creating azure storage logger, which logs own messages to concole log
             if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
             {
                 const string appName = "Lykke.Frontend.WampHost";
 
-                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(
-                    appName,
-                    AzureTableStorage<LogEntity>.Create(() => dbLogConnectionString, "WampHostLog", consoleLogger),
+                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(                    
+                    AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "WampHostLog", consoleLogger),
                     consoleLogger);
 
                 var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(appName, slackService, consoleLogger);
