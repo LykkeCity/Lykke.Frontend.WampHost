@@ -115,7 +115,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void Dispose()
         {
-            Stop();
+            _subscriber.Dispose();
         }
     }
 }
