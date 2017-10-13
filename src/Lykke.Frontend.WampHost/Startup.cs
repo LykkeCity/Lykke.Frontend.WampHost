@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
-using Lykke.Frontend.WampHost.Core;
 using Lykke.Frontend.WampHost.Modules;
 using Lykke.Logs;
 using Lykke.SettingsReader;
@@ -17,76 +17,90 @@ using Microsoft.Extensions.DependencyInjection;
 using WampSharp.AspNetCore.WebSockets.Server;
 using WampSharp.Binding;
 using WampSharp.V2;
-using WampSharp.V2.MetaApi;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.Frontend.WampHost.Services;
+using Lykke.Frontend.WampHost.Models;
 
 namespace Lykke.Frontend.WampHost
 {
     public class Startup
     {
         public IHostingEnvironment Environment { get; }
-        public IContainer ApplicationContainer { get; set; }
+        public IContainer ApplicationContainer { get; private set; }
         public IConfigurationRoot Configuration { get; }
+        public ILog Log { get; private set; }
 
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
+
             Configuration = builder.Build();
-
             Environment = env;
-
-            Console.WriteLine($"ENV_INFO: {System.Environment.GetEnvironmentVariable("ENV_INFO")}");
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc()
-                .AddJsonOptions(options =>
+            try
+            {
+                services.AddMvc()
+                    .AddJsonOptions(options =>
+                    {
+                        options.SerializerSettings.ContractResolver =
+                            new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                    });
+
+                services.AddSwaggerGen(options =>
                 {
-                    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                    options.DefaultLykkeConfiguration("v1", "WampHost API");
                 });
 
-            services.AddSwaggerGen(options =>
+                var builder = new ContainerBuilder();
+                var appSettings = Configuration.LoadSettings<AppSettings>();
+
+                Log = CreateLogWithSlack(services, appSettings);
+
+                builder.RegisterModule(new HostModule(appSettings.Nested(x => x.WampHost), Log));
+                builder.Populate(services);
+                ApplicationContainer = builder.Build();
+
+                return new AutofacServiceProvider(ApplicationContainer);
+            }
+            catch (Exception ex)
             {
-                options.DefaultLykkeConfiguration("v1", "WampHost API");
-            });
-
-            var builder = new ContainerBuilder();
-            var appSettings = Configuration.LoadSettings<AppSettings>();
-            var log = CreateLogWithSlack(services, appSettings.CurrentValue.SlackNotifications, appSettings.ConnectionString(x => x.WampHost.Db.LogsConnString));
-
-            builder.RegisterModule(new HostModule(appSettings.Nested(x => x.WampHost), log));
-            builder.Populate(services);
-            ApplicationContainer = builder.Build();
-
-            return new AutofacServiceProvider(ApplicationContainer);
+                Log?.WriteFatalErrorAsync(nameof(Startup), nameof(ConfigureServices), "", ex).Wait();
+                throw;
+            }
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
-            if (env.IsDevelopment())
+            try
             {
-                app.UseDeveloperExceptionPage();
+                if (env.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+
+                app.UseLykkeMiddleware("WampHost", ex => ErrorResponse.Create("Technical problem"));
+
+                app.UseMvc();
+                app.UseSwagger();
+                app.UseSwaggerUi();
+                app.UseStaticFiles();
+                
+                ConfigureWamp(app);
+
+                appLifetime.ApplicationStarted.Register(() => StartApplication().Wait());
+                appLifetime.ApplicationStopping.Register(() => StopApplication().Wait());
+                appLifetime.ApplicationStopped.Register(() => CleanUp().Wait());
             }
-
-            app.UseLykkeMiddleware("WampHost", ex => new {Message = "Technical problem"});
-
-            app.UseMvc();
-            app.UseSwagger();
-            app.UseSwaggerUi();
-            app.UseStaticFiles();
-
-            ConfigureWamp(app);
-
-            appLifetime.ApplicationStarted.Register(StartApplication);
-            appLifetime.ApplicationStopping.Register(StopApplication);
-            appLifetime.ApplicationStopped.Register(CleanUp);
+            catch (Exception ex)
+            {
+                Log?.WriteFatalErrorAsync(nameof(Startup), nameof(ConfigureServices), "", ex).Wait();
+                throw;
+            }
         }
 
         private void ConfigureWamp(IApplicationBuilder app)
@@ -104,44 +118,71 @@ namespace Lykke.Frontend.WampHost
 
             var rpcMethods = ApplicationContainer.Resolve<IRpcFrontend>();
             var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
-            var healthService = ApplicationContainer.Resolve<IHealthService>();
 
-            realm.SessionCreated += healthService.TraceWampSessionCreated;
-            realm.SessionClosed += healthService.TraceWampSessionClosed;
             realm.Services.RegisterCallee(rpcMethods).Wait();
 
             host.Open();
         }
 
-        private void StartApplication()
+        private async Task StartApplication()
         {
-            Console.WriteLine("Starting...");
+            try
+            {
+                await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
 
-            var startupManager = ApplicationContainer.Resolve<IStartupManager>();
-
-            startupManager.StartAsync().Wait();
-
-            Console.WriteLine("Started");
+                await Log.WriteMonitorAsync("", "", "Started");
+            }
+            catch (Exception ex)
+            {
+                await Log.WriteFatalErrorAsync(nameof(Startup), nameof(StartApplication), "", ex);
+                throw;
+            }
         }
 
-        private void StopApplication()
+        private async Task StopApplication()
         {
-            var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
-            var realmMetaService = realm.HostMetaApiService();
-            var healthService = ApplicationContainer.Resolve<IHealthService>();
+            try
+            {
+                // NOTE: Job still can recieve and process IsAlive requests here, so take care about it if you add logic here.
 
-            realm.SessionCreated -= healthService.TraceWampSessionCreated;
-            realm.SessionClosed -= healthService.TraceWampSessionClosed;
-            
-            realmMetaService.Dispose();
+                await ApplicationContainer.Resolve<IShutdownManager>().StopAsync();
+
+            }
+            catch (Exception ex)
+            {
+                if (Log != null)
+                {
+                    await Log.WriteFatalErrorAsync(nameof(Startup), nameof(StopApplication), "", ex);
+                }
+                throw;
+            }
         }
 
-        private void CleanUp()
+        private async Task CleanUp()
         {
-            ApplicationContainer.Dispose();
+            try
+            {
+                // NOTE: Job can't recieve and process IsAlive requests here, so you can destroy all resources
+
+                if (Log != null)
+                {
+                    await Log.WriteMonitorAsync("", "", "Terminating");
+                }
+
+                ApplicationContainer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                if (Log != null)
+                {
+                    await Log.WriteFatalErrorAsync(nameof(Startup), nameof(CleanUp), "", ex);
+                    (Log as IDisposable)?.Dispose();
+                }
+                throw;
+            }
         }
 
-        private static ILog CreateLogWithSlack(IServiceCollection services, SlackNotificationsSettings slackNotificationsSettings, IReloadingManager<string> dbLogConnectionStringManager)
+        private static ILog CreateLogWithSlack(IServiceCollection services, IReloadingManager<AppSettings> settings)
         {
             var consoleLogger = new LogToConsole();
             var aggregateLogger = new AggregateLogger();
@@ -151,25 +192,23 @@ namespace Lykke.Frontend.WampHost
             // Creating slack notification service, which logs own azure queue processing messages to aggregate log
             var slackService = services.UseSlackNotificationsSenderViaAzureQueue(new AzureQueueIntegration.AzureQueueSettings
             {
-                ConnectionString = slackNotificationsSettings.AzureQueue.ConnectionString,
-                QueueName = slackNotificationsSettings.AzureQueue.QueueName
+                ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
+                QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
             }, aggregateLogger);
 
+            var dbLogConnectionStringManager = settings.Nested(x => x.WampHost.Db.LogsConnString);
             var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
             // Creating azure storage logger, which logs own messages to concole log
             if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
             {
-                const string appName = "Lykke.Frontend.WampHost";
-
-                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(                    
+                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(
                     AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "WampHostLog", consoleLogger),
                     consoleLogger);
 
-                var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(appName, slackService, consoleLogger);
+                var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
 
                 var azureStorageLogger = new LykkeLogToAzureStorage(
-                    appName,
                     persistenceManager,
                     slackNotificationsManager,
                     consoleLogger);
