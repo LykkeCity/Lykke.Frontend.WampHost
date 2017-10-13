@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Autofac.Features.Indexed;
 using Common;
 using Common.Log;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
@@ -14,7 +13,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 {
     public class CandlesSubscriber : ICandlesSubscriber
     {   
-        private Dictionary<MarketType, string> _namespaceMap = new Dictionary<MarketType, string>
+        private readonly Dictionary<MarketType, string> _namespaceMap = new Dictionary<MarketType, string>
         {
             [MarketType.Spot] = "lykke",
             [MarketType.Mt] = "lykke.mt"
@@ -47,7 +46,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             {
                 _subscriber = new RabbitMqSubscriber<CandleMessage>(settings,
                         new ResilientErrorHandlingStrategy(_log, settings,
-                            retryTimeout: TimeSpan.FromSeconds(10),
+                            retryTimeout: TimeSpan.FromSeconds(5),
+                            retryNum: int.MaxValue,
                             next: new DeadQueueErrorHandlingStrategy(_log, settings)))
                     .SetMessageDeserializer(new JsonMessageDeserializer<CandleMessage>())
                     .SetMessageReadStrategy(new MessageReadQueueStrategy())
@@ -83,9 +83,10 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
                 await _candlesManager.ProcessCandleAsync(candle, _marketType);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                await _log.WriteErrorAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), null, ex);
+                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), candle.ToJson(), "Failed to process candle");
+                throw;
             }
         }
 
