@@ -46,8 +46,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             {
                 _subscriber = new RabbitMqSubscriber<CandleMessage>(settings,
                         new ResilientErrorHandlingStrategy(_log, settings,
-                            retryTimeout: TimeSpan.FromSeconds(5),
-                            retryNum: int.MaxValue,
+                            retryTimeout: TimeSpan.FromSeconds(10),
+                            retryNum: 10,
                             next: new DeadQueueErrorHandlingStrategy(_log, settings)))
                     .SetMessageDeserializer(new JsonMessageDeserializer<CandleMessage>())
                     .SetMessageReadStrategy(new MessageReadQueueStrategy())
