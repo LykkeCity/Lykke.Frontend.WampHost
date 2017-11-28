@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reactive.Subjects;
-using System.Threading.Tasks;
-using Lykke.Domain.Prices;
+﻿using System.Threading.Tasks;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using WampSharp.V2.Realm;

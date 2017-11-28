@@ -1,7 +1,9 @@
 ﻿using Autofac;
 using Common.Log;
+using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Services;
@@ -101,7 +103,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IShutdownManager>()
                 .SingleInstance();
 
-            var host = new WampSharp.V2.WampHost();
+            var host = new WampAuthenticationHost(new WampSessionAuthenticatorFactory());
             var realm = host.RealmContainer.GetRealmByName("prices");
 
             builder.RegisterInstance(host)
