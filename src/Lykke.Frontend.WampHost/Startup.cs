@@ -132,7 +132,7 @@ namespace Lykke.Frontend.WampHost
             {
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
 
-                await Log.WriteMonitorAsync("", "", "Started");
+                await Log.WriteMonitorAsync("", $"ENV: {Program.EnvInfo}", "Started");
             }
             catch (Exception ex)
             {
@@ -168,7 +168,7 @@ namespace Lykke.Frontend.WampHost
 
                 if (Log != null)
                 {
-                    await Log.WriteMonitorAsync("", "", "Terminating");
+                    await Log.WriteMonitorAsync("", $"ENV: {Program.EnvInfo}", "Terminating");
                 }
 
                 ApplicationContainer.Dispose();
