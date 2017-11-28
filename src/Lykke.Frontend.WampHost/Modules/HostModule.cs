@@ -3,6 +3,7 @@ using Common.Log;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Security;

@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Frontend.WampHost.Core.Domain;
-using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Domain.Candles;
+using Lykke.Frontend.WampHost.Core.Services.Candles;
+using Lykke.Job.CandlesProducer.Contract;
 using Lykke.RabbitMqBroker.Subscriber;
 
 namespace Lykke.Frontend.WampHost.Services.Candles
@@ -50,7 +51,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
         {
             try
             {
-                var validationErrors = ValidateQuote(candle);
+                var validationErrors = ValidateCandle(candle);
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
@@ -59,7 +60,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                     return;
                 }
 
-                await _candlesManager.ProcessCandleAsync(candle, _marketType);
+                _candlesManager.ProcessCandle(candle, _marketType);
             }
             catch (Exception)
             {
@@ -68,7 +69,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             }
         }
 
-        private static IReadOnlyCollection<string> ValidateQuote(CandleMessage candle)
+        private static IReadOnlyCollection<string> ValidateCandle(CandleMessage candle)
         {
             var errors = new List<string>();
 
