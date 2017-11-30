@@ -6,7 +6,13 @@ Wamp topics host, which provides real time data for the clients
 
 ### Candles
 
-* **Name**: candle.{spot|mt}.{instrument}.{bid|ask|mid}.{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}
+* **Name**: candle.\<market\>.\<instrument\>.\<price-type\>.\<interval\>
+  * **market**: 
+    * *spot*: Spot market
+    * *mt*: Margin trading market
+  * **instrument**: Asset pair (BTCUSD, EURUSD...)
+  * **price-type**: *{bid|ask|mid}*
+  * **interval**: *{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}*
 * **Realm**: prices
 * **Object difinition**: Each item in the topic is the candle in the json format:
 ```js
@@ -15,7 +21,7 @@ Wamp topics host, which provides real time data for the clients
   "a",
   // Price type {Bid|Ask|Mid}
   "p",
-  // Interval {Sec|Minute|Min5|Min15|Min30|Hour|Hour4|Hour6|Hour12|Day|Week|Month}
+  // Interval of the candle {Sec|Minute|Min5|Min15|Min30|Hour|Hour4|Hour6|Hour12|Day|Week|Month}
   "i",
   // Timestamp of the candle opening
   "t",
