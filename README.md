@@ -7,9 +7,7 @@ Wamp topics host, which provides real time data for the clients
 ### Candles
 
 * **Name**: candle.\<market\>.\<instrument\>.\<price-type\>.\<interval\>
-  * **market**: 
-    * *spot*: Spot market
-    * *mt*: Margin trading market
+  * **market**: *{spot|mt}*
   * **instrument**: Asset pair (BTCUSD, EURUSD...)
   * **price-type**: *{bid|ask|mid}*
   * **interval**: *{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}*
