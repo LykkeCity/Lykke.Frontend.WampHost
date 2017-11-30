@@ -21,7 +21,7 @@ Wamp topics host, which provides real time data for the clients
   "p",
   // Interval of the candle {Sec|Minute|Min5|Min15|Min30|Hour|Hour4|Hour6|Hour12|Day|Week|Month}
   "i",
-  // Timestamp of the candle opening
+  // Timestamp of the candle opening (ISO 8601 UTC)
   "t",
   // Open price
   "o",
