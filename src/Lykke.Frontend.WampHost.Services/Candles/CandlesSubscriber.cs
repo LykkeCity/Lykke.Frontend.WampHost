@@ -34,10 +34,11 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void Start()
         {
+                .CreateForSubscriber(_rabbitMqSettings.ConnectionString, ns, "candles", ns, "wamp")
             _subscriber = _subscribersFactory.Create(
                 _connectionString, 
                 _marketType, 
-                "candles", 
+                "candles-v2", 
                 new JsonMessageDeserializer<CandleMessage>(),
                 ProcessCandleAsync);
         }
@@ -47,45 +48,82 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             _subscriber?.Stop();
         }
 
-        private async Task ProcessCandleAsync(CandleMessage candle)
+        private async Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
         {
             try
             {
-                var validationErrors = ValidateCandle(candle);
+                var validationErrors = ValidateCandle(updatedCandles);
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), candle.ToJson(), message);
+                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), message);
 
                     return;
                 }
 
-                _candlesManager.ProcessCandle(candle, _marketType);
+                _candlesManager.ProcessCandles(updatedCandles, _marketType);
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), candle.ToJson(), "Failed to process candle");
+                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), "Failed to process candle");
                 throw;
             }
         }
 
-        private static IReadOnlyCollection<string> ValidateCandle(CandleMessage candle)
+        private static IReadOnlyCollection<string> ValidateCandle(CandlesUpdatedEvent updatedCandles)
         {
             var errors = new List<string>();
 
-            if (candle == null)
+            if (updatedCandles == null)
             {
-                errors.Add("Argument 'Order' is null.");
+                errors.Add($"'{nameof(updatedCandles)}' is null.");
+
+                return errors;
             }
-            else
+
+            if (updatedCandles.ContractVersion == null)
             {
+                errors.Add("Contract version is not specified");
+
+                return errors;
+            }
+
+            if (updatedCandles.ContractVersion.Major != 2)
+            {
+                errors.Add("Unsupported contract version");
+
+                return errors;
+            }
+
+            if (updatedCandles.Candles == null || !updatedCandles.Candles.Any())
+            {
+                errors.Add("Candles is empty");
+
+                return errors;
+            }
+
+            for (var i = 0; i < updatedCandles.Candles.Count; ++i)
+            {
+                var candle = updatedCandles.Candles[i];
+
                 if (string.IsNullOrWhiteSpace(candle.AssetPairId))
                 {
-                    errors.Add("Empty 'AssetPair'");
+                    errors.Add($"Empty 'AssetPair' in the candle {i}");
                 }
-                if (candle.Timestamp.Kind != DateTimeKind.Utc)
+
+                if (candle.CandleTimestamp.Kind != DateTimeKind.Utc)
                 {
-                    errors.Add($"Invalid 'Timestamp' Kind (UTC is required): '{candle.Timestamp.Kind}'");
+                    errors.Add($"Invalid 'CandleTimestamp' Kind (UTC is required) in the candle {i}");
+                }
+
+                if (candle.TimeInterval == CandleTimeInterval.Unspecified)
+                {
+                    errors.Add($"Invalid 'TimeInterval' in the candle {i}");
+                }
+
+                if (candle.PriceType == CandlePriceType.Unspecified)
+                {
+                    errors.Add($"Invalid 'PriceType' in the candle {i}");
                 }
             }
 

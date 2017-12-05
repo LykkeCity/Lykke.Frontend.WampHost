@@ -9,6 +9,7 @@ using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
+using Lykke.Frontend.WampHost.Settings;
 using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
@@ -39,16 +40,17 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IHealthService>()
                 .SingleInstance();
 
+            builder.RegisterType<StartupManager>()
+                .As<IStartupManager>()
+                .SingleInstance();
+
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>()
                 .SingleInstance();
 
-            builder.RegisterType<RabbitMqSubscribersFactory>()
-                .As<IRabbitMqSubscribersFactory>();
-
             var host = RegisterWampCommon(builder);
-
-            RegisterPrices(builder, host);
+            
+            RegisterCandles(builder, host);
         }
 
         private static WampAuthenticationHost RegisterWampCommon(ContainerBuilder builder)
@@ -95,24 +97,6 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<CandlesManager>()
                 .As<ICandlesManager>()
                 .SingleInstance();
-
-            builder.RegisterType<StartupManager>()
-                .As<IStartupManager>()
-                .SingleInstance();
-
-            builder.RegisterType<ShutdownManager>()
-                .As<IShutdownManager>()
-                .SingleInstance();
-
-            var host = new WampAuthenticationHost(new WampSessionAuthenticatorFactory());
-            var realm = host.RealmContainer.GetRealmByName("prices");
-
-            builder.RegisterInstance(host)
-                .As<IWampHost>();
-
-            builder.RegisterInstance(realm)
-                .As<IWampHostedRealm>();
-        }
 
         private void RegisterQuotes(ContainerBuilder builder)
         {

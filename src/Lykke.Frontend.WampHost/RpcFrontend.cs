@@ -1,18 +1,11 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Models;
-using Lykke.Frontend.WampHost.Services.Documentation;
 using Microsoft.Extensions.PlatformAbstractions;
-using WampSharp.V2.Rpc;
 
 namespace Lykke.Frontend.WampHost
 {
-    public interface IRpcFrontend
-    {
-        [WampProcedure("is.alive")]
-        [DocMe(Name = "is.alive", Description = "Checks service isAlive")]
-        IsAliveResponse IsAlive();
-    }
-
+    [UsedImplicitly]
     public class RpcFrontend : IRpcFrontend
     {
         public IsAliveResponse IsAlive()

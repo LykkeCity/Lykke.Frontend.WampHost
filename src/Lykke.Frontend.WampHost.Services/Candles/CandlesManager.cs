@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
@@ -13,22 +13,23 @@ namespace Lykke.Frontend.WampHost.Services.Candles
     public class CandlesManager : ICandlesManager
     {
         private readonly IWampHostedRealm _realm;
-        private readonly IOutdatedCandlesFilter _outdatedCandlesFilter;
 
-        public CandlesManager(IWampHostedRealm realm, IOutdatedCandlesFilter outdatedCandlesFilter)
+        public CandlesManager(IWampHostedRealm realm)
         {
             _realm = realm;
-            _outdatedCandlesFilter = outdatedCandlesFilter;
         }
 
-        public void ProcessCandle(CandleMessage candle, MarketType marketType)
+        public void ProcessCandles(CandlesUpdatedEvent updatedCandles, MarketType market)
         {
-            if (_outdatedCandlesFilter.ShouldFilterOut(candle))
+            foreach (var candle in updatedCandles.Candles.Where(c => c.IsLatestCandle))
             {
-                return;
+                ProcessCandleAsync(candle, market);
             }
+        }
 
-            var topic = $"candle.{marketType.ToString().ToLower()}.{candle.AssetPairId.ToLower()}.{candle.PriceType.ToString().ToLower()}.{candle.TimeInterval.ToString().ToLower()}";
+        private void ProcessCandleAsync(CandleUpdate candle, MarketType market)
+        {
+            var topic = $"candle.{market.ToString().ToLower()}.{candle.AssetPairId.ToLower()}.{candle.PriceType.ToString().ToLower()}.{candle.TimeInterval.ToString().ToLower()}";
             var subject = _realm.Services.GetSubject<CandleClientMessage>(topic);
 
             subject.OnNext(new CandleClientMessage
@@ -37,13 +38,13 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 MarketType = marketType,
                 PriceType = candle.PriceType,
                 TimeInterval = candle.TimeInterval,
-                Timestamp = candle.Timestamp,
+                Timestamp = candle.CandleTimestamp,
                 Open = candle.Open,
                 Close = candle.Close,
                 High = candle.High,
                 Low = candle.Low,
                 TradingVolume = candle.TradingVolume
             });
-        }        
+        }
     }
 }
