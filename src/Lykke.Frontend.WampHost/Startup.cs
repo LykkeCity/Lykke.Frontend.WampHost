@@ -20,6 +20,7 @@ using WampSharp.V2;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Models;
+using Lykke.Logs.Slack;
 
 namespace Lykke.Frontend.WampHost
 {
@@ -217,6 +218,10 @@ namespace Lykke.Frontend.WampHost
 
                 aggregateLogger.AddLog(azureStorageLogger);
             }
+
+            var logToSlack = LykkeLogToSlack.Create(slackService, "Prices");
+
+            aggregateLogger.AddLog(logToSlack);
 
             return aggregateLogger;
         }
