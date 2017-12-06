@@ -88,7 +88,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 return errors;
             }
 
-            if (updatedCandles.ContractVersion.Major != 2)
+            if (updatedCandles.ContractVersion.Major != Job.CandlesProducer.Contract.Constants.ContractVersion.Major)
             {
                 errors.Add("Unsupported contract version");
 
