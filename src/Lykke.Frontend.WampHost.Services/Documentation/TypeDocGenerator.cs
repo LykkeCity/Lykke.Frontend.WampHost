@@ -16,19 +16,14 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
             {
                 var attr = (DocMeAttribute)method.GetCustomAttribute(typeof(DocMeAttribute));
                 var returnType = method.ReturnType.IsConstructedGenericType ? method.ReturnType.GenericTypeArguments[0] : method.ReturnType;
-                var types = GetTypes(returnType);
-                string input = GetInputParametersAsString(method);
-                var inputTypes = GetTypes(attr.InputType);
 
                 var docInfo = new MethodDocInfo
                 {
-                    Id = $"{attr.Name.Replace(".", string.Empty).ToLower()}Id",
+                    Id = $"{type.FullName.Replace('.', '_')}_{method.Name}_Id",
                     Name = attr.Name,
-                    Input = input,
                     Output = returnType.GetTypeName(),
                     Description = attr.Description,
-                    InputTypes = inputTypes.ToArray(),
-                    OutputTypes = types.ToArray()
+                    OutputTypes = new []{returnType}
                 };
 
                 result.Add(docInfo);
@@ -40,12 +35,6 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         private MethodInfo[] GetAvailableMethods(Type type)
         {
             return type.GetMethods().Where(item => item.CustomAttributes.Any(a => a.AttributeType == typeof(DocMeAttribute))).ToArray();
-        }
-
-        private string GetInputParametersAsString(MethodInfo methodInfo)
-        {
-            return string.Join(", ", methodInfo.GetParameters().Select(item => $"{item.ParameterType.GetPropertyTypeAlias()} {item.Name}")
-                .ToArray());
         }
 
         private List<Type> GetTypes(Type type)
@@ -80,7 +69,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
                 }
             }
 
-            return types.Distinct().ToList();
+            return types.Distinct().Where(t => !t.IsEnum).ToList();
         }
     }
 }

@@ -11,7 +11,7 @@
             <div class="panel-heading" role="tab" id="(@rpc.Id)Header">
                 <h4 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion@(guid)" href="#@rpc.Id" aria-expanded="false" aria-controls="@rpc.Id">
-                        <b>@rpc.Name</b> - <i>@rpc.Description</i>
+                        <b>@rpc.Name</b>
                     </a>
                 </h4>
             </div>
@@ -19,12 +19,12 @@
                 <div class="panel-body">
                     <table class="table">
                         <tr>
-                            <th style="width: 20%">Input</th>
-                            <th style="width: 50%">Output</th>
+                            @*<th style="width: 20%">Input</th>*@
+                            <th style="width: 70%">Output</th>
                             <th style="width: 30%">Description</th>
                         </tr>
                         <tr>
-                            <td>
+                            @*<td>
                                 @if (rpc.InputTypes?.Length > 0)
                                 {
                                     <a class="btn btn-link" role="button" data-toggle="collapse" href="#@(rpc.Id)InputInfo" aria-expanded="false" aria-controls="@(rpc.Id)InputInfo">
@@ -38,7 +38,7 @@
                                 {
                                     @rpc.Input
                                 }
-                            </td>
+                            </td>*@
                             <td>
                                 @if (rpc.OutputTypes?.Length > 0)
                                 {
