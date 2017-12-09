@@ -3,7 +3,7 @@ using Common;
 
 namespace Lykke.Frontend.WampHost.Core.Services
 {
-    public interface ICandlesSubscriber : IStartable, IStopable
+    public interface ISubscriber : IStartable, IStopable
     {
     }
 }

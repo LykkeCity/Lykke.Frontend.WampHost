@@ -14,7 +14,7 @@ namespace Lykke.Frontend.WampHost.Controllers
             var doc = new TypeDocGenerator();
             var model = new MethodInfoModel
             {
-                Rpc = doc.GetDocumentation(typeof(IRpcFrontend)),
+                //Rpc = doc.GetDocumentation(typeof(IRpcFrontend)),
                 Topic = doc.GetDocumentation(typeof(IWampTopics))
             };
 

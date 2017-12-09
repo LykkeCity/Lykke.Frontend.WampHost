@@ -2,6 +2,7 @@
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Lykke.Domain.Prices;
+using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using WampSharp.V2.Realm;
 
@@ -30,6 +31,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             subject.OnNext(new CandleClientMessage
             {
                 AssetPairId = candle.AssetPairId,
+                MarketType = marketType,
                 PriceType = candle.PriceType,
                 TimeInterval = candle.TimeInterval,
                 Timestamp = candle.Timestamp,

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Lykke.Frontend.WampHost.Services.Documentation
 {
@@ -45,32 +48,82 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         public static string GetTypeDefinition(this Type type)
         {
             var sb = new StringBuilder();
-            var isEnum = type.GetTypeInfo().IsEnum;
-            sb.AppendLine($"public {(isEnum ? "enum" : "class")} {type.GetTypeName()}");
+
+            sb.AppendLine($"// {type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? type.Name}");
             sb.AppendLine("{");
 
-            if (isEnum)
-            {
-                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+            var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            var propertiesAdded = 0;
 
-                for (var i = 0; i < fields.Length; i++)
-                {
-                    sb.AppendLine($"   {fields[i].Name} = {i}");
-                }
-            }
-            else
+            foreach (var property in properties)
             {
-                var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-
-                foreach (PropertyInfo property in properties)
+                if (propertiesAdded > 0)
                 {
-                    sb.AppendLine(property.PropertyType.IsDictionary() ? GetDictionaryProperty(property) : GetProperty(property));
+                    sb.AppendLine();
                 }
+
+                var propertyTypeDefinition = property.PropertyType.IsDictionary()
+                    ? GetDictionaryPropertyTypeDefinition(property)
+                    : GetPropertyTypeDefinition(property);
+
+                sb.AppendLine($"  // {property.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? property.Name}");
+                sb.AppendLine($"  // Type: {propertyTypeDefinition}");
+
+                if (property.PropertyType.IsEnum)
+                {
+                    GetEnumDefinition(sb, property.PropertyType);
+                }
+
+                sb.Append($"  \"{property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? property.Name}\": ");
+
+                GetPropertyValueDefinition(sb, property);
+
+                propertiesAdded++;
             }
 
             sb.AppendLine("}");
 
             return sb.ToString();
+        }
+
+        private static void GetEnumDefinition(StringBuilder sb, Type enumType)
+        {
+            sb.AppendLine("  // Values:");
+
+            foreach (var name in Enum.GetNames(enumType))
+            {
+                sb.AppendLine($"  // - {name}: {enumType.GetField(name).GetCustomAttribute<DisplayNameAttribute>()?.DisplayName}");
+            }
+        }
+
+        private static void GetPropertyValueDefinition(StringBuilder sb, PropertyInfo property)
+        {
+            if (property.PropertyType == typeof(string))
+            {
+                sb.AppendLine("\"\",");
+            }
+            else if (property.PropertyType.IsDictionary())
+            {
+                sb.AppendLine("{},");
+            }
+            else if (property.PropertyType.IsArray || typeof(IEnumerable).IsAssignableFrom(property.PropertyType))
+            {
+                sb.AppendLine("[],");
+            }
+            else if (property.PropertyType.IsPrimitive || property.PropertyType == typeof(DateTime))
+            {
+                var serialized = JsonConvert.SerializeObject(Activator.CreateInstance(property.PropertyType));
+
+                sb.AppendLine($"{serialized},");
+            }
+            else if (property.PropertyType.IsEnum)
+            {
+                sb.AppendLine("\"\",");
+            }
+            else
+            {
+                sb.AppendLine("Doc not implemented,");
+            }
         }
 
         public static string GetPropertyTypeAlias(this Type type)
@@ -95,14 +148,14 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
 
-        private static string GetProperty(PropertyInfo property)
+        private static string GetPropertyTypeDefinition(PropertyInfo property)
         {
-            return $"   public {GetPropertyTypeAlias(property.PropertyType)} {property.Name} {{ get; set; }}";
+            return $"{GetPropertyTypeAlias(property.PropertyType)}";
         }
 
-        private static string GetDictionaryProperty(PropertyInfo property)
+        private static string GetDictionaryPropertyTypeDefinition(PropertyInfo property)
         {
-            return $"   public Dictionary<{GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[0])}, {GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[1])}> {property.Name} {{ get; set; }}";
+            return $"Dictionary<{GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[0])}, {GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[1])}>";
         }
     }
 }
