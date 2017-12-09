@@ -15,6 +15,8 @@ Wamp topics host, which provides real time data for the clients
 * **Object difinition**: Each item in the topic is the candle in the json format:
 ```js
 {
+  // Market
+  "m", {Spot|Mt}
   // Asset pair (instrument)
   "a",
   // Price type {Bid|Ask|Mid}
@@ -31,5 +33,28 @@ Wamp topics host, which provides real time data for the clients
   "h",
   // Lowest price
   "l"
+}
+```
+
+### Quotes
+
+* **Name**: quote.\<market\>.\<instrument\>.\<price-type\>
+  * **market**: *{spot|mt}*
+  * **instrument**: Asset pair (BTCUSD, EURUSD...)
+  * **price-type**: *{bid|ask}*
+* **Realm**: prices
+* **Object difinition**: Each item in the topic is the quote in the json format:
+```js
+{
+  // Market
+  "m", {Spot|Mt}
+  // Asset pair (instrument)
+  "a",
+  // Price type {Bid|Ask}
+  "pt",
+  // Timestamp of the quote opening (ISO 8601 UTC)
+  "t",
+  // price
+  "p"
 }
 ```
