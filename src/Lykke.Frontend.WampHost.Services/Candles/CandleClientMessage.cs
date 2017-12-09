@@ -1,5 +1,6 @@
 ﻿using System;
 using Lykke.Domain.Prices;
+using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -10,6 +11,10 @@ namespace Lykke.Frontend.WampHost.Services.Candles
     {
         [JsonProperty("a")]
         public string AssetPairId { get; set; }
+
+        [JsonProperty("m")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public MarketType MarketType { get; set; }
 
         [JsonProperty("p")]
         [JsonConverter(typeof(StringEnumConverter))]

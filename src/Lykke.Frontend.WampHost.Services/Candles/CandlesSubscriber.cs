@@ -4,68 +4,46 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
+using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
 
 namespace Lykke.Frontend.WampHost.Services.Candles
 {
-    public class CandlesSubscriber : ICandlesSubscriber
+    [UsedImplicitly]
+    public class CandlesSubscriber : ISubscriber
     {   
-        private readonly Dictionary<MarketType, string> _namespaceMap = new Dictionary<MarketType, string>
-        {
-            [MarketType.Spot] = "lykke",
-            [MarketType.Mt] = "lykke.mt"
-        };
-
         private readonly ILog _log;
         private readonly ICandlesManager _candlesManager;
-        private readonly RabbitMqSettings _rabbitMqSettings;
+        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly string _connectionString;
         private readonly MarketType _marketType;
 
-        private RabbitMqSubscriber<CandleMessage> _subscriber;
+        private IStopable _subscriber;
 
-        public CandlesSubscriber(ILog log, ICandlesManager candlesManager, RabbitMqSettings rabbitMqSettings, MarketType marketType)
+        public CandlesSubscriber(ILog log, ICandlesManager candlesManager, IRabbitMqSubscribersFactory subscribersFactory, string connectionString, MarketType marketType)
         {
             _log = log;
             _candlesManager = candlesManager;
-            _rabbitMqSettings = rabbitMqSettings;
+            _subscribersFactory = subscribersFactory;
+            _connectionString = connectionString;
             _marketType = marketType;
         }
 
         public void Start()
         {
-            var ns = _namespaceMap[_marketType];
-
-            var settings = RabbitMqSubscriptionSettings
-                .CreateForSubscriber(_rabbitMqSettings.ConnectionString, ns, "candles", ns, "wamp")
-                .MakeDurable();
-
-            try
-            {
-                _subscriber = new RabbitMqSubscriber<CandleMessage>(settings,
-                        new ResilientErrorHandlingStrategy(_log, settings,
-                            retryTimeout: TimeSpan.FromSeconds(10),
-                            retryNum: 10,
-                            next: new DeadQueueErrorHandlingStrategy(_log, settings)))
-                    .SetMessageDeserializer(new JsonMessageDeserializer<CandleMessage>())
-                    .SetMessageReadStrategy(new MessageReadQueueStrategy())
-                    .Subscribe(ProcessCandleAsync)
-                    .CreateDefaultBinding()
-                    .SetLogger(_log)
-                    .Start();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteErrorAsync(nameof(CandlesSubscriber), nameof(Start), null, ex).Wait();
-                throw;
-            }
+            _subscriber = _subscribersFactory.Create(
+                _connectionString, 
+                _marketType, 
+                "candles", 
+                new JsonMessageDeserializer<CandleMessage>(),
+                ProcessCandleAsync);
         }
 
         public void Stop()
         {
-            _subscriber.Stop();
+            _subscriber?.Stop();
         }
 
         private async Task ProcessCandleAsync(CandleMessage candle)
@@ -115,7 +93,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void Dispose()
         {
-            _subscriber.Dispose();
+            _subscriber?.Dispose();
         }
     }
 }

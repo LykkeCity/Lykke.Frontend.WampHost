@@ -20,6 +20,7 @@ using WampSharp.V2;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Models;
+using Lykke.Frontend.WampHost.Settings;
 
 namespace Lykke.Frontend.WampHost
 {
@@ -61,7 +62,7 @@ namespace Lykke.Frontend.WampHost
 
                 Log = CreateLogWithSlack(services, appSettings);
 
-                builder.RegisterModule(new HostModule(appSettings.Nested(x => x.WampHost), Log));
+                builder.RegisterModule(new HostModule(appSettings.CurrentValue.WampHost, Log));
                 builder.Populate(services);
                 ApplicationContainer = builder.Build();
 

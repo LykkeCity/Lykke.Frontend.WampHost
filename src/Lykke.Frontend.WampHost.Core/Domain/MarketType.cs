@@ -1,4 +1,4 @@
-﻿namespace Lykke.Frontend.WampHost.Core.Domain.Candles
+﻿namespace Lykke.Frontend.WampHost.Core.Domain
 {
     public enum MarketType
     {

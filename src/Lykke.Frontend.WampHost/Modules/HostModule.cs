@@ -1,13 +1,15 @@
 ﻿using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Common.Log;
-using Lykke.Frontend.WampHost.Core;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
+using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Services.Quotes;
+using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
-using Lykke.SettingsReader;
-using Microsoft.Extensions.DependencyInjection;
+using Lykke.Frontend.WampHost.Services.Quotes;
+using Lykke.Frontend.WampHost.Services.Quotes.Mt;
+using Lykke.Frontend.WampHost.Services.Quotes.Spot;
+using Lykke.Frontend.WampHost.Settings;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 
@@ -15,17 +17,13 @@ namespace Lykke.Frontend.WampHost.Modules
 {
     public class HostModule : Module
     {
-        private readonly IReloadingManager<WampHostSettings> _settings;
+        private readonly WampHostSettings _settings;
         private readonly ILog _log;
-        // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
-        private readonly IServiceCollection _services;
 
-        public HostModule(IReloadingManager<WampHostSettings> settings, ILog log)
+        public HostModule(WampHostSettings settings, ILog log)
         {
             _settings = settings;
             _log = log;
-
-            _services = new ServiceCollection();
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -38,23 +36,58 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IHealthService>()
                 .SingleInstance();
 
+            builder.RegisterType<ShutdownManager>()
+                .As<IShutdownManager>()
+                .SingleInstance();
+
+            builder.RegisterType<RabbitMqSubscribersFactory>()
+                .As<IRabbitMqSubscribersFactory>();
+
+            var host = RegisterWampCommon(builder);
+
+            RegisterPrices(builder, host);
+        }
+
+        private static WampAuthenticationHost RegisterWampCommon(ContainerBuilder builder)
+        {
+            var host = new WampAuthenticationHost(new WampSessionAuthenticatorFactory());
+
+            builder.RegisterInstance(host)
+                .As<IWampHost>();
+
             builder.RegisterType<RpcFrontend>()
                 .As<IRpcFrontend>()
                 .SingleInstance();
 
+            return host;
+        }
+
+        private void RegisterPrices(ContainerBuilder builder, WampAuthenticationHost host)
+        {
+            var realm = host.RealmContainer.GetRealmByName("prices");
+
+            builder.RegisterInstance(realm)
+                .As<IWampHostedRealm>();
+
+            RegisterCandles(builder);
+            RegisterQuotes(builder);
+        }
+
+        private void RegisterCandles(ContainerBuilder builder)
+        {
             builder.RegisterType<CandlesSubscriber>()
-                .As<ICandlesSubscriber>()                
+                .As<ISubscriber>()
                 .SingleInstance()
-                .Keyed(MarketType.Spot.ToString(), typeof(ICandlesSubscriber))
-                .WithParameter("marketType", MarketType.Spot)
-                .WithParameter("rabbitMqSettings", _settings.CurrentValue.RabbitMqSettings);
+                .WithParameter(TypedParameter.From(MarketType.Spot))
+                .WithParameter(TypedParameter.From(_settings.RabbitMqSettings.ConnectionString))
+                .PreserveExistingDefaults();
 
             builder.RegisterType<CandlesSubscriber>()
-                .As<ICandlesSubscriber>()
+                .As<ISubscriber>()
                 .SingleInstance()
-                .Keyed(MarketType.Mt.ToString(), typeof(ICandlesSubscriber))
-                .WithParameter("marketType", MarketType.Mt)
-                .WithParameter("rabbitMqSettings", _settings.CurrentValue.MtRabbitMqSettings);
+                .WithParameter(TypedParameter.From(MarketType.Mt))
+                .WithParameter(TypedParameter.From(_settings.MtRabbitMqSettings.ConnectionString))
+                .PreserveExistingDefaults();
 
             builder.RegisterType<CandlesManager>()
                 .As<ICandlesManager>()
@@ -76,8 +109,25 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.RegisterInstance(realm)
                 .As<IWampHostedRealm>();
+        }
 
-            builder.Populate(_services);
+        private void RegisterQuotes(ContainerBuilder builder)
+        {
+            builder.RegisterType<SpotQuotesSubscriber>()
+                .As<ISubscriber>()
+                .SingleInstance()
+                .WithParameter(TypedParameter.From(_settings.SpotQuotesRabbitMqSettings.ConnectionString))
+                .PreserveExistingDefaults();
+
+            builder.RegisterType<MtQuotesSubscriber>()
+                .As<ISubscriber>()
+                .SingleInstance()
+                .WithParameter(TypedParameter.From(_settings.MtQuotesRabbitMqSettings.ConnectionString))
+                .PreserveExistingDefaults();
+
+            builder.RegisterType<QuotesManager>()
+                .As<IQuotesManager>()
+                .SingleInstance();
         }
     }
 }
