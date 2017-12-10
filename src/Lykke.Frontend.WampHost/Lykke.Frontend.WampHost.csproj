@@ -47,7 +47,7 @@
     <PackageReference Include="Lykke.Logs" Version="3.3.1" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
     <PackageReference Include="Lykke.SettingsReader" Version="1.0.42" />
-    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="1.0.5" />
+    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.1" />
     <PackageReference Include="Lykke.WampSharp.AspNetCore.WebSockets.Server" Version="1.0.1" />
     <PackageReference Include="Lykke.WampSharp.NewtonsoftJson" Version="1.0.1" />
     <PackageReference Include="Lykke.WampSharp.NewtonsoftMsgpack" Version="1.0.1" />
