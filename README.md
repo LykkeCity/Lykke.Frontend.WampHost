@@ -15,8 +15,8 @@ Wamp topics host, which provides real time data for the clients
 * **Object difinition**: Each item in the topic is the candle in the json format:
 ```js
 {
-  // Market
-  "m", {Spot|Mt}
+  // Market {Spot|Mt}
+  "m", 
   // Asset pair (instrument)
   "a",
   // Price type {Bid|Ask|Mid}
@@ -46,8 +46,8 @@ Wamp topics host, which provides real time data for the clients
 * **Object difinition**: Each item in the topic is the quote in the json format:
 ```js
 {
-  // Market
-  "m", {Spot|Mt}
+  // Market {Spot|Mt}
+  "m",
   // Asset pair (instrument)
   "a",
   // Price type {Bid|Ask}
