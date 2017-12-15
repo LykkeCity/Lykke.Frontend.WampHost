@@ -3,9 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.Frontend.WampHost.Core.Services.Candles;
 using WampSharp.V2.MetaApi;
 using WampSharp.V2.Realm;
 

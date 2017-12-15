@@ -1,19 +1,16 @@
 ﻿using Autofac;
 using Common.Log;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
-using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
 using Lykke.Frontend.WampHost.Settings;
 using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
-using Lykke.Frontend.WampHost.Settings;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 
@@ -48,9 +45,12 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IShutdownManager>()
                 .SingleInstance();
 
+            builder.RegisterType<RabbitMqSubscribersFactory>()
+                .As<IRabbitMqSubscribersFactory>();
+
             var host = RegisterWampCommon(builder);
-            
-            RegisterCandles(builder, host);
+
+            RegisterPrices(builder, host);
         }
 
         private static WampAuthenticationHost RegisterWampCommon(ContainerBuilder builder)
@@ -97,6 +97,7 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<CandlesManager>()
                 .As<ICandlesManager>()
                 .SingleInstance();
+        }
 
         private void RegisterQuotes(ContainerBuilder builder)
         {

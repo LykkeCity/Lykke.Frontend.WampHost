@@ -1,5 +1,5 @@
 ﻿using JetBrains.Annotations;
-using Lykke.Frontend.WampHost.Services.Candles;
+using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 
 namespace Lykke.Frontend.WampHost.Services.Documentation

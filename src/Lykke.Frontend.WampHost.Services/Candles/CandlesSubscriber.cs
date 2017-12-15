@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
+using Lykke.Frontend.WampHost.Core.Domain;
+using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Job.CandlesProducer.Contract;
 using Lykke.RabbitMqBroker.Subscriber;
@@ -34,12 +35,11 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void Start()
         {
-                .CreateForSubscriber(_rabbitMqSettings.ConnectionString, ns, "candles", ns, "wamp")
             _subscriber = _subscribersFactory.Create(
                 _connectionString, 
                 _marketType, 
                 "candles-v2", 
-                new JsonMessageDeserializer<CandleMessage>(),
+                new MessagePackMessageDeserializer<CandlesUpdatedEvent>(),
                 ProcessCandleAsync);
         }
 
@@ -88,7 +88,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 return errors;
             }
 
-            if (updatedCandles.ContractVersion.Major != Job.CandlesProducer.Contract.Constants.ContractVersion.Major)
+            if (updatedCandles.ContractVersion.Major != Constants.ContractVersion.Major)
             {
                 errors.Add("Unsupported contract version");
 

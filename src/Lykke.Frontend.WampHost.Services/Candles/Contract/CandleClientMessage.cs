@@ -2,14 +2,13 @@
 using Lykke.Job.CandlesProducer.Contract;
 using System.ComponentModel;
 using Lykke.Frontend.WampHost.Core.Domain;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace Lykke.Frontend.WampHost.Services.Candles.Contract
 {
     [DisplayName("Candle")]
-    public class CandleClientMessage : ICandle
+    public class CandleClientMessage
     {
         [DisplayName("Asset pair (BTCUSD...)")]
         [JsonProperty("a")]

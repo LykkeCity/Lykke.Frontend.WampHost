@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Job.CandlesProducer.Contract;
@@ -35,7 +34,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             subject.OnNext(new CandleClientMessage
             {
                 AssetPairId = candle.AssetPairId,
-                MarketType = marketType,
+                MarketType = market,
                 PriceType = candle.PriceType,
                 TimeInterval = candle.TimeInterval,
                 Timestamp = candle.CandleTimestamp,
