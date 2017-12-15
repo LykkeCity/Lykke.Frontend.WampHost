@@ -32,7 +32,9 @@ Wamp topics host, which provides real time data for the clients
   // Highest price
   "h",
   // Lowest price
-  "l"
+  "l",
+  // Trading volume
+  "v"
 }
 ```
 

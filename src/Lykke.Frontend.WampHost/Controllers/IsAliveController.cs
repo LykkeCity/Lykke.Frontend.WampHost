@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Models;
@@ -41,7 +40,7 @@ namespace Lykke.Frontend.WampHost.Controllers
             return Ok(new IsAliveResponse
             {
                 Version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion,
-                Env = Environment.GetEnvironmentVariable("ENV_INFO"),
+                Env = Program.EnvInfo,
 #if DEBUG
                 IsDebug = true,
 #else

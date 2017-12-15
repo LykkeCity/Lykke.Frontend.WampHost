@@ -7,6 +7,8 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Services.Candles;
+using Lykke.Job.CandlesProducer.Contract;
 using Lykke.RabbitMqBroker.Subscriber;
 
 namespace Lykke.Frontend.WampHost.Services.Candles
@@ -36,8 +38,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             _subscriber = _subscribersFactory.Create(
                 _connectionString, 
                 _marketType, 
-                "candles", 
-                new JsonMessageDeserializer<CandleMessage>(),
+                "candles-v2", 
+                new MessagePackMessageDeserializer<CandlesUpdatedEvent>(),
                 ProcessCandleAsync);
         }
 
@@ -46,45 +48,82 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             _subscriber?.Stop();
         }
 
-        private async Task ProcessCandleAsync(CandleMessage candle)
+        private async Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
         {
             try
             {
-                var validationErrors = ValidateQuote(candle);
+                var validationErrors = ValidateCandle(updatedCandles);
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), candle.ToJson(), message);
+                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), message);
 
                     return;
                 }
 
-                await _candlesManager.ProcessCandleAsync(candle, _marketType);
+                _candlesManager.ProcessCandles(updatedCandles, _marketType);
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), candle.ToJson(), "Failed to process candle");
+                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), "Failed to process candle");
                 throw;
             }
         }
 
-        private static IReadOnlyCollection<string> ValidateQuote(CandleMessage candle)
+        private static IReadOnlyCollection<string> ValidateCandle(CandlesUpdatedEvent updatedCandles)
         {
             var errors = new List<string>();
 
-            if (candle == null)
+            if (updatedCandles == null)
             {
-                errors.Add("Argument 'Order' is null.");
+                errors.Add($"'{nameof(updatedCandles)}' is null.");
+
+                return errors;
             }
-            else
+
+            if (updatedCandles.ContractVersion == null)
             {
+                errors.Add("Contract version is not specified");
+
+                return errors;
+            }
+
+            if (updatedCandles.ContractVersion.Major != Constants.ContractVersion.Major)
+            {
+                errors.Add("Unsupported contract version");
+
+                return errors;
+            }
+
+            if (updatedCandles.Candles == null || !updatedCandles.Candles.Any())
+            {
+                errors.Add("Candles is empty");
+
+                return errors;
+            }
+
+            for (var i = 0; i < updatedCandles.Candles.Count; ++i)
+            {
+                var candle = updatedCandles.Candles[i];
+
                 if (string.IsNullOrWhiteSpace(candle.AssetPairId))
                 {
-                    errors.Add("Empty 'AssetPair'");
+                    errors.Add($"Empty 'AssetPair' in the candle {i}");
                 }
-                if (candle.Timestamp.Kind != DateTimeKind.Utc)
+
+                if (candle.CandleTimestamp.Kind != DateTimeKind.Utc)
                 {
-                    errors.Add($"Invalid 'Timestamp' Kind (UTC is required): '{candle.Timestamp.Kind}'");
+                    errors.Add($"Invalid 'CandleTimestamp' Kind (UTC is required) in the candle {i}");
+                }
+
+                if (candle.TimeInterval == CandleTimeInterval.Unspecified)
+                {
+                    errors.Add($"Invalid 'TimeInterval' in the candle {i}");
+                }
+
+                if (candle.PriceType == CandlePriceType.Unspecified)
+                {
+                    errors.Add($"Invalid 'PriceType' in the candle {i}");
                 }
             }
 

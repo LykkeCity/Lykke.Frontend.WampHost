@@ -2,14 +2,15 @@
 using Common.Log;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.Frontend.WampHost.Core.Services.Quotes;
+using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Security;
+using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
+using Lykke.Frontend.WampHost.Settings;
 using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
-using Lykke.Frontend.WampHost.Settings;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 
@@ -34,6 +35,10 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.RegisterType<HealthService>()
                 .As<IHealthService>()
+                .SingleInstance();
+
+            builder.RegisterType<StartupManager>()
+                .As<IStartupManager>()
                 .SingleInstance();
 
             builder.RegisterType<ShutdownManager>()
@@ -92,23 +97,6 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<CandlesManager>()
                 .As<ICandlesManager>()
                 .SingleInstance();
-
-            builder.RegisterType<StartupManager>()
-                .As<IStartupManager>()
-                .SingleInstance();
-
-            builder.RegisterType<ShutdownManager>()
-                .As<IShutdownManager>()
-                .SingleInstance();
-
-            var host = new WampSharp.V2.WampHost();
-            var realm = host.RealmContainer.GetRealmByName("prices");
-
-            builder.RegisterInstance(host)
-                .As<IWampHost>();
-
-            builder.RegisterInstance(realm)
-                .As<IWampHostedRealm>();
         }
 
         private void RegisterQuotes(ContainerBuilder builder)

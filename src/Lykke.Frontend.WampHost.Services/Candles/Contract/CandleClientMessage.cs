@@ -1,15 +1,14 @@
 ﻿using System;
+using Lykke.Job.CandlesProducer.Contract;
 using System.ComponentModel;
-using Lykke.Domain.Prices;
 using Lykke.Frontend.WampHost.Core.Domain;
-using Lykke.Frontend.WampHost.Core.Domain.Candles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Lykke.Frontend.WampHost.Services.Candles
+namespace Lykke.Frontend.WampHost.Services.Candles.Contract
 {
     [DisplayName("Candle")]
-    public class CandleClientMessage : ICandle
+    public class CandleClientMessage
     {
         [DisplayName("Asset pair (BTCUSD...)")]
         [JsonProperty("a")]
@@ -23,12 +22,12 @@ namespace Lykke.Frontend.WampHost.Services.Candles
         [DisplayName("Price type")]
         [JsonProperty("p")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public PriceType PriceType { get; set; }
+        public CandlePriceType PriceType { get; set; }
 
         [DisplayName("Interval")]
         [JsonProperty("i")]
         [JsonConverter(typeof(StringEnumConverter))]
-        public TimeInterval TimeInterval { get; set; }
+        public CandleTimeInterval TimeInterval { get; set; }
 
         [DisplayName("Candle open timestamp")]
         [JsonProperty("t")]
@@ -49,5 +48,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
         [DisplayName("Low price")]
         [JsonProperty("l")]
         public double Low { get; set; }
+
+        [JsonProperty("v")]
+        public double TradingVolume { get; set; }
     }
 }
