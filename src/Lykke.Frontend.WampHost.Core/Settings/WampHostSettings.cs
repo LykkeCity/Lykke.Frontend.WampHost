@@ -8,6 +8,7 @@ namespace Lykke.Frontend.WampHost.Core.Settings
         public DbSettings Db { get; set; }
 
         public RabbitMqSettings RabbitMqSettings { get; set; }
+        public RabbitMqSettings MeRabbitMqSettings { get; set; }
         public RabbitMqSettings MtRabbitMqSettings { get; set; }
 
         public RabbitMqSettings SpotQuotesRabbitMqSettings { get; set; }
