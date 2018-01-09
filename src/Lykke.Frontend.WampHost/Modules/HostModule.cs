@@ -4,9 +4,10 @@ using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
-using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Core.Services.Security;
+using Lykke.Frontend.WampHost.Core.Services.Trades;
+using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
 using Lykke.Frontend.WampHost.Services.Orderbooks;
@@ -16,6 +17,8 @@ using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
 using Lykke.Frontend.WampHost.Services.Security;
+using Lykke.Frontend.WampHost.Services.Trades;
+using Lykke.Service.ClientAccount.Client;
 using Lykke.Service.Session;
 using WampSharp.V2;
 using WampSharp.V2.Authentication;
@@ -89,6 +92,7 @@ namespace Lykke.Frontend.WampHost.Modules
             RegisterCandles(builder);
             RegisterQuotes(builder);
             RegisterOrderbooks(builder);
+            RegisterTrades(builder);
         }
 
         private void RegisterCandles(ContainerBuilder builder)
@@ -136,11 +140,24 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<SpotOrderbookSubscriber>()
                 .As<ISubscriber>()
                 .SingleInstance()
-                .WithParameter(TypedParameter.From(_settings.MeRabbitMqSettings.ConnectionString))
+                .WithParameter(TypedParameter.From(_settings.WampHost.MeRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
             builder.RegisterType<OrderbookManager>()
                 .As<IOrderbookManager>()
+                .SingleInstance();
+        }
+        
+        private void RegisterTrades(ContainerBuilder builder)
+        {
+            builder.RegisterType<TradesSubscriber>()
+                .As<ISubscriber>()
+                .SingleInstance()
+                .WithParameter(TypedParameter.From(_settings.WampHost.ElasticRabbitMqSettings.ConnectionString))
+                .PreserveExistingDefaults();
+
+            builder.RegisterType<TradesManager>()
+                .As<ITradesManager>()
                 .SingleInstance();
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Lykke.Frontend.WampHost.Core.Services.Security
+namespace Lykke.Frontend.WampHost.Core.Services.Security
 {
     public interface IClientResolver
     {
