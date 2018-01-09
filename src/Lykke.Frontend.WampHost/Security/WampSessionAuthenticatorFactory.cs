@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using WampSharp.V2.Authentication;
 
