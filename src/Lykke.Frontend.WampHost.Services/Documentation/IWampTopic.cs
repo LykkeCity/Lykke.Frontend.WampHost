@@ -1,6 +1,8 @@
 ﻿using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
+using Lykke.Job.TradesConverter.Contract;
 
 namespace Lykke.Frontend.WampHost.Services.Documentation
 {
@@ -12,5 +14,13 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "quote.{spot|mt}.{instrument}.{bid|ask}", Description = "provides quotes. realm = 'prices', all parameters in the lower case.")]
         QuoteClientMessage Quotes();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "orderbook.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case.")]
+        OrderbookMessage Orderbooks();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "trades.{notificationId}", Description = "provides trades for specific user. realm = 'prices', all parameters in the lower case.")]
+        TradeLogItem Trades();
     }
 }
