@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
@@ -39,7 +40,7 @@ namespace Lykke.Frontend.WampHost.Services.Trades
                 _connectionString, 
                 MarketType.Spot, 
                 "tradelog",
-                new JsonMessageDeserializer<TradeLogItem>(),
+                new MessagePackMessageDeserializer<List<TradeLogItem>>(),
                 ProcessTradeAsync);
         }
 
@@ -48,15 +49,15 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             _subscriber?.Stop();
         }
 
-        private async Task ProcessTradeAsync(TradeLogItem message)
+        private async Task ProcessTradeAsync(List<TradeLogItem> messages)
         {
             try
             {
-               _tradesManager.ProcessTrade(message);
+               _tradesManager.ProcessTrade(messages);
             }
             catch (Exception ex)
             {
-                await _log.WriteWarningAsync(nameof(TradesSubscriber), nameof(ProcessTradeAsync), message?.ToJson(), "Failed to process trade", ex);
+                await _log.WriteWarningAsync(nameof(TradesSubscriber), nameof(ProcessTradeAsync), messages?.ToJson(), "Failed to process trade", ex);
                 throw;
             }
         }

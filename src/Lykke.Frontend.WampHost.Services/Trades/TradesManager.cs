@@ -1,4 +1,5 @@
-﻿using Lykke.Frontend.WampHost.Core.Services.Security;
+﻿using System.Collections.Generic;
+using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Services.Trades;
 using Lykke.Job.TradesConverter.Contract;
 using WampSharp.V2.Realm;
@@ -18,16 +19,19 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             _clientResolver = clientResolver;
         }
 
-        public void ProcessTrade(TradeLogItem message)
+        public void ProcessTrade(List<TradeLogItem> messages)
         {
-            string notificationId = _clientResolver.GetNotificationId(message.UserId);
+            foreach (var message in messages)
+            {
+                string notificationId = _clientResolver.GetNotificationId(message.UserId);
 
-            if (string.IsNullOrEmpty(notificationId)) 
-                return;
+                if (string.IsNullOrEmpty(notificationId)) 
+                    return;
             
-            var topic = $"trades.{notificationId}";
-            var subject = _realm.Services.GetSubject<TradeLogItem>(topic);
-            subject.OnNext(message);
+                var topic = $"trades.{notificationId}";
+                var subject = _realm.Services.GetSubject<TradeLogItem>(topic);
+                subject.OnNext(message);
+            }
         }
     }
 }
