@@ -16,6 +16,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
             {
                 var attr = (DocMeAttribute)method.GetCustomAttribute(typeof(DocMeAttribute));
                 var returnType = method.ReturnType.IsConstructedGenericType ? method.ReturnType.GenericTypeArguments[0] : method.ReturnType;
+                var types = GetTypes(returnType);
 
                 var docInfo = new MethodDocInfo
                 {
@@ -23,7 +24,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
                     Name = attr.Name,
                     Output = returnType.GetTypeName(),
                     Description = attr.Description,
-                    OutputTypes = new []{returnType}
+                    OutputTypes = types.ToArray()
                 };
 
                 result.Add(docInfo);
@@ -64,6 +65,17 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
                         if (dictType.IsUserDefinedClass())
                         {
                             types.AddRange(GetTypes(dictType));
+                        }
+                    }
+                }
+                
+                if (property.PropertyType.IsList())
+                {
+                    foreach (var listType in property.PropertyType.GenericTypeArguments)
+                    {
+                        if (listType.IsUserDefinedClass())
+                        {
+                            types.AddRange(GetTypes(listType));
                         }
                     }
                 }

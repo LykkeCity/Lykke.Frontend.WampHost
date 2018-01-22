@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
+using Lykke.Frontend.WampHost.Services.Extensions;
 using WampSharp.V2.Realm;
 
 namespace Lykke.Frontend.WampHost.Services.Orderbooks
@@ -16,19 +19,9 @@ namespace Lykke.Frontend.WampHost.Services.Orderbooks
         public void ProcessOrderbook(OrderbookMessage orderbookMessage)
         {
             var topic = $"orderbook.{orderbookMessage.AssetPair.ToLower()}.{(orderbookMessage.IsBuy ? "buy" : "sell")}";
-            var subject = _realm.Services.GetSubject<OrderbookMessage>(topic);
+            var subject = _realm.Services.GetSubject<OrderbookModel>(topic);
             
-            ProcessPrices(orderbookMessage);
-            
-            subject.OnNext(orderbookMessage);
-        }
-
-        private void ProcessPrices(OrderbookMessage message)
-        {
-            foreach (var price in message.Prices)
-            {
-                price.Volume = Math.Abs(price.Volume);
-            }
+            subject.OnNext(orderbookMessage.ToModel());
         }
     }
 }
