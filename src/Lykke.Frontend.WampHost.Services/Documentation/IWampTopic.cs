@@ -22,7 +22,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         
         [UsedImplicitly]
         [DocMe(Name = "orderbook.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case.")]
-        OrderbookMessage Orderbooks();
+        OrderbookModel Orderbooks();
         
         [UsedImplicitly]
         [DocMe(Name = "trades.{notificationId}", Description = "provides trades for specific user. realm = 'prices', all parameters in the lower case.")]

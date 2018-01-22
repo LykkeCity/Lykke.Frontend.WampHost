@@ -62,9 +62,14 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
                     sb.AppendLine();
                 }
 
-                var propertyTypeDefinition = property.PropertyType.IsDictionary()
-                    ? GetDictionaryPropertyTypeDefinition(property)
-                    : GetPropertyTypeDefinition(property);
+                string propertyTypeDefinition;
+
+                if (property.PropertyType.IsDictionary())
+                    propertyTypeDefinition = GetDictionaryPropertyTypeDefinition(property);
+                else if (property.PropertyType.IsList())
+                    propertyTypeDefinition = GetListPropertyTypeDefinition(property);
+                 else
+                    propertyTypeDefinition = GetPropertyTypeDefinition(property);
 
                 sb.AppendLine($"  // {property.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? property.Name}");
                 sb.AppendLine($"  // Type: {propertyTypeDefinition}");
@@ -153,6 +158,11 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         {
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
+        
+        public static bool IsList(this Type type)
+        {
+            return type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
+        }
 
         private static string GetPropertyTypeDefinition(PropertyInfo property)
         {
@@ -162,6 +172,11 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         private static string GetDictionaryPropertyTypeDefinition(PropertyInfo property)
         {
             return $"Dictionary<{GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[0])}, {GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[1])}>";
+        }
+        
+        private static string GetListPropertyTypeDefinition(PropertyInfo property)
+        {
+            return $"{GetPropertyTypeAlias(property.PropertyType.GenericTypeArguments[0])}[]";
         }
     }
 }
