@@ -63,7 +63,7 @@ namespace Lykke.Frontend.WampHost
 
                 Log = CreateLogWithSlack(services, appSettings);
 
-                builder.RegisterModule(new HostModule(appSettings.CurrentValue.WampHost, Log));
+                builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log));
                 builder.Populate(services);
                 ApplicationContainer = builder.Build();
 
