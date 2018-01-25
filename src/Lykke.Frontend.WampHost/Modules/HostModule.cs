@@ -6,7 +6,6 @@ using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Core.Services.Security;
-using Lykke.Frontend.WampHost.Core.Services.Trades;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
@@ -18,7 +17,6 @@ using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
 using Lykke.Frontend.WampHost.Services.Security;
 using Lykke.Frontend.WampHost.Services.Trades;
-using Lykke.Service.ClientAccount.Client;
 using Lykke.Service.Session;
 using WampSharp.V2;
 using WampSharp.V2.Authentication;
@@ -134,7 +132,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IQuotesManager>()
                 .SingleInstance();
         }
-        
+
         private void RegisterOrderbooks(ContainerBuilder builder)
         {
             builder.RegisterType<SpotOrderbookSubscriber>()
@@ -142,12 +140,8 @@ namespace Lykke.Frontend.WampHost.Modules
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.WampHost.MeRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
-
-            builder.RegisterType<OrderbookManager>()
-                .As<IOrderbookManager>()
-                .SingleInstance();
         }
-        
+
         private void RegisterTrades(ContainerBuilder builder)
         {
             builder.RegisterType<TradesSubscriber>()
@@ -155,10 +149,6 @@ namespace Lykke.Frontend.WampHost.Modules
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.WampHost.ElasticRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
-
-            builder.RegisterType<TradesManager>()
-                .As<ITradesManager>()
-                .SingleInstance();
         }
     }
 }

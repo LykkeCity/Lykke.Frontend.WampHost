@@ -66,7 +66,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
 
                 if (property.PropertyType.IsDictionary())
                     propertyTypeDefinition = GetDictionaryPropertyTypeDefinition(property);
-                else if (property.PropertyType.IsList())
+                else if (property.PropertyType.IsEnumerable())
                     propertyTypeDefinition = GetListPropertyTypeDefinition(property);
                  else
                     propertyTypeDefinition = GetPropertyTypeDefinition(property);
@@ -153,7 +153,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
             return type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
         
-        public static bool IsList(this Type type)
+        public static bool IsEnumerable(this Type type)
         {
             return type != typeof(string) && typeof(IEnumerable).IsAssignableFrom(type);
         }

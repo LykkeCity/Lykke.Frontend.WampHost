@@ -9,7 +9,7 @@ namespace Lykke.Frontend.WampHost.Security
 
         public AnonymousWampSessionAuthenticator()
         {
-            _authorizer = AnonymousWampAuthorizer.Instance;
+            _authorizer = AnonymousAuthorizer.Instance;
         }
 
         public override void Authenticate(string signature, AuthenticateExtraData extra)

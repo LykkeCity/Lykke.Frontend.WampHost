@@ -4,11 +4,9 @@ using WampSharp.V2.Core.Contracts;
 
 namespace Lykke.Frontend.WampHost.Security
 {
-    public class AnonymousWampAuthorizer : IWampAuthorizer
+    public class AnonymousAuthorizer : IWampAuthorizer
     {
-        public static AnonymousWampAuthorizer Instance = new AnonymousWampAuthorizer();
-
-        private readonly string[] _topicsWithAuth = {"trades"};
+        public static AnonymousAuthorizer Instance = new AnonymousAuthorizer();
 
         public bool CanRegister(RegisterOptions options, string procedure) => false;
 
@@ -16,6 +14,6 @@ namespace Lykke.Frontend.WampHost.Security
 
         public bool CanPublish(PublishOptions options, string topicUri) => false;
 
-        public bool CanSubscribe(SubscribeOptions options, string topicUri) => !_topicsWithAuth.Any(topicUri.StartsWith);
+        public bool CanSubscribe(SubscribeOptions options, string topicUri) => !Topics.WithAuth.Any(topicUri.StartsWith);
     }
 }

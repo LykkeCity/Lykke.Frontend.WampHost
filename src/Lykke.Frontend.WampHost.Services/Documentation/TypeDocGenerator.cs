@@ -68,8 +68,8 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
                         }
                     }
                 }
-                
-                if (property.PropertyType.IsList())
+
+                if (property.PropertyType.IsEnumerable())
                 {
                     foreach (var listType in property.PropertyType.GenericTypeArguments)
                     {
