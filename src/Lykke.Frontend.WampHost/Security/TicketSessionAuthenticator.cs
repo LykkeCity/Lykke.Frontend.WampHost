@@ -37,7 +37,7 @@ namespace Lykke.Frontend.WampHost.Security
                     AuthenticationRole = "Lykke client"
                 };
 
-                Authorizer = AnonymousWampAuthorizer.Instance; // todo: use custom authorizer
+                Authorizer = TokenAuthorizer.Instance;
             }
         }
 
