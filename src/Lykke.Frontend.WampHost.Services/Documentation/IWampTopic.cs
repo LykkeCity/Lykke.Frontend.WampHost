@@ -16,11 +16,11 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         QuoteClientMessage Quotes();
         
         [UsedImplicitly]
-        [DocMe(Name = "orderbook.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case.")]
+        [DocMe(Name = "spot.orderbook.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case.")]
         OrderbookModel Orderbooks();
         
         [UsedImplicitly]
-        [DocMe(Name = "trades.{notificationId}", Description = "provides trades for specific user. realm = 'prices', all parameters in the lower case.")]
+        [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'prices', all parameters in the lower case.")]
         TradeLogItem Trades();
     }
 }
