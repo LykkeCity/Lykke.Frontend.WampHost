@@ -21,7 +21,7 @@ namespace Lykke.Frontend.WampHost.Security
             WampPendingClientDetails details,
             IWampSessionAuthenticator transportAuthenticator)
         {
-            if (details.HelloDetails.AuthenticationMethods.Contains(AuthMethods.Ticket))
+            if (details.HelloDetails.AuthenticationMethods != null && details.HelloDetails.AuthenticationMethods.Contains(AuthMethods.Ticket))
             {
                 return new TicketSessionAuthenticator(details, _tokenValidator, _clientResolver);
             }
