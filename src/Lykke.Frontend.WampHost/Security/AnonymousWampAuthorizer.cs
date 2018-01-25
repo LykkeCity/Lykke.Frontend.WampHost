@@ -5,6 +5,8 @@ namespace Lykke.Frontend.WampHost.Security
 {
     public class AnonymousWampAuthorizer : IWampAuthorizer
     {
+        public static AnonymousWampAuthorizer Instance = new AnonymousWampAuthorizer();
+
         public bool CanRegister(RegisterOptions options, string procedure)
         {
             return false;

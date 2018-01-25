@@ -3,7 +3,7 @@ using System.Net;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Models;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.SwaggerGen.Annotations;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Lykke.Frontend.WampHost.Controllers
 {
