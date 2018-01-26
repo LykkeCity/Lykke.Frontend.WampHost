@@ -30,7 +30,7 @@ namespace Lykke.Frontend.WampHost.Security
             
             if (_tokenValidator.Validate(token))
             {
-                _clientResolver.SetNotificationId(signature, _details.SessionId.ToString());
+                _clientResolver.SetNotificationId(token, _details.SessionId.ToString());
 
                 IsAuthenticated = true;
 
