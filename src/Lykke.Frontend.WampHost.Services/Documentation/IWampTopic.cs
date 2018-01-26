@@ -21,7 +21,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         BalanceUpdateMessage BalancesUpdate();
         
         [UsedImplicitly]
-        [DocMe(Name = "spot.orderbook.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case.")]
+        [DocMe(Name = "orderbook.{spot|mt}.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case. Mt is not implemented yet.")]
         OrderbookModel Orderbooks();
         
         [UsedImplicitly]
