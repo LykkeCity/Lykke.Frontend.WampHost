@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Core.Mt;
 
 namespace Lykke.Frontend.WampHost.Settings
 {
@@ -12,5 +13,7 @@ namespace Lykke.Frontend.WampHost.Settings
 
         public RabbitMqSettings SpotQuotesRabbitMqSettings { get; set; }
         public RabbitMqSettings MtQuotesRabbitMqSettings { get; set; }
+        
+        public MtSubscriberSettings MtSubscriberSettings { get; set; }
     }
 }

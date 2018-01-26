@@ -15,37 +15,32 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 {
     [UsedImplicitly]
     public class CandlesSubscriber : ISubscriber
-    {   
+    {
         private readonly ILog _log;
         private readonly ICandlesManager _candlesManager;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
         private readonly MarketType _marketType;
 
-        private IStopable _subscriber;
-
-        public CandlesSubscriber(ILog log, ICandlesManager candlesManager, IRabbitMqSubscribersFactory subscribersFactory, string connectionString, MarketType marketType)
+        public CandlesSubscriber(ILog log, ICandlesManager candlesManager,
+            IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
+            string connectionString, MarketType marketType)
         {
             _log = log;
             _candlesManager = candlesManager;
-            _subscribersFactory = subscribersFactory;
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper;
             _connectionString = connectionString;
             _marketType = marketType;
         }
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
-                _connectionString, 
-                _marketType, 
-                "candles-v2", 
+            _rabbitMqSubscribeHelper.Subscribe(
+                _connectionString,
+                _marketType,
+                "candles-v2",
                 new MessagePackMessageDeserializer<CandlesUpdatedEvent>(),
                 ProcessCandleAsync);
-        }
-
-        public void Stop()
-        {
-            _subscriber?.Stop();
         }
 
         private async Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
@@ -56,7 +51,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), message);
+                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync),
+                        updatedCandles.ToJson(), message);
 
                     return;
                 }
@@ -65,7 +61,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), "Failed to process candle");
+                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync),
+                    updatedCandles.ToJson(), "Failed to process candle");
                 throw;
             }
         }
@@ -128,11 +125,6 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             }
 
             return errors;
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
         }
     }
 }

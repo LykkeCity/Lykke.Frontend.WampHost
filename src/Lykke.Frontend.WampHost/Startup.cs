@@ -20,6 +20,7 @@ using WampSharp.V2;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Models;
+using Lykke.Frontend.WampHost.Services.Mt;
 using Lykke.Frontend.WampHost.Settings;
 using Lykke.Logs.Slack;
 
@@ -63,7 +64,7 @@ namespace Lykke.Frontend.WampHost
 
                 Log = CreateLogWithSlack(services, appSettings);
 
-                builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log));
+                builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log, Program.EnvInfo));
                 builder.Populate(services);
                 ApplicationContainer = builder.Build();
 
@@ -187,6 +188,7 @@ namespace Lykke.Frontend.WampHost
         private static ILog CreateLogWithSlack(IServiceCollection services, IReloadingManager<AppSettings> settings)
         {
             var consoleLogger = new LogToConsole();
+            services.AddSingleton<IConsole>(consoleLogger);
             var aggregateLogger = new AggregateLogger();
 
             aggregateLogger.AddLog(consoleLogger);

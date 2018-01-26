@@ -20,32 +20,25 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
     {
         private readonly ILog _log;
         private readonly IQuotesManager _quotesManager;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
 
-        private IStopable _subscriber;
-
-        public MtQuotesSubscriber(ILog log, IQuotesManager quotesManager, IRabbitMqSubscribersFactory subscribersFactory, string connectionString)
+        public MtQuotesSubscriber(ILog log, IQuotesManager quotesManager, IRabbitMqSubscribeHelper rabbitMqSubscribeHelper, string connectionString)
         {
             _log = log;
             _quotesManager = quotesManager;
-            _subscribersFactory = subscribersFactory;
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper;
             _connectionString = connectionString;
         }
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
+            _rabbitMqSubscribeHelper.Subscribe(
                 _connectionString, 
                 MarketType.Mt, 
                 "pricefeed",
                 new JsonMessageDeserializer<MtQuoteMessage>(),
                 ProcessQuoteAsync);
-        }
-
-        public void Stop()
-        {
-            _subscriber?.Stop();
         }
 
         private async Task ProcessQuoteAsync(MtQuoteMessage quote)
@@ -111,11 +104,6 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
             }
 
             return errors;
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
         }
     }
 }
