@@ -19,8 +19,8 @@ using WampSharp.Binding;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Models;
-using Lykke.Frontend.WampHost.Settings;
 using Lykke.Logs.Slack;
 
 namespace Lykke.Frontend.WampHost
@@ -63,9 +63,13 @@ namespace Lykke.Frontend.WampHost
                 var appSettings = Configuration.LoadSettings<AppSettings>();
 
                 Log = CreateLogWithSlack(services, appSettings);
+                builder.Populate(services);
 
                 builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log));
-                builder.Populate(services);
+                builder.RegisterModule(new CandlesModule(appSettings.CurrentValue.WampHost));
+                builder.RegisterModule(new QuotesModule(appSettings.CurrentValue.WampHost));
+                builder.RegisterModule(new BalancesModule(appSettings.CurrentValue.WampHost));
+
                 ApplicationContainer = builder.Build();
 
                 return new AutofacServiceProvider(ApplicationContainer);
@@ -96,7 +100,7 @@ namespace Lykke.Frontend.WampHost
                     x.SwaggerEndpoint("/swagger/v1/swagger.json", ApiVersion);
                 });
                 app.UseStaticFiles();
-                
+
                 ConfigureWamp(app);
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().Wait());
@@ -113,7 +117,7 @@ namespace Lykke.Frontend.WampHost
         private void ConfigureWamp(IApplicationBuilder app)
         {
             var host = ApplicationContainer.Resolve<IWampHost>();
-            
+
             app.Map("/ws", builder =>
             {
                 builder.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromMinutes(1) });

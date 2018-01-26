@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Lykke.Frontend.WampHost.Settings
+namespace Lykke.Frontend.WampHost.Core.Settings
 {
     [UsedImplicitly]
     public class AzureQueueSettings
