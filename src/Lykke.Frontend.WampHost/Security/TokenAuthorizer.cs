@@ -14,6 +14,6 @@ namespace Lykke.Frontend.WampHost.Security
 
         public bool CanPublish(PublishOptions options, string topicUri) => false;
 
-        public bool CanSubscribe(SubscribeOptions options, string topicUri) => Topics.WithAuth.Any(topicUri.StartsWith);
+        public bool CanSubscribe(SubscribeOptions options, string topicUri) => true;
     }
 }
