@@ -53,7 +53,7 @@ namespace Lykke.Frontend.WampHost.Services.Orderbooks.Spot
         {
             try
             {
-                var topic = $"spot.orderbook.{orderbookMessage.AssetPair.ToLower()}.{(orderbookMessage.IsBuy ? "buy" : "sell")}";
+                var topic = $"orderbook.spot.{orderbookMessage.AssetPair.ToLower()}.{(orderbookMessage.IsBuy ? "buy" : "sell")}";
                 var subject = _realm.Services.GetSubject<OrderbookModel>(topic);
 
                 subject.OnNext(orderbookMessage.ToModel());
