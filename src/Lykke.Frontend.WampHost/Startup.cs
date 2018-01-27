@@ -28,6 +28,7 @@ namespace Lykke.Frontend.WampHost
 {
     public class Startup
     {
+        private const string ApiVersion = "v1";
         public IHostingEnvironment Environment { get; }
         public IContainer ApplicationContainer { get; private set; }
         public IConfigurationRoot Configuration { get; }
@@ -90,7 +91,11 @@ namespace Lykke.Frontend.WampHost
 
                 app.UseMvc();
                 app.UseSwagger();
-                app.UseSwaggerUi();
+                app.UseSwaggerUI(x =>
+                {
+                    x.RoutePrefix = "swagger/ui";
+                    x.SwaggerEndpoint("/swagger/v1/swagger.json", ApiVersion);
+                });
                 app.UseStaticFiles();
                 
                 ConfigureWamp(app);
@@ -146,7 +151,7 @@ namespace Lykke.Frontend.WampHost
         {
             try
             {
-                // NOTE: Job still can recieve and process IsAlive requests here, so take care about it if you add logic here.
+                // NOTE: Job still can receive and process IsAlive requests here, so take care about it if you add logic here.
 
                 await ApplicationContainer.Resolve<IShutdownManager>().StopAsync();
 
@@ -165,7 +170,7 @@ namespace Lykke.Frontend.WampHost
         {
             try
             {
-                // NOTE: Job can't recieve and process IsAlive requests here, so you can destroy all resources
+                // NOTE: Job can't receive and process IsAlive requests here, so you can destroy all resources
 
                 if (Log != null)
                 {
@@ -203,7 +208,7 @@ namespace Lykke.Frontend.WampHost
             var dbLogConnectionStringManager = settings.Nested(x => x.WampHost.Db.LogsConnString);
             var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
-            // Creating azure storage logger, which logs own messages to concole log
+            // Creating azure storage logger, which logs own messages to console log
             if (!string.IsNullOrEmpty(dbLogConnectionString) && !(dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}")))
             {
                 var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(

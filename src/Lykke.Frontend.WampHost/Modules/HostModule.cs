@@ -6,6 +6,7 @@ using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
+using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Candles;
 using Lykke.Frontend.WampHost.Services.Mt;
@@ -13,6 +14,7 @@ using Lykke.Frontend.WampHost.Settings;
 using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
+using Lykke.Frontend.WampHost.Services.Security;
 using Lykke.Service.Session;
 using WampSharp.V2;
 using WampSharp.V2.Authentication;
@@ -22,14 +24,12 @@ namespace Lykke.Frontend.WampHost.Modules
     public class HostModule : Module
     {
         private readonly AppSettings _settings;
-        private readonly WampHostSettings _hostSettings;
         private readonly ILog _log;
         private readonly string _env;
 
         public HostModule(AppSettings settings, ILog log, string env)
         {
             _settings = settings;
-            _hostSettings = settings.WampHost;
             _log = log;
             _env = env;
         }
@@ -57,8 +57,9 @@ namespace Lykke.Frontend.WampHost.Modules
                 .WithParameter(TypedParameter.From(_env))
                 .SingleInstance();
 
-            builder.RegisterType<TokenValidator>()
+            builder.RegisterType<ClientResolver>()
                 .As<ITokenValidator>()
+                .As<IClientResolver>()
                 .SingleInstance();
 
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);
@@ -88,7 +89,6 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IWampHost>()
                 .SingleInstance();
 
-
             builder.RegisterType<RpcFrontend>()
                 .As<IRpcFrontend>()
                 .SingleInstance();
@@ -109,14 +109,14 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<ISubscriber>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(MarketType.Spot))
-                .WithParameter(TypedParameter.From(_hostSettings.RabbitMqSettings.ConnectionString))
+                .WithParameter(TypedParameter.From(_settings.WampHost.RabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
             builder.RegisterType<CandlesSubscriber>()
                 .As<ISubscriber>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(MarketType.Mt))
-                .WithParameter(TypedParameter.From(_hostSettings.MtRabbitMqSettings.ConnectionString))
+                .WithParameter(TypedParameter.From(_settings.WampHost.MtRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
             builder.RegisterType<CandlesManager>()
@@ -129,13 +129,13 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<SpotQuotesSubscriber>()
                 .As<ISubscriber>()
                 .SingleInstance()
-                .WithParameter(TypedParameter.From(_hostSettings.SpotQuotesRabbitMqSettings.ConnectionString))
+                .WithParameter(TypedParameter.From(_settings.WampHost.SpotQuotesRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
             builder.RegisterType<MtQuotesSubscriber>()
                 .As<ISubscriber>()
                 .SingleInstance()
-                .WithParameter(TypedParameter.From(_hostSettings.MtQuotesRabbitMqSettings.ConnectionString))
+                .WithParameter(TypedParameter.From(_settings.WampHost.MtQuotesRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
             builder.RegisterType<QuotesManager>()
