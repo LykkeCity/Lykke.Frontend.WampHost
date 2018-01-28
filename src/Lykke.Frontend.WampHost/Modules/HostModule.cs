@@ -52,7 +52,6 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);
 
             RegisterWampCommon(builder);
-            RegisterRealm(builder);
         }
 
         private void RegisterWampCommon(ContainerBuilder builder)
@@ -67,12 +66,6 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.RegisterType<RpcFrontend>()
                 .As<IRpcFrontend>()
-                .SingleInstance();
-        }
-
-        private void RegisterRealm(ContainerBuilder builder)
-        {
-            builder.Register(x => x.Resolve<IWampHost>().RealmContainer.GetRealmByName("prices"))
                 .SingleInstance();
         }
     }

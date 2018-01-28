@@ -9,7 +9,6 @@ using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Services.Balances.IncomeMessages;
-using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
 using WampSharp.V2;
 using WampSharp.V2.Core.Contracts;
@@ -25,17 +24,19 @@ namespace Lykke.Frontend.WampHost.Services.Balances
         private IStopable _subscriber;
         private readonly IWampSubject _subject;
         private readonly IClientResolver _clientResolver;
-        private const string QueueName = "wamp";
-        private const string TopicUri = "user.balances";
+        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private const string TopicUri = "balances";
 
         public BalancesConsumer(
             [NotNull] ILog log,
             [NotNull] RabbitMqSettings settings,
             [NotNull] IWampHostedRealm realm,
-            [NotNull] IClientResolver clientResolver)
+            [NotNull] IClientResolver clientResolver,
+            [NotNull] IRabbitMqSubscribersFactory subscribersFactory)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _clientResolver = clientResolver ?? throw new ArgumentNullException(nameof(clientResolver));
+            _subscribersFactory = subscribersFactory ?? throw new ArgumentNullException(nameof(subscribersFactory));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             _subject = realm.Services.GetSubject(TopicUri);
@@ -43,27 +44,11 @@ namespace Lykke.Frontend.WampHost.Services.Balances
 
         public void Start()
         {
-            try
-            {
-                var subscriptionSettings = new RabbitMqSubscriptionSettings
-                {
-                    ConnectionString = _settings.ConnectionString,
-                    QueueName = $"{_settings.ExchangeName}.{QueueName}",
-                    ExchangeName = _settings.ExchangeName,
-                    IsDurable = false
-                };
-                _subscriber = new RabbitMqSubscriber<BalanceUpdateEventModel>(subscriptionSettings, new DefaultErrorHandlingStrategy(_log, subscriptionSettings))
-                    .SetMessageDeserializer(new BalanceUpdateMqDeserializer())
-                    .SetMessageReadStrategy(new MessageReadWithTemporaryQueueStrategy())
-                    .Subscribe(Process)
-                    .SetLogger(_log)
-                    .Start();
-            }
-            catch (Exception ex)
-            {
-                _log.WriteError(nameof(BalancesConsumer), null, ex);
-                throw;
-            }
+            _subscriber = _subscribersFactory.Create(
+                connectionString: _settings.ConnectionString,
+                source: "lykke.balanceupdate",
+                deserializer: new JsonMessageDeserializer<BalanceUpdateEventModel>(),
+                handler: Process);
         }
 
         public void Stop()
@@ -78,34 +63,24 @@ namespace Lykke.Frontend.WampHost.Services.Balances
 
             foreach (var balance in message.Balances)
             {
+                var notificationId = _clientResolver.GetNotificationId(balance.Id);
 
-                try
+                if (notificationId == null)
+                    continue;
+
+                _subject.OnNext(new WampEvent
                 {
-                    var notificationId = _clientResolver.GetNotificationId(balance.Id);
-
-                    if (notificationId == null)
-                        continue;
-
-                    _subject.OnNext(new WampEvent
+                    Options = new PublishOptions
                     {
-                        Options = new PublishOptions
-                        {
-                            Eligible = new[] { long.Parse(notificationId) }
-                        },
-                        Arguments = new object[] { new BalanceUpdateModel
-                        {
-                            Asset = balance.Asset,
-                            NewBalance = balance.NewBalance,
-                            NewReserved = balance.NewReserved,
-                            OldBalance = balance.OldBalance,
-                            OldReserved = balance.OldReserved
-                        } }
-                    });
-                }
-                catch (Exception ex)
-                {
-                    _log.WriteError(nameof(BalancesConsumer), message.ToJson(), ex);
-                }
+                        Eligible = new[] { long.Parse(notificationId) }
+                    },
+                    Arguments = new object[] { new BalanceUpdateMessage
+                    {
+                        Asset = balance.Asset,
+                        Balance = balance.NewBalance,
+                        Reserved = balance.NewReserved
+                    } }
+                });
             }
         }
 

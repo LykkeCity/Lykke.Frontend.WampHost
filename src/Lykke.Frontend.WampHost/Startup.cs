@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -66,9 +67,8 @@ namespace Lykke.Frontend.WampHost
                 builder.Populate(services);
 
                 builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log));
-                builder.RegisterModule(new CandlesModule(appSettings.CurrentValue.WampHost));
-                builder.RegisterModule(new QuotesModule(appSettings.CurrentValue.WampHost));
-                builder.RegisterModule(new BalancesModule(appSettings.CurrentValue.WampHost));
+                builder.RegisterModule(new PricesRealmModule(appSettings.CurrentValue.WampHost));
+                builder.RegisterModule(new UserRealmModule(appSettings.CurrentValue.WampHost));
 
                 ApplicationContainer = builder.Build();
 
@@ -127,10 +127,12 @@ namespace Lykke.Frontend.WampHost
                     new JTokenMsgpackBinding());
             });
 
-            var rpcMethods = ApplicationContainer.Resolve<IRpcFrontend>();
-            var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
 
-            realm.Services.RegisterCallee(rpcMethods).Wait();
+            var rpcMethods = ApplicationContainer.Resolve<IRpcFrontend>();
+            foreach (var realm in ApplicationContainer.Resolve<IEnumerable<IWampHostedRealm>>())
+            {
+                realm.Services.RegisterCallee(rpcMethods).Wait();
+            }
 
             host.Open();
         }

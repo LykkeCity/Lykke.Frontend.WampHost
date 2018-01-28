@@ -13,28 +13,31 @@ namespace Lykke.Frontend.WampHost.Services
     {
         private readonly ILog _log;
         private readonly IEnumerable<ISubscriber> _subscribers;
-        private readonly IWampHostedRealm _realm;
+        private readonly IEnumerable<IWampHostedRealm> _realms;
         private readonly IHealthService _healthService;
 
         public StartupManager(
-            ILog log, 
+            ILog log,
             IEnumerable<ISubscriber> subscribers,
-            IWampHostedRealm realm,
+            IEnumerable<IWampHostedRealm> realms,
             IHealthService healthService)
         {
             _log = log;
             _subscribers = subscribers;
-            _realm = realm;
+            _realms = realms;
             _healthService = healthService;
         }
 
         public async Task StartAsync()
         {
             await _log.WriteInfoAsync(nameof(StartupManager), nameof(StartAsync), "", "Subscribing to the realm sessions...");
-            
-            _realm.SessionCreated += _healthService.TraceWampSessionCreated;
-            _realm.SessionClosed += _healthService.TraceWampSessionClosed;
-            
+
+            foreach (var realm in _realms)
+            {
+                realm.SessionCreated += _healthService.TraceWampSessionCreated;
+                realm.SessionClosed += _healthService.TraceWampSessionClosed;
+            }
+
             await _log.WriteInfoAsync(nameof(StartupManager), nameof(StartAsync), "", "Starting subscribers...");
 
             var tasks = _subscribers.Select(s => Task.Run(() => s.Start()));
