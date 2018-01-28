@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Common;
@@ -67,6 +69,7 @@ namespace Lykke.Frontend.WampHost.Services.Mt
 
         public void ProcessUserUpdates(UserUpdateEntityBackendContract userUpdate)
         {
+            var exceptions = new List<Exception>();
             foreach (var clientId in userUpdate.ClientIds)
             {
                 try
@@ -75,9 +78,13 @@ namespace Lykke.Frontend.WampHost.Services.Mt
                 }
                 catch (Exception ex)
                 {
-                    _log.WriteErrorAsync(nameof(MtRabbitMqHandler), nameof(ProcessUserUpdates), clientId, ex);
-                    throw;
+                    exceptions.Add(ex);
                 }
+            }
+
+            if (exceptions.Any())
+            {
+                throw new AggregateException(exceptions);
             }
         }
 
