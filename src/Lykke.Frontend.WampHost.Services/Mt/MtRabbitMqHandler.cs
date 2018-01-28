@@ -5,10 +5,13 @@ using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using Lykke.Frontend.WampHost.Core.Mt;
+using Lykke.Frontend.WampHost.Core.Services.Security;
 using MarginTrading.Contract.BackendContracts;
 using MarginTrading.Contract.ClientContracts;
 using MarginTrading.Contract.Mappers;
 using MarginTrading.Contract.RabbitMqMessageModels;
+using WampSharp.V2;
+using WampSharp.V2.Core.Contracts;
 using WampSharp.V2.Realm;
 
 namespace Lykke.Frontend.WampHost.Services.Mt
@@ -16,14 +19,16 @@ namespace Lykke.Frontend.WampHost.Services.Mt
     public class MtRabbitMqHandler: IMtRabbitMqHandler
     {
         private readonly ILog _log;
+        private readonly IClientResolver _clientResolver;
         private readonly ISubject<TradeClientContract> _tradesSubject;
-        private readonly ISubject<NotifyResponse> _userUpdatesSubject;
+        private readonly IWampSubject _userUpdatesSubject;
 
-        public MtRabbitMqHandler(IWampHostedRealm realm, ILog log)
+        public MtRabbitMqHandler(IWampHostedRealm realm, ILog log, IClientResolver clientResolver)
         {
             _log = log;
-            _userUpdatesSubject = realm.Services.GetSubject<NotifyResponse>("mt.user.updates");
-            _tradesSubject = realm.Services.GetSubject<TradeClientContract>("mt.trades");
+            _clientResolver = clientResolver;
+            _userUpdatesSubject = realm.Services.GetSubject("user-updates.mt");
+            _tradesSubject = realm.Services.GetSubject<TradeClientContract>("trades.mt");
         }
         
         public void ProcessTrades(TradeContract trade)
@@ -47,17 +52,17 @@ namespace Lykke.Frontend.WampHost.Services.Mt
                 return;
             }
 
-            _userUpdatesSubject.OnNext(new NotifyResponse { Account = accountChangedMessage.Account.ToClientContract() });
+            SendUserUpdate(new NotifyResponse { Account = accountChangedMessage.Account.ToClientContract() }, accountChangedMessage.Account.ClientId);
         }
 
         public void ProcessOrderChanged(OrderContract order)
         {
-            _userUpdatesSubject.OnNext(new NotifyResponse { Order = order.ToClientContract() });
+            SendUserUpdate(new NotifyResponse { Order = order.ToClientContract() }, order.ClientId);
         }
 
         public void ProcessAccountStopout(AccountStopoutBackendContract stopout)
         {
-            _userUpdatesSubject.OnNext(new NotifyResponse { AccountStopout = stopout.ToClientContract() });
+            SendUserUpdate(new NotifyResponse { AccountStopout = stopout.ToClientContract() }, stopout.ClientId);
         }
 
         public void ProcessUserUpdates(UserUpdateEntityBackendContract userUpdate)
@@ -66,7 +71,7 @@ namespace Lykke.Frontend.WampHost.Services.Mt
             {
                 try
                 {
-                    _userUpdatesSubject.OnNext(new NotifyResponse {UserUpdate = userUpdate.ToClientContract()});
+                    SendUserUpdate(new NotifyResponse {UserUpdate = userUpdate.ToClientContract()}, clientId);
                 }
                 catch (Exception ex)
                 {
@@ -75,7 +80,17 @@ namespace Lykke.Frontend.WampHost.Services.Mt
                 }
             }
         }
-        
+
+        private void SendUserUpdate(NotifyResponse notifyResponse, string clientId)
+        {
+            var notificationId = _clientResolver.GetNotificationId(clientId);
+            _userUpdatesSubject.OnNext(new WampEvent
+            {
+                Options = new PublishOptions {Eligible = new[] {long.Parse(notificationId)}},
+                Arguments = new object[] {notifyResponse}
+            });
+        }
+
         private static TEnum ConvertEnum<TEnum>(Enum dto)
             where TEnum : struct, IConvertible
         {
