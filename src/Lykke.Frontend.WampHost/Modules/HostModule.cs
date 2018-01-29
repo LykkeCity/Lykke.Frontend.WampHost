@@ -1,17 +1,10 @@
 ﻿using Autofac;
 using Common.Log;
-using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Security;
-using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Core.Services.Security;
+using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services;
-using Lykke.Frontend.WampHost.Services.Candles;
-using Lykke.Frontend.WampHost.Settings;
-using Lykke.Frontend.WampHost.Services.Quotes;
-using Lykke.Frontend.WampHost.Services.Quotes.Mt;
-using Lykke.Frontend.WampHost.Services.Quotes.Spot;
 using Lykke.Frontend.WampHost.Services.Security;
 using Lykke.Service.Session;
 using WampSharp.V2;
@@ -59,8 +52,6 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);
 
             RegisterWampCommon(builder);
-
-            RegisterPrices(builder);
         }
 
         private void RegisterWampCommon(ContainerBuilder builder)
@@ -75,55 +66,6 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.RegisterType<RpcFrontend>()
                 .As<IRpcFrontend>()
-                .SingleInstance();
-        }
-
-        private void RegisterPrices(ContainerBuilder builder)
-        {
-            builder.Register(x => x.Resolve<IWampHost>().RealmContainer.GetRealmByName("prices"))
-                .SingleInstance();
-
-            RegisterCandles(builder);
-            RegisterQuotes(builder);
-        }
-
-        private void RegisterCandles(ContainerBuilder builder)
-        {
-            builder.RegisterType<CandlesSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(MarketType.Spot))
-                .WithParameter(TypedParameter.From(_settings.WampHost.RabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
-
-            builder.RegisterType<CandlesSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(MarketType.Mt))
-                .WithParameter(TypedParameter.From(_settings.WampHost.MtRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
-
-            builder.RegisterType<CandlesManager>()
-                .As<ICandlesManager>()
-                .SingleInstance();
-        }
-
-        private void RegisterQuotes(ContainerBuilder builder)
-        {
-            builder.RegisterType<SpotQuotesSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(_settings.WampHost.SpotQuotesRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
-
-            builder.RegisterType<MtQuotesSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(_settings.WampHost.MtQuotesRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
-
-            builder.RegisterType<QuotesManager>()
-                .As<IQuotesManager>()
                 .SingleInstance();
         }
     }

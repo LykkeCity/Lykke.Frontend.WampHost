@@ -1,6 +1,6 @@
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
-namespace Lykke.Frontend.WampHost.Settings
+namespace Lykke.Frontend.WampHost.Core.Settings
 {
     [UsedImplicitly]
     public class WampHostSettings
@@ -12,5 +12,7 @@ namespace Lykke.Frontend.WampHost.Settings
 
         public RabbitMqSettings SpotQuotesRabbitMqSettings { get; set; }
         public RabbitMqSettings MtQuotesRabbitMqSettings { get; set; }
+
+        public RabbitMqSettings BalancesRabbitMqSettings { get; set; }
     }
 }

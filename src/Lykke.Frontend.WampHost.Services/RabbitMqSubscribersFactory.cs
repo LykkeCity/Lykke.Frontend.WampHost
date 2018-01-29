@@ -43,5 +43,22 @@ namespace Lykke.Frontend.WampHost.Services
                 .SetLogger(_log)
                 .Start();
         }
+
+        public IStopable Create<TMessage>(string connectionString, string source, IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
+        {
+            var settings = new RabbitMqSubscriptionSettings
+            {
+                ConnectionString = connectionString,
+                QueueName = $"{source}.wamp",
+                ExchangeName = source,
+                IsDurable = false
+            };
+            return new RabbitMqSubscriber<TMessage>(settings, new DefaultErrorHandlingStrategy(_log, settings))
+                .SetMessageDeserializer(deserializer)
+                .SetMessageReadStrategy(new MessageReadWithTemporaryQueueStrategy())
+                .Subscribe(handler)
+                .SetLogger(_log)
+                .Start();
+        }
     }
 }

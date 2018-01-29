@@ -9,5 +9,7 @@ namespace Lykke.Frontend.WampHost.Core.Services
     public interface IRabbitMqSubscribersFactory
     {
         IStopable Create<TMessage>(string connectionString, MarketType market, string source, IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler);
+
+        IStopable Create<TMessage>(string connectionString, string source, IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler);
     }
 }
