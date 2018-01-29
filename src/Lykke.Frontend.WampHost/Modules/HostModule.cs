@@ -137,18 +137,16 @@ namespace Lykke.Frontend.WampHost.Modules
         {
             builder.RegisterType<SpotOrderbookSubscriber>()
                 .As<ISubscriber>()
-                .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.WampHost.MeRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
+                .SingleInstance();
         }
 
         private void RegisterTrades(ContainerBuilder builder)
         {
             builder.RegisterType<TradesSubscriber>()
                 .As<ISubscriber>()
-                .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.WampHost.ElasticRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
+                .SingleInstance();
         }
     }
 }

@@ -31,13 +31,13 @@ namespace Lykke.Frontend.WampHost.Services
 
         public async Task StopAsync()
         {
-            await _log.WriteInfoAsync(nameof(ShutdownManager), nameof(StopAsync), "", "Stopping subscribers...");
+            _log.WriteInfo(nameof(StopAsync), "", "Stopping subscribers...");
 
             var tasks = _subscribers.Select(s => Task.Run(() => s.Stop()));
 
             await Task.WhenAll(tasks);
 
-            await _log.WriteInfoAsync(nameof(ShutdownManager), nameof(StopAsync), "", "Unsubscribing from the realm sessions...");
+            _log.WriteInfo(nameof(StopAsync), "", "Unsubscribing from the realm sessions...");
             
             _realm.SessionCreated -= _healthService.TraceWampSessionCreated;
             _realm.SessionClosed -= _healthService.TraceWampSessionClosed;

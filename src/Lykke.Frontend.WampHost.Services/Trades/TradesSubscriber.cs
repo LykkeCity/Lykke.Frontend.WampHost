@@ -79,7 +79,7 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             }
             catch (Exception ex)
             {
-                await _log.WriteWarningAsync(nameof(TradesSubscriber), nameof(ProcessTradeAsync), messages.ToJson(), "Failed to process trade", ex);
+                _log.WriteWarning(nameof(ProcessTradeAsync), messages, "Failed to process trade", ex);
                 throw;
             }
         }
