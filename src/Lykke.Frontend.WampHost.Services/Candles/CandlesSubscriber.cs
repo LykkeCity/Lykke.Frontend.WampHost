@@ -56,7 +56,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), message);
+                    _log.WriteWarning(nameof(ProcessCandleAsync), updatedCandles, message);
 
                     return;
                 }
@@ -65,7 +65,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync), updatedCandles.ToJson(), "Failed to process candle");
+                _log.WriteWarning(nameof(ProcessCandleAsync), updatedCandles, "Failed to process candle");
                 throw;
             }
         }

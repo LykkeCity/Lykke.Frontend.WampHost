@@ -60,7 +60,7 @@ namespace Lykke.Frontend.WampHost.Services.Orderbooks.Spot
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(SpotQuotesSubscriber), nameof(ProcessOrderbookAsync), orderbookMessage?.ToJson(), "Failed to process orderbook");
+                _log.WriteWarning(nameof(ProcessOrderbookAsync), orderbookMessage, "Failed to process orderbook");
                 throw;
             }
         }

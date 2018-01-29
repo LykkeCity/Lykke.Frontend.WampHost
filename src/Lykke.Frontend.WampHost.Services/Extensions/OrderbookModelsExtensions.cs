@@ -14,11 +14,11 @@ namespace Lykke.Frontend.WampHost.Services.Extensions
                 AssetPair = src.AssetPair,
                 IsBuy = src.IsBuy,
                 Timestamp = src.Timestamp,
-                Levels = src.Prices.ProcessPrices()
+                Levels = src.Prices.ConvertPrices()
             };
         }
 
-        private static List<Level> ProcessPrices(this IEnumerable<VolumePrice> prices)
+        private static List<Level> ConvertPrices(this IEnumerable<VolumePrice> prices)
         {
             return prices.Select(price => new Level
             {
