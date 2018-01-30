@@ -26,11 +26,9 @@ namespace Lykke.Frontend.WampHost.Security
 
         public override void Authenticate(string signature, AuthenticateExtraData extra)
         {
-            string token = string.IsNullOrEmpty(signature) ? AuthenticationId : signature;
-            
-            if (_tokenValidator.Validate(token))
+            if (_tokenValidator.Validate(signature))
             {
-                _clientResolver.SetNotificationId(token, _details.SessionId.ToString());
+                _clientResolver.SetNotificationId(signature, _details.SessionId.ToString());
 
                 IsAuthenticated = true;
 
