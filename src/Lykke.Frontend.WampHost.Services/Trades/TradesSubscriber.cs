@@ -82,6 +82,8 @@ namespace Lykke.Frontend.WampHost.Services.Trades
                 _log.WriteWarning(nameof(ProcessTradeAsync), messages, "Failed to process trade", ex);
                 throw;
             }
+
+            await Task.CompletedTask;
         }
 
         public void Dispose()

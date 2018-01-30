@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using Lykke.Service.Session;
 
 namespace Lykke.Frontend.WampHost.Core.Settings
 {

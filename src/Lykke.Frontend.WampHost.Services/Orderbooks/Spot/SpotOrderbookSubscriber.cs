@@ -7,7 +7,6 @@ using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Services.Extensions;
-using Lykke.Frontend.WampHost.Services.Quotes.Spot;
 using Lykke.RabbitMqBroker.Subscriber;
 using WampSharp.V2.Realm;
 
@@ -63,6 +62,8 @@ namespace Lykke.Frontend.WampHost.Services.Orderbooks.Spot
                 _log.WriteWarning(nameof(ProcessOrderbookAsync), orderbookMessage, "Failed to process orderbook");
                 throw;
             }
+
+            await Task.CompletedTask;
         }
 
         public void Dispose()

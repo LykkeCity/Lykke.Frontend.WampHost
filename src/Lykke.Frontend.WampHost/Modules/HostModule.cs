@@ -1,13 +1,10 @@
 ﻿using Autofac;
 using Common.Log;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services;
-using Lykke.Frontend.WampHost.Services.Orderbooks;
-using Lykke.Frontend.WampHost.Services.Orderbooks.Spot;
 using Lykke.Frontend.WampHost.Services.Security;
 using Lykke.Service.Session;
 using WampSharp.V2;
@@ -71,19 +68,5 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<IRpcFrontend>()
                 .SingleInstance();
         }
-            RegisterOrderbooks(builder);
-                .SingleInstance();
-        }
-        
-        private void RegisterOrderbooks(ContainerBuilder builder)
-        {
-            builder.RegisterType<SpotOrderbookSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(_settings.MeRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
-
-            builder.RegisterType<OrderbookManager>()
-                .As<IOrderbookManager>()
     }
 }

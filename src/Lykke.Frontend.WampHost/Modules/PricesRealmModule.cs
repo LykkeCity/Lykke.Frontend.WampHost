@@ -6,9 +6,11 @@ using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Candles;
+using Lykke.Frontend.WampHost.Services.Orderbooks.Spot;
 using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
+using Lykke.Frontend.WampHost.Services.Trades;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 
@@ -29,11 +31,13 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.Register(x => x.Resolve<IWampHost>().RealmContainer.GetRealmByName(realm));
 
-            RegiserCandles(builder, realm);
-            RegiserQuotes(builder, realm);
+            RegisterCandles(builder, realm);
+            RegisterQuotes(builder, realm);
+            RegisterOrderbooks(builder, realm);
+            RegisterTrades(builder, realm);
         }
 
-        private void RegiserCandles(ContainerBuilder builder, string realm)
+        private void RegisterCandles(ContainerBuilder builder, string realm)
         {
             builder.RegisterType<CandlesSubscriber>()
                 .As<ISubscriber>()
@@ -58,7 +62,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 .SingleInstance();
         }
 
-        private void RegiserQuotes(ContainerBuilder builder, string realm)
+        private void RegisterQuotes(ContainerBuilder builder, string realm)
         {
             builder.RegisterType<SpotQuotesSubscriber>()
                 .As<ISubscriber>()
@@ -78,6 +82,22 @@ namespace Lykke.Frontend.WampHost.Modules
                         (pi, ctx) => pi.ParameterType == typeof(IWampHostedRealm),
                         (pi, ctx) => ctx.Resolve<IWampHost>().RealmContainer.GetRealmByName(realm)))
                 .As<IQuotesManager>()
+                .SingleInstance();
+        }
+        
+        private void RegisterOrderbooks(ContainerBuilder builder, string realm)
+        {
+            builder.RegisterType<SpotOrderbookSubscriber>()
+                .As<ISubscriber>()
+                .WithParameter(TypedParameter.From(_settings.MeRabbitMqSettings.ConnectionString))
+                .SingleInstance();
+        }
+        
+        private void RegisterTrades(ContainerBuilder builder, string realm)
+        {
+            builder.RegisterType<TradesSubscriber>()
+                .As<ISubscriber>()
+                .WithParameter(TypedParameter.From(_settings.ElasticRabbitMqSettings.ConnectionString))
                 .SingleInstance();
         }
     }
