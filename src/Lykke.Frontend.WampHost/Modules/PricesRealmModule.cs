@@ -10,7 +10,6 @@ using Lykke.Frontend.WampHost.Services.Orderbooks.Spot;
 using Lykke.Frontend.WampHost.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt;
 using Lykke.Frontend.WampHost.Services.Quotes.Spot;
-using Lykke.Frontend.WampHost.Services.Trades;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 
@@ -34,7 +33,6 @@ namespace Lykke.Frontend.WampHost.Modules
             RegisterCandles(builder, realm);
             RegisterQuotes(builder, realm);
             RegisterOrderbooks(builder, realm);
-            RegisterTrades(builder, realm);
         }
 
         private void RegisterCandles(ContainerBuilder builder, string realm)
@@ -88,16 +86,12 @@ namespace Lykke.Frontend.WampHost.Modules
         private void RegisterOrderbooks(ContainerBuilder builder, string realm)
         {
             builder.RegisterType<SpotOrderbookSubscriber>()
+                .WithParameter(
+                    new ResolvedParameter(
+                        (pi, ctx) => pi.ParameterType == typeof(IWampHostedRealm),
+                        (pi, ctx) => ctx.Resolve<IWampHost>().RealmContainer.GetRealmByName(realm)))
                 .As<ISubscriber>()
                 .WithParameter(TypedParameter.From(_settings.MeRabbitMqSettings.ConnectionString))
-                .SingleInstance();
-        }
-        
-        private void RegisterTrades(ContainerBuilder builder, string realm)
-        {
-            builder.RegisterType<TradesSubscriber>()
-                .As<ISubscriber>()
-                .WithParameter(TypedParameter.From(_settings.ElasticRabbitMqSettings.ConnectionString))
                 .SingleInstance();
         }
     }
