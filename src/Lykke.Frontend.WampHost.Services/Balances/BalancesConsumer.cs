@@ -78,7 +78,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                     {
                         Asset = balance.Asset,
                         Balance = balance.NewBalance,
-                        Reserved = balance.NewReserved
+                        Reserved = balance.NewReserved ?? default(double)
                     } }
                 });
             }
