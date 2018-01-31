@@ -18,11 +18,12 @@ namespace Lykke.Frontend.WampHost.Services
     {
         private readonly ConcurrentBag<IStopable> _stopables = new ConcurrentBag<IStopable>();
 
-        private static readonly IReadOnlyDictionary<MarketType, string> NamespaceMap = new Dictionary<MarketType, string>
-        {
-            [MarketType.Spot] = "lykke",
-            [MarketType.Mt] = "lykke.mt"
-        };
+        private static readonly IReadOnlyDictionary<MarketType, string> NamespaceMap =
+            new Dictionary<MarketType, string>
+            {
+                [MarketType.Spot] = "lykke",
+                [MarketType.Mt] = "lykke.mt"
+            };
 
         private readonly ILog _log;
         private readonly IConsole _consoleWriter;
@@ -34,7 +35,7 @@ namespace Lykke.Frontend.WampHost.Services
             _consoleWriter = consoleWriter;
             _env = env ?? "DefaultEnv";
         }
-        
+
         public void Dispose()
         {
             foreach (var stopable in _stopables)
@@ -43,22 +44,24 @@ namespace Lykke.Frontend.WampHost.Services
             }
         }
 
-        public void Subscribe<TMessage>(string connectionString, MarketType market, string source, IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
+        public void Subscribe<TMessage>(string connectionString, MarketType market, string source,
+            IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
         {
             var ns = NamespaceMap[market];
 
             var settings = RabbitMqSubscriptionSettings
-                .CreateForSubscriber(connectionString, ns, source, ns, $"{PlatformServices.Default.Application.ApplicationName}.{_env}");
+                .CreateForSubscriber(connectionString, ns, source, ns,
+                    $"{PlatformServices.Default.Application.ApplicationName}.{_env}");
 
-            var rabbitMqSubscriber = new RabbitMqSubscriber<TMessage>(settings, new DefaultErrorHandlingStrategy(_log, settings))
-                .SetMessageDeserializer(deserializer)
-                .SetMessageReadStrategy(new MessageReadQueueStrategy())
-                .Subscribe(handler)
-                .CreateDefaultBinding()
-                .SetLogger(_log)
-                .SetConsole(_consoleWriter)
-                .Start();
-            
+            var rabbitMqSubscriber =
+                new RabbitMqSubscriber<TMessage>(settings, new DefaultErrorHandlingStrategy(_log, settings))
+                    .SetMessageDeserializer(deserializer)
+                    .SetMessageReadStrategy(new MessageReadQueueStrategy())
+                    .Subscribe(handler)
+                    .SetLogger(_log)
+                    .SetConsole(_consoleWriter)
+                    .Start();
+
             _stopables.Add(rabbitMqSubscriber);
         }
     }

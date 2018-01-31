@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Lykke.Frontend.WampHost.Core.Mt;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using MarginTrading.Contract.BackendContracts;
@@ -20,14 +19,12 @@ namespace Lykke.Frontend.WampHost.Services.Mt
 {
     public class MtRabbitMqHandler: IMtRabbitMqHandler
     {
-        private readonly ILog _log;
         private readonly IClientResolver _clientResolver;
         private readonly ISubject<TradeClientContract> _tradesSubject;
         private readonly IWampSubject _userUpdatesSubject;
 
-        public MtRabbitMqHandler(IWampHostedRealm realm, ILog log, IClientResolver clientResolver)
+        public MtRabbitMqHandler(IWampHostedRealm realm, IClientResolver clientResolver)
         {
-            _log = log;
             _clientResolver = clientResolver;
             _userUpdatesSubject = realm.Services.GetSubject("user-updates.mt");
             _tradesSubject = realm.Services.GetSubject<TradeClientContract>("trades.mt");
@@ -91,6 +88,9 @@ namespace Lykke.Frontend.WampHost.Services.Mt
         private void SendUserUpdate(NotifyResponse notifyResponse, string clientId)
         {
             var notificationId = _clientResolver.GetNotificationId(clientId);
+            if (string.IsNullOrWhiteSpace(notificationId))
+                return;
+            
             _userUpdatesSubject.OnNext(new WampEvent
             {
                 Options = new PublishOptions {Eligible = new[] {long.Parse(notificationId)}},
