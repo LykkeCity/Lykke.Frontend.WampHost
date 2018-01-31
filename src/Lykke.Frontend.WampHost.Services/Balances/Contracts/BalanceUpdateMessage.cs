@@ -15,6 +15,6 @@ namespace Lykke.Frontend.WampHost.Services.Balances.Contracts
 
         [DisplayName("Reserved")]
         [JsonProperty("r")]
-        public double? Reserved { get; set; }
+        public double Reserved { get; set; }
     }
 }
