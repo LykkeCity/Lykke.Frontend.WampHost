@@ -120,6 +120,12 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
             {
                 sb.AppendLine("\"\",");
             }
+            else if (property.PropertyType.IsValueType && Nullable.GetUnderlyingType(property.PropertyType) != null)
+            {
+                var serialized = JsonConvert.SerializeObject(Activator.CreateInstance(Nullable.GetUnderlyingType(property.PropertyType)));
+
+                sb.AppendLine($"null | {serialized},");
+            }
             else
             {
                 sb.AppendLine("Doc not implemented,");

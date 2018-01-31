@@ -52,11 +52,12 @@ namespace Lykke.Frontend.WampHost.Services
             var settings = RabbitMqSubscriptionSettings
                 .CreateForSubscriber(connectionString, ns, source, ns,
                     $"{PlatformServices.Default.Application.ApplicationName}.{_env}");
+            settings.DeadLetterExchangeName = null;
 
             var rabbitMqSubscriber =
                 new RabbitMqSubscriber<TMessage>(settings, new DefaultErrorHandlingStrategy(_log, settings))
                     .SetMessageDeserializer(deserializer)
-                    .SetMessageReadStrategy(new MessageReadQueueStrategy())
+                    .CreateDefaultBinding()
                     .Subscribe(handler)
                     .SetLogger(_log)
                     .SetConsole(_consoleWriter)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -19,9 +20,8 @@ using WampSharp.Binding;
 using WampSharp.V2;
 using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Models;
-using Lykke.Frontend.WampHost.Services.Mt;
-using Lykke.Frontend.WampHost.Settings;
 using Lykke.Logs.Slack;
 
 namespace Lykke.Frontend.WampHost
@@ -64,9 +64,12 @@ namespace Lykke.Frontend.WampHost
                 var appSettings = Configuration.LoadSettings<AppSettings>();
 
                 Log = CreateLogWithSlack(services, appSettings);
+                builder.Populate(services);
 
                 builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log, Program.EnvInfo));
-                builder.Populate(services);
+                builder.RegisterModule(new PricesRealmModule(appSettings.CurrentValue.WampHost));
+                builder.RegisterModule(new UserRealmModule(appSettings.CurrentValue.WampHost));
+
                 ApplicationContainer = builder.Build();
 
                 return new AutofacServiceProvider(ApplicationContainer);
@@ -97,7 +100,7 @@ namespace Lykke.Frontend.WampHost
                     x.SwaggerEndpoint("/swagger/v1/swagger.json", ApiVersion);
                 });
                 app.UseStaticFiles();
-                
+
                 ConfigureWamp(app);
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().Wait());
@@ -114,7 +117,7 @@ namespace Lykke.Frontend.WampHost
         private void ConfigureWamp(IApplicationBuilder app)
         {
             var host = ApplicationContainer.Resolve<IWampHost>();
-            
+
             app.Map("/ws", builder =>
             {
                 builder.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromMinutes(1) });
@@ -124,10 +127,12 @@ namespace Lykke.Frontend.WampHost
                     new JTokenMsgpackBinding());
             });
 
-            var rpcMethods = ApplicationContainer.Resolve<IRpcFrontend>();
-            var realm = ApplicationContainer.Resolve<IWampHostedRealm>();
 
-            realm.Services.RegisterCallee(rpcMethods).Wait();
+            var rpcMethods = ApplicationContainer.Resolve<IRpcFrontend>();
+            foreach (var realm in ApplicationContainer.Resolve<IEnumerable<IWampHostedRealm>>())
+            {
+                realm.Services.RegisterCallee(rpcMethods).Wait();
+            }
 
             host.Open();
         }

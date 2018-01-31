@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 using MarginTrading.Contract.ClientContracts;
@@ -14,6 +15,10 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "quote.{spot|mt}.{instrument}.{bid|ask}", Description = "provides quotes. realm = 'prices', all parameters in the lower case.")]
         QuoteClientMessage Quotes();
+
+        [UsedImplicitly]
+        [DocMe(Name = "balances", Description = "user balances updates. realm = 'user', all parameters in the lower case.")]
+        BalanceUpdateMessage BalancesUpdate();
         
         [UsedImplicitly]
         [DocMe(Name = "trades.mt", Description = "provides margin trades of all users. realm = 'prices'.")]

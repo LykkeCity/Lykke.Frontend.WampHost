@@ -13,27 +13,31 @@ namespace Lykke.Frontend.WampHost.Services
     public class ShutdownManager : IShutdownManager
     {
         private readonly ILog _log;
-        private readonly IWampHostedRealm _realm;
+        private readonly IEnumerable<IWampHostedRealm> _realms;
         private readonly IHealthService _healthService;
 
         public ShutdownManager(
             ILog log,
-            IWampHostedRealm realm, 
+            IEnumerable<ISubscriber> subscribers,
+            IEnumerable<IWampHostedRealm> realms, 
             IHealthService healthService)
         {
             _log = log;
-            _realm = realm;
+            _realms = realms;
             _healthService = healthService;
         }
 
         public async Task StopAsync()
         {
-            await _log.WriteInfoAsync(nameof(ShutdownManager), nameof(StopAsync), "", "Unsubscribing from the realm sessions...");
-            
-            _realm.SessionCreated -= _healthService.TraceWampSessionCreated;
-            _realm.SessionClosed -= _healthService.TraceWampSessionClosed;
+            await _log.WriteInfoAsync(nameof(ShutdownManager), nameof(StopAsync), "", "Unsubscribing from the realms sessions...");
 
-            _realm.HostMetaApiService().Dispose();
+            foreach (var realm in _realms)
+            {
+                realm.SessionCreated -= _healthService.TraceWampSessionCreated;
+                realm.SessionClosed -= _healthService.TraceWampSessionClosed;
+                realm.HostMetaApiService().Dispose();
+            }
+;
         }
     }
 }
