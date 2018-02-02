@@ -1,7 +1,9 @@
 ﻿using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
+using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
+using Lykke.Job.TradesConverter.Contract;
 
 namespace Lykke.Frontend.WampHost.Services.Documentation
 {
@@ -17,5 +19,13 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "balances", Description = "user balances updates. realm = 'prices', all parameters in the lower case.")]
         BalanceUpdateMessage BalancesUpdate();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "orderbook.{spot|mt}.{instrument}.{buy|sell}", Description = "provides orderbooks. realm = 'prices', all parameters in the lower case. Mt is not implemented yet.")]
+        OrderbookModel Orderbooks();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'prices', all parameters in the lower case.")]
+        TradeLogItem Trades();
     }
 }

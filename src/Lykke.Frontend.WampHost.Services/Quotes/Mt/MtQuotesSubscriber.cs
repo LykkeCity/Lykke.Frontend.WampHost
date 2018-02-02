@@ -56,7 +56,7 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(SpotQuotesSubscriber), nameof(ProcessQuoteAsync), quote.ToJson(), message);
+                    _log.WriteWarning(nameof(ProcessQuoteAsync), quote.ToJson(), message);
 
                     return;
                 }
@@ -77,7 +77,7 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(MtQuotesSubscriber), nameof(ProcessQuoteAsync), quote.ToJson(), "Failed to process quote");
+                _log.WriteWarning(nameof(ProcessQuoteAsync), quote.ToJson(), "Failed to process quote");
                 throw;
             }
         }

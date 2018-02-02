@@ -1,8 +1,8 @@
 ﻿using Lykke.SettingsReader.Attributes;
 
-namespace Lykke.Frontend.WampHost.Core.Settings
+namespace Lykke.Frontend.WampHost.Settings
 {
-    public class SessionServiceClientSettings
+    public class SessionServiceSettings
     {
         [HttpCheck("/api/isalive")]
         public string SessionServiceUrl { get; set; }
