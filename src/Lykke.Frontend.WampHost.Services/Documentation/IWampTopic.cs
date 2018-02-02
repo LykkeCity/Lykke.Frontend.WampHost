@@ -17,7 +17,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         QuoteClientMessage Quotes();
 
         [UsedImplicitly]
-        [DocMe(Name = "balances", Description = "user balances updates. realm = 'user', all parameters in the lower case.")]
+        [DocMe(Name = "balances", Description = "user balances updates. realm = 'prices', all parameters in the lower case.")]
         BalanceUpdateMessage BalancesUpdate();
         
         [UsedImplicitly]
@@ -25,7 +25,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         OrderbookModel Orderbooks();
         
         [UsedImplicitly]
-        [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'user', all parameters in the lower case.")]
+        [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'prices', all parameters in the lower case.")]
         TradeLogItem Trades();
     }
 }

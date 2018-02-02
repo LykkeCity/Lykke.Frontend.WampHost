@@ -67,6 +67,9 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<RpcFrontend>()
                 .As<IRpcFrontend>()
                 .SingleInstance();
+
+            const string realm = "prices";
+            builder.Register(x => x.Resolve<IWampHost>().RealmContainer.GetRealmByName(realm));
         }
     }
 }
