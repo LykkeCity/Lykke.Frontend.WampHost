@@ -23,9 +23,10 @@ namespace Lykke.Frontend.WampHost.Services.Mt
         private readonly ISubject<TradeClientContract> _tradesSubject;
         private readonly IWampSubject _userUpdatesSubject;
 
-        public MtRabbitMqHandler(IWampHostedRealm realm, IClientResolver clientResolver)
+        public MtRabbitMqHandler(IEnumerable<IWampHostedRealm> realms, IClientResolver clientResolver)
         {
             _clientResolver = clientResolver;
+            var realm = realms.Single(r => r.Name == "prices");
             _userUpdatesSubject = realm.Services.GetSubject("user-updates.mt");
             _tradesSubject = realm.Services.GetSubject<TradeClientContract>("trades.mt");
         }
