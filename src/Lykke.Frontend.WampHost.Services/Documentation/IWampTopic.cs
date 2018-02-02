@@ -15,7 +15,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         QuoteClientMessage Quotes();
 
         [UsedImplicitly]
-        [DocMe(Name = "balances", Description = "user balances updates. realm = 'user', all parameters in the lower case.")]
+        [DocMe(Name = "balances", Description = "user balances updates. realm = 'prices', all parameters in the lower case.")]
         BalanceUpdateMessage BalancesUpdate();
     }
 }
