@@ -13,6 +13,7 @@
     <PackageReference Include="Lykke.Logs" Version="3.6.0" />
     <PackageReference Include="Lykke.MarginTrading.Contracts" Version="1.0.0" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="6.0.0" />
+    <PackageReference Include="Lykke.Service.Assets.Client" Version="3.3.1" />
     <PackageReference Include="Lykke.SettingsReader" Version="1.1.4" />
   </ItemGroup>
 </Project>
