@@ -40,7 +40,7 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Spot
                 ProcessQuoteAsync);
         }
 
-        private async Task ProcessQuoteAsync(QuoteMessage quote)
+        private Task ProcessQuoteAsync(QuoteMessage quote)
         {
             try
             {
@@ -48,9 +48,9 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Spot
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(SpotQuotesSubscriber), nameof(ProcessQuoteAsync), quote.ToJson(), message);
+                    _log.WriteWarning( nameof(ProcessQuoteAsync), quote, message);
 
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 _quotesManager.ProcessQuote(
@@ -62,9 +62,11 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Spot
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(SpotQuotesSubscriber), nameof(ProcessQuoteAsync), quote.ToJson(), "Failed to process quote");
+                _log.WriteWarning(nameof(ProcessQuoteAsync), quote, "Failed to process quote");
                 throw;
             }
+            
+            return Task.CompletedTask;
         }
 
         private static IReadOnlyCollection<string> ValidateQuote(QuoteMessage quote)

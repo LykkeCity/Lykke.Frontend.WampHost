@@ -51,10 +51,10 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                 market: MarketType.Spot);
         }
 
-        private async Task Process(BalanceUpdateEventModel message)
+        private Task Process(BalanceUpdateEventModel message)
         {
             if (!message.Balances.Any())
-                return;
+                return Task.CompletedTask;
 
             foreach (var balance in message.Balances)
             {
@@ -77,6 +77,8 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                     } }
                 });
             }
+            
+            return Task.CompletedTask;
         }
     }
 }

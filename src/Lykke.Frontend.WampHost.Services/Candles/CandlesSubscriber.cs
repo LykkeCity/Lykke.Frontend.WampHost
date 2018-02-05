@@ -43,7 +43,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 ProcessCandleAsync);
         }
 
-        private async Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
+        private Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
         {
             try
             {
@@ -51,20 +51,20 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 if (validationErrors.Any())
                 {
                     var message = string.Join("\r\n", validationErrors);
-                    await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync),
-                        updatedCandles.ToJson(), message);
+                    _log.WriteWarning(nameof(ProcessCandleAsync), updatedCandles, message);
 
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 _candlesManager.ProcessCandles(updatedCandles, _marketType);
             }
             catch (Exception)
             {
-                await _log.WriteWarningAsync(nameof(CandlesSubscriber), nameof(ProcessCandleAsync),
-                    updatedCandles.ToJson(), "Failed to process candle");
+                _log.WriteWarning(nameof(ProcessCandleAsync), updatedCandles, "Failed to process candle");
                 throw;
             }
+            
+            return Task.CompletedTask;
         }
 
         private static IReadOnlyCollection<string> ValidateCandle(CandlesUpdatedEvent updatedCandles)
