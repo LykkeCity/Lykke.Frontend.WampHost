@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using WampSharp.V2.Authentication;
+using WampSharp.V2.Core.Contracts;
 
 namespace Lykke.Frontend.WampHost.Security
 {
@@ -21,6 +22,10 @@ namespace Lykke.Frontend.WampHost.Security
             WampPendingClientDetails details,
             IWampSessionAuthenticator transportAuthenticator)
         {
+            // todo: change hardcoded realm name into realm collection resolving
+            if (details.Realm != "prices")
+                throw new WampAuthenticationException(new AbortDetails { Message = "unknown realm" });
+
             if (details.HelloDetails.AuthenticationMethods != null && details.HelloDetails.AuthenticationMethods.Contains(AuthMethods.Ticket))
             {
                 return new TicketSessionAuthenticator(details, _tokenValidator, _sessionCache);
