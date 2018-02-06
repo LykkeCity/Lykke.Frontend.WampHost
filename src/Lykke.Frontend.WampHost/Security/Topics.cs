@@ -2,6 +2,6 @@
 {
     static class Topics
     {
-        public static readonly string[] WithAuth = { "trades" };
+        public static readonly string[] WithAuth = { "trades", "balances" };
     }
 }
