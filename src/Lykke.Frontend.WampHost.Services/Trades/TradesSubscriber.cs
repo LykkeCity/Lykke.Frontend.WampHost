@@ -23,17 +23,17 @@ namespace Lykke.Frontend.WampHost.Services.Trades
         private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
         private readonly IWampSubject _subject;
-        private readonly IClientResolver _clientResolver;
+        private readonly ISessionCache _sessionCache;
 
         public TradesSubscriber(
             [NotNull] ILog log,
             [NotNull] IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
             [NotNull] string connectionString,
             [NotNull] IWampHostedRealm realm,
-            [NotNull] IClientResolver clientResolver)
+            [NotNull] ISessionCache sessionCache)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
-            _clientResolver = clientResolver ?? throw new ArgumentNullException(nameof(clientResolver));
+            _sessionCache = sessionCache ?? throw new ArgumentNullException(nameof(sessionCache));
             _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper ?? throw new ArgumentNullException(nameof(rabbitMqSubscribeHelper));
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
@@ -57,16 +57,16 @@ namespace Lykke.Frontend.WampHost.Services.Trades
 
             try
             {
-                var notificationId = _clientResolver.GetNotificationId(messages[0].UserId);
+                var sessionIds = _sessionCache.GetSessionIds(messages[0].UserId);
 
-                if (notificationId == null)
+                if (sessionIds.Length == 0)
                     return;
 
                 _subject.OnNext(new WampEvent
                 {
                     Options = new PublishOptions
                     {
-                        Eligible = new[] { long.Parse(notificationId) }
+                        Eligible = sessionIds
                     },
                     Arguments = new object[] { messages }
                 });

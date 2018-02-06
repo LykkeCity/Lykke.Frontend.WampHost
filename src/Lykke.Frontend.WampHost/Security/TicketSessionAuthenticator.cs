@@ -10,16 +10,16 @@ namespace Lykke.Frontend.WampHost.Security
     {
         private readonly WampPendingClientDetails _details;
         private readonly ITokenValidator _tokenValidator;
-        private readonly IClientResolver _clientResolver;
+        private readonly ISessionCache _sessionCache;
 
         public TicketSessionAuthenticator(
             [NotNull] WampPendingClientDetails details,
             [NotNull] ITokenValidator sessionService,
-            [NotNull] IClientResolver clientResolver)
+            [NotNull] ISessionCache sessionCache)
         {
             _details = details ?? throw new ArgumentNullException(nameof(details));
             _tokenValidator = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
-            _clientResolver = clientResolver ?? throw new ArgumentNullException(nameof(clientResolver));
+            _sessionCache = sessionCache ?? throw new ArgumentNullException(nameof(sessionCache));
 
             AuthenticationId = details.HelloDetails.AuthenticationId;
         }
@@ -28,7 +28,7 @@ namespace Lykke.Frontend.WampHost.Security
         {
             if (_tokenValidator.Validate(signature))
             {
-                _clientResolver.SetNotificationId(signature, _details.SessionId.ToString());
+                _sessionCache.AddSessionId(signature, _details.SessionId);
 
                 IsAuthenticated = true;
 

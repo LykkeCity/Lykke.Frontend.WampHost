@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Services.Security;
@@ -7,7 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Lykke.Frontend.WampHost.Services.Security
 {
-    public class ClientResolver : ITokenValidator, IClientResolver
+    public class ClientResolver : ITokenValidator, ISessionCache
     {
         private readonly ILog _log;
         private readonly IMemoryCache _cache;
@@ -34,7 +36,7 @@ namespace Lykke.Frontend.WampHost.Services.Security
             return GetClientId(token) != null;
         }
 
-        public string GetClientId(string token)
+        private string GetClientId(string token)
         {
             if (_cache.TryGetValue(token, out string clientId))
             {
@@ -60,20 +62,48 @@ namespace Lykke.Frontend.WampHost.Services.Security
             return clientId;
         }
 
-        public string GetNotificationId(string clientId)
+        private static readonly long[] ZeroSessionsValue = new long[0];
+        public long[] GetSessionIds(string clientId)
         {
-            if (_cache.TryGetValue(clientId, out string notificationId))
+            if (_cache.TryGetValue(clientId, out long[] sessionIds))
             {
-                return notificationId;
+                return sessionIds;
             }
 
-            return null;
+            return ZeroSessionsValue;
         }
 
-        public void SetNotificationId(string token, string notificationId)
+        public void AddSessionId(string token, long sessionId)
         {
             var clientId = GetClientId(token);
-            _cache.Set(clientId, notificationId, _sessionCacheOptions);
+            _cache.Set(sessionId, clientId, _sessionCacheOptions);
+
+            if (_cache.TryGetValue(clientId, out long[] sessionIds))
+            {
+                // working with HashSet is not effective, but more readable than working with Array; type 'long[]' is stored for performance needs
+                var sessions = new HashSet<long>(sessionIds) { sessionId };
+                _cache.Set(clientId, sessions.ToArray(), _sessionCacheOptions);
+            }
+            else
+            {
+                _cache.Set(clientId, new[] { sessionId }, _sessionCacheOptions);
+            }
+        }
+
+        public bool TryRemoveSessionId(long sessionId)
+        {
+            if (_cache.TryGetValue(sessionId, out string clientId))
+            {
+                _cache.Remove(sessionId);
+
+                // working with HashSet is not effective, but more readable than working with Array; type 'long[]' is stored for performance needs
+                var sessionIds = _cache.Get<long[]>(clientId);
+                var sessions = new HashSet<long>(sessionIds);
+                sessions.Remove(sessionId);
+                _cache.Set(clientId, sessions.ToArray(), _sessionCacheOptions);
+            }
+
+            return false;
         }
     }
 }
