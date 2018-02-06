@@ -2,6 +2,7 @@
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
+using Lykke.Frontend.WampHost.Services.Commands;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 using Lykke.Job.TradesConverter.Contract;
 
@@ -27,5 +28,9 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'prices', all parameters in the lower case.")]
         TradeLogItem Trades();
+
+        [UsedImplicitly]
+        [DocMe(Name = "commands.sign", Description = "commands for a phone. PromoteSession - to sign user session by private key.")]
+        SignCommand SignCommands();
     }
 }
