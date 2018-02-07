@@ -16,36 +16,29 @@ namespace Lykke.Frontend.WampHost.Services.Orderbooks.Spot
     public class SpotOrderbookSubscriber : ISubscriber
     {
         private readonly ILog _log;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
         private readonly IWampHostedRealm _realm;
 
-        private IStopable _subscriber;
-
         public SpotOrderbookSubscriber(
-            IRabbitMqSubscribersFactory subscribersFactory,
+            IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
             string connectionString,
             ILog log, IWampHostedRealm realm)
         {
             _log = log;
             _realm = realm;
-            _subscribersFactory = subscribersFactory;
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper;
             _connectionString = connectionString;
         }
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
+            _rabbitMqSubscribeHelper.Subscribe(
                 _connectionString,
                 MarketType.Spot,
                 "orderbook",
                 new JsonMessageDeserializer<OrderbookMessage>(),
                 ProcessOrderbookAsync);
-        }
-
-        public void Stop()
-        {
-            _subscriber?.Stop();
         }
 
         private async Task ProcessOrderbookAsync(OrderbookMessage orderbookMessage)
@@ -64,11 +57,6 @@ namespace Lykke.Frontend.WampHost.Services.Orderbooks.Spot
             }
 
             await Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
         }
     }
 }

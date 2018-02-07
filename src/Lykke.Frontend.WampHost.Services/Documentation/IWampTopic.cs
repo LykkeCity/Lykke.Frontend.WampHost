@@ -4,6 +4,7 @@ using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 using Lykke.Job.TradesConverter.Contract;
+using MarginTrading.Contract.ClientContracts;
 
 namespace Lykke.Frontend.WampHost.Services.Documentation
 {
@@ -27,5 +28,13 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'prices', all parameters in the lower case.")]
         TradeLogItem Trades();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "trades.mt", Description = "provides margin trades of all users. realm = 'prices'.")]
+        TradeClientContract MtTrades();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "user-updates.mt", Description = "provides margin trading users and accounts updates. realm = 'prices'.")]
+        NotifyResponse MtUserUpdates();
     }
 }

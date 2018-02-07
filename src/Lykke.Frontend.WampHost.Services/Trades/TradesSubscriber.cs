@@ -20,22 +20,21 @@ namespace Lykke.Frontend.WampHost.Services.Trades
     public class TradesSubscriber : ISubscriber
     {
         private readonly ILog _log;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
-        private IStopable _subscriber;
         private readonly IWampSubject _subject;
         private readonly IClientResolver _clientResolver;
 
         public TradesSubscriber(
             [NotNull] ILog log,
-            [NotNull] IRabbitMqSubscribersFactory subscribersFactory,
+            [NotNull] IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
             [NotNull] string connectionString,
             [NotNull] IWampHostedRealm realm,
             [NotNull] IClientResolver clientResolver)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _clientResolver = clientResolver ?? throw new ArgumentNullException(nameof(clientResolver));
-            _subscribersFactory = subscribersFactory ?? throw new ArgumentNullException(nameof(subscribersFactory));
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper ?? throw new ArgumentNullException(nameof(rabbitMqSubscribeHelper));
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
 
             _subject = realm.Services.GetSubject("trades");
@@ -43,17 +42,12 @@ namespace Lykke.Frontend.WampHost.Services.Trades
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
+            _rabbitMqSubscribeHelper.Subscribe(
                 _connectionString,
                 MarketType.Spot,
                 "tradelog",
                 new MessagePackMessageDeserializer<List<TradeLogItem>>(),
                 ProcessTradeAsync);
-        }
-
-        public void Stop()
-        {
-            _subscriber?.Stop();
         }
 
         private async Task ProcessTradeAsync(List<TradeLogItem> messages)
@@ -84,11 +78,6 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             }
 
             await Task.CompletedTask;
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
         }
     }
 }

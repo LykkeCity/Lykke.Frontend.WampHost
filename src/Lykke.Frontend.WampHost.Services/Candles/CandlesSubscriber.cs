@@ -15,40 +15,35 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 {
     [UsedImplicitly]
     public class CandlesSubscriber : ISubscriber
-    {   
+    {
         private readonly ILog _log;
         private readonly ICandlesManager _candlesManager;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
         private readonly MarketType _marketType;
 
-        private IStopable _subscriber;
-
-        public CandlesSubscriber(ILog log, ICandlesManager candlesManager, IRabbitMqSubscribersFactory subscribersFactory, string connectionString, MarketType marketType)
+        public CandlesSubscriber(ILog log, ICandlesManager candlesManager,
+            IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
+            string connectionString, MarketType marketType)
         {
             _log = log;
             _candlesManager = candlesManager;
-            _subscribersFactory = subscribersFactory;
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper;
             _connectionString = connectionString;
             _marketType = marketType;
         }
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
-                _connectionString, 
-                _marketType, 
-                "candles-v2", 
+            _rabbitMqSubscribeHelper.Subscribe(
+                _connectionString,
+                _marketType,
+                "candles-v2",
                 new MessagePackMessageDeserializer<CandlesUpdatedEvent>(),
                 ProcessCandleAsync);
         }
 
-        public void Stop()
-        {
-            _subscriber?.Stop();
-        }
-
-        private async Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
+        private Task ProcessCandleAsync(CandlesUpdatedEvent updatedCandles)
         {
             try
             {
@@ -58,7 +53,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                     var message = string.Join("\r\n", validationErrors);
                     _log.WriteWarning(nameof(ProcessCandleAsync), updatedCandles, message);
 
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 _candlesManager.ProcessCandles(updatedCandles, _marketType);
@@ -68,6 +63,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 _log.WriteWarning(nameof(ProcessCandleAsync), updatedCandles, "Failed to process candle");
                 throw;
             }
+            
+            return Task.CompletedTask;
         }
 
         private static IReadOnlyCollection<string> ValidateCandle(CandlesUpdatedEvent updatedCandles)
@@ -128,11 +125,6 @@ namespace Lykke.Frontend.WampHost.Services.Candles
             }
 
             return errors;
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
         }
     }
 }
