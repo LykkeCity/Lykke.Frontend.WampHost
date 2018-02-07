@@ -40,6 +40,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
                 connectionString: _connectionString,
                 market: _marketType,
                 source: "tradelog",
+                context: "public",
                 deserializer: new MessagePackMessageDeserializer<List<TradeLogItem>>(),
                 handler: ProcessTradeAsync);
         }
