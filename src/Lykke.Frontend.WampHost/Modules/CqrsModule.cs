@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Autofac;
 using Common.Log;
 using Inceptum.Cqrs.Configuration;
@@ -8,8 +7,10 @@ using Inceptum.Messaging;
 using Inceptum.Messaging.RabbitMq;
 using Lykke.Cqrs;
 using Lykke.Frontend.WampHost.Core.Settings;
+using Lykke.Frontend.WampHost.Services.Assets.IncomeMessages;
 using Lykke.Frontend.WampHost.Services.Commands;
 using Lykke.Frontend.WampHost.Services.Handlers;
+using Lykke.Frontend.WampHost.Services.Projections;
 using Lykke.Messaging;
 using Lykke.SettingsReader;
 
@@ -41,9 +42,13 @@ namespace Lykke.Frontend.WampHost.Modules
                 new RabbitMqTransportFactory());
 
             builder.RegisterType<SignCommandHandler>();
+            builder.RegisterType<AssetsProjection>();
 
             builder.Register(ctx =>
             {
+                const string defaultPipeline = "commands";
+                const string defaultRoute = "self";
+
                 return new CqrsEngine(_log,
                     ctx.Resolve<IDependencyResolver>(),
                     messagingEngine,
@@ -54,10 +59,17 @@ namespace Lykke.Frontend.WampHost.Modules
                         "messagepack",
                         environment: "lykke",
                         exclusiveQueuePostfix: "k8s")),
-                    
+
                     Register.BoundedContext("wamp")
-                        .ListeningCommands(typeof(SignCommand)).On("commands")
-                        .WithCommandsHandler<SignCommandHandler>()                    
+                        .ListeningCommands(typeof(SignCommand)).On(defaultPipeline)
+                        .WithCommandsHandler<SignCommandHandler>()
+                        .ListeningEvents(
+                                typeof(AssetCreatedEvent),
+                                typeof(AssetUpdatedEvent),
+                                typeof(AssetPairCreatedEvent),
+                                typeof(AssetPairUpdatedEvent))
+                            .From("assets").On(defaultRoute)
+                        .WithProjection(typeof(AssetsProjection), "assets")
                 );
             })
             .As<ICqrsEngine>()
@@ -65,7 +77,7 @@ namespace Lykke.Frontend.WampHost.Modules
             .AutoActivate();
         }
     }
-    
+
     internal class AutofacDependencyResolver : IDependencyResolver
     {
         private readonly IComponentContext _context;

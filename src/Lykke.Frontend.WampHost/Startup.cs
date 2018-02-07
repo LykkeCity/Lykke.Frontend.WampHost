@@ -67,12 +67,12 @@ namespace Lykke.Frontend.WampHost
                 builder.Populate(services);
 
                 builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log, Program.EnvInfo));
+                builder.RegisterModule(new CqrsModule(appSettings.Nested(a => a.WampHost), Log));
                 builder.RegisterModule(new BalancesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new CandlesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new QuotesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new OrderBooksModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new TradesModule(appSettings.CurrentValue.WampHost));
-                builder.RegisterModule(new CqrsModule(appSettings.Nested(a => a.WampHost), Log));
                 builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue));
 
                 ApplicationContainer = builder.Build();
