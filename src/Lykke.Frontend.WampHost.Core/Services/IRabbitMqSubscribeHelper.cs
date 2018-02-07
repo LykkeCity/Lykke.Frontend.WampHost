@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.RabbitMqBroker.Subscriber;
 

@@ -10,7 +10,6 @@ using Lykke.Frontend.WampHost.Core.Domain.Quotes;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt.Messages;
-using Lykke.Frontend.WampHost.Services.Quotes.Spot;
 using Lykke.RabbitMqBroker.Subscriber;
 
 namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
