@@ -42,11 +42,11 @@ namespace Lykke.Frontend.WampHost.Services.Trades
         public void Start()
         {
             _rabbitMqSubscribeHelper.Subscribe(
-                _connectionString,
-                MarketType.Spot,
-                "tradelog",
-                new MessagePackMessageDeserializer<List<TradeLogItem>>(),
-                ProcessTradeAsync);
+                connectionString: _connectionString,
+                market: MarketType.Spot,
+                source: "tradelog",
+                deserializer: new MessagePackMessageDeserializer<List<TradeLogItem>>(),
+                handler: ProcessTradeAsync);
         }
 
         private async Task ProcessTradeAsync(List<TradeLogItem> messages)

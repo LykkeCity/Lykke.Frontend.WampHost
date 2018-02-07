@@ -1,27 +1,26 @@
 ﻿using System;
-using System.Linq;
 using Autofac;
-using Common;
-using Common.Log;
+using Autofac.Extensions.DependencyInjection;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.TradesAnon;
 using Lykke.Service.Assets.Client;
-using Lykke.Service.Assets.Client.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lykke.Frontend.WampHost.Modules
 {
     public class TradesAnonModule : Module
     {
         private readonly AppSettings _settings;
-        private readonly ILog _log;
-        
-        public TradesAnonModule(AppSettings settings, ILog log)
+        private readonly IServiceCollection _services;
+
+        public TradesAnonModule(AppSettings settings)
         {
             _settings = settings;
-            _log = log;
+
+            _services = new ServiceCollection();
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -35,20 +34,13 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<TradesAnonManager>()
                 .As<ITradesAnonManager>()
                 .SingleInstance();
-            
-            builder.RegisterInstance<IAssetsService>(
-                new AssetsService(new Uri(_settings.AssetsServiceClient.ServiceUrl)));
-            
-            builder.Register(c =>
-            {
-                var ctx = c.Resolve<IComponentContext>();
-                return new CachedDataDictionary<string, AssetPair>(
-                    async () => 
-                    {
-                        await _log.WriteInfoAsync("Update assetpairs cache...", "", "");
-                        return (await ctx.Resolve<IAssetsService>().AssetPairGetAllAsync()).ToDictionary(itm => itm.Id);
-                    });
-            }).SingleInstance();
+
+            var cacheExpirationPeriod = TimeSpan.FromMinutes(5);
+            _services.RegisterAssetsClient(AssetServiceSettings.Create(
+                new Uri(_settings.AssetsServiceClient.ServiceUrl),
+                cacheExpirationPeriod));
+
+            builder.Populate(_services);
         }
     }
 }
