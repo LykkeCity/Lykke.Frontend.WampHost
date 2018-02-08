@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
@@ -58,7 +57,6 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             try
             {
                 var sessionIds = _sessionCache.GetSessionIds(messages[0].UserId);
-
                 if (sessionIds.Length == 0)
                     return;
 

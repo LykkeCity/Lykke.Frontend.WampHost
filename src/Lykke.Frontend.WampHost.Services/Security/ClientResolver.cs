@@ -101,6 +101,8 @@ namespace Lykke.Frontend.WampHost.Services.Security
                 var sessions = new HashSet<long>(sessionIds);
                 sessions.Remove(sessionId);
                 _cache.Set(clientId, sessions.ToArray(), _sessionCacheOptions);
+
+                return true;
             }
 
             return false;

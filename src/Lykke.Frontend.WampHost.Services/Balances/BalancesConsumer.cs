@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Settings;
@@ -35,7 +35,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _sessionCache = sessionCache ?? throw new ArgumentNullException(nameof(sessionCache));
-            rabbitMqSubscribeHelper ?? throw new ArgumentNullException(nameof(rabbitMqSubscribeHelper));
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper ?? throw new ArgumentNullException(nameof(rabbitMqSubscribeHelper));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             _subject = realm.Services.GetSubject(TopicUri);
@@ -45,10 +45,10 @@ namespace Lykke.Frontend.WampHost.Services.Balances
         {
             _rabbitMqSubscribeHelper.Subscribe(
                 connectionString: _settings.ConnectionString,
+                market: MarketType.Spot,
                 source: "balanceupdate",
                 deserializer: new JsonMessageDeserializer<BalanceUpdateEventModel>(),
-                handler: Process, 
-                market: MarketType.Spot);
+                handler: Process);
         }
 
         private Task Process(BalanceUpdateEventModel message)
@@ -59,7 +59,6 @@ namespace Lykke.Frontend.WampHost.Services.Balances
             foreach (var balance in message.Balances)
             {
                 var sessionIds = _sessionCache.GetSessionIds(balance.Id);
-
                 if (sessionIds.Length == 0)
                     continue;
 
@@ -77,7 +76,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                     } }
                 });
             }
-			return Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }
