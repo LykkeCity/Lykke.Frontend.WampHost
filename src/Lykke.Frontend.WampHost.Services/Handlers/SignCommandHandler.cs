@@ -46,9 +46,9 @@ namespace Lykke.Frontend.WampHost.Services.Handlers
                     Arguments = new object[] { signCommand }
                 });                
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                _log.WriteWarning(nameof(SignCommandHandler), signCommand.ClientId, "Failed to process sign command");                                
+                _log.WriteWarning(nameof(SignCommandHandler), signCommand.ClientId, "Failed to process sign command", ex);                                
             }
             
             return CommandHandlingResult.Ok();
