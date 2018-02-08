@@ -28,7 +28,14 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon.Contract
         
         public bool? IsHidden { get; set; }
         
-        public TradeLogItemFee Fee { get; set; }
+        public TradeAnonFee Fee { get; set; }
+    }
+
+    public class TradeAnonFee
+    {
+        public string Type { set; get; }
+        public double? Size { set; get; }
+        public string SizeType { set; get; }
     }
 
     public static class TradesConverter
@@ -51,13 +58,11 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon.Contract
 
             if (tradeLogItem.Fee != null)
             {
-                result.Fee = new TradeLogItemFee
+                result.Fee = new TradeAnonFee
                 {
                     Type = tradeLogItem.Fee.Type,
                     Size = tradeLogItem.Fee.Size,
-                    SizeType = tradeLogItem.Fee.SizeType,
-                    SourceClientId = tradeLogItem.Fee.SourceClientId,
-                    TargetClientId = tradeLogItem.Fee.TargetClientId
+                    SizeType = tradeLogItem.Fee.SizeType
                 };
             }
             
