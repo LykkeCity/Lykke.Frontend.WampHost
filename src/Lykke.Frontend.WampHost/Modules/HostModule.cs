@@ -52,7 +52,7 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.RegisterType<ClientResolver>()
                 .As<ITokenValidator>()
-                .As<IClientResolver>()
+                .As<ISessionCache>()
                 .SingleInstance();
 
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);

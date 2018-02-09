@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
-using Common;
 using Lykke.Frontend.WampHost.Core.Mt;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using MarginTrading.Contract.BackendContracts;
@@ -17,19 +14,19 @@ using WampSharp.V2.Realm;
 
 namespace Lykke.Frontend.WampHost.Services.Mt
 {
-    public class MtRabbitMqHandler: IMtRabbitMqHandler
+    public class MtRabbitMqHandler : IMtRabbitMqHandler
     {
-        private readonly IClientResolver _clientResolver;
+        private readonly ISessionCache _sessionCache;
         private readonly ISubject<TradeClientContract> _tradesSubject;
         private readonly IWampSubject _userUpdatesSubject;
 
-        public MtRabbitMqHandler(IWampHostedRealm realm, IClientResolver clientResolver)
+        public MtRabbitMqHandler(IWampHostedRealm realm, ISessionCache sessionCache)
         {
-            _clientResolver = clientResolver;
+            _sessionCache = sessionCache;
             _userUpdatesSubject = realm.Services.GetSubject("user-updates.mt");
             _tradesSubject = realm.Services.GetSubject<TradeClientContract>("trades.mt");
         }
-        
+
         public void ProcessTrades(TradeContract trade)
         {
             _tradesSubject.OnNext(new TradeClientContract
@@ -71,7 +68,7 @@ namespace Lykke.Frontend.WampHost.Services.Mt
             {
                 try
                 {
-                    SendUserUpdate(new NotifyResponse {UserUpdate = userUpdate.ToClientContract()}, clientId);
+                    SendUserUpdate(new NotifyResponse { UserUpdate = userUpdate.ToClientContract() }, clientId);
                 }
                 catch (Exception ex)
                 {
@@ -87,14 +84,14 @@ namespace Lykke.Frontend.WampHost.Services.Mt
 
         private void SendUserUpdate(NotifyResponse notifyResponse, string clientId)
         {
-            var notificationId = _clientResolver.GetNotificationId(clientId);
-            if (string.IsNullOrWhiteSpace(notificationId))
+            var sessionIds = _sessionCache.GetSessionIds(clientId);
+            if (sessionIds.Length == 0)
                 return;
-            
+
             _userUpdatesSubject.OnNext(new WampEvent
             {
-                Options = new PublishOptions {Eligible = new[] {long.Parse(notificationId)}},
-                Arguments = new object[] {notifyResponse}
+                Options = new PublishOptions { Eligible = sessionIds },
+                Arguments = new object[] { notifyResponse }
             });
         }
 
