@@ -22,9 +22,6 @@
     <None Remove="Views\Shared\TypesListPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\MethodsListPartial.cshtml" />
     <Content Include="Views\Shared\TypesListPartial.cshtml" />
