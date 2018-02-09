@@ -54,20 +54,22 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             if (!messages.Any())
                 return;
 
+            var messagesByUser = messages.GroupBy(x => x.UserId);
+
             try
             {
-                var sessionIds = _sessionCache.GetSessionIds(messages[0].UserId);
-                if (sessionIds.Length == 0)
-                    return;
-
-                _subject.OnNext(new WampEvent
+                foreach (var userTrades in messagesByUser)
                 {
-                    Options = new PublishOptions
+                    var sessionIds = _sessionCache.GetSessionIds(userTrades.First().UserId);
+                    if (sessionIds.Length == 0)
+                        return;
+
+                    _subject.OnNext(new WampEvent
                     {
-                        Eligible = sessionIds
-                    },
-                    Arguments = new object[] { messages }
-                });
+                        Options = new PublishOptions { Eligible = sessionIds },
+                        Arguments = new object[] { userTrades.ToList() }
+                    });
+                }
             }
             catch (Exception ex)
             {
