@@ -28,7 +28,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
             if (pairId == null)
                 return;
 
-            var topic = $"trades.{market.ToString().ToLower()}.{pairId}";
+            var topic = $"trades.{market.ToString().ToLower()}.{pairId.ToLower()}";
             var subject = _realm.Services.GetSubject<TradeAnonClientMessage>(topic);
 
             subject.OnNext(tradeLogItem.ToTradeAnonClientMessage());
