@@ -9,7 +9,6 @@ using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Lykke.Frontend.WampHost.Services
 {
@@ -47,11 +46,18 @@ namespace Lykke.Frontend.WampHost.Services
         public void Subscribe<TMessage>(string connectionString, MarketType market, string source,
             IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
         {
+            Subscribe(connectionString, market, source, null, deserializer, handler);
+        }
+
+        public void Subscribe<TMessage>(string connectionString, MarketType market, string source, string context,
+            IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
+        {
             var ns = NamespaceMap[market];
 
-            var settings = RabbitMqSubscriptionSettings
-                .CreateForSubscriber(connectionString, ns, source, ns,
-                    $"{PlatformServices.Default.Application.ApplicationName}.{_env}");
+            var applicationName = "wamphost";
+            var endpoint = context == null ? string.Empty : $".{context}";
+            endpoint = $"{applicationName}{endpoint}.{_env}";
+            var settings = RabbitMqSubscriptionSettings.CreateForSubscriber(connectionString, ns, source, ns, endpoint);
             settings.DeadLetterExchangeName = null;
 
             var rabbitMqSubscriber =
