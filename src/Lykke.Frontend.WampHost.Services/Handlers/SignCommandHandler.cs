@@ -8,6 +8,7 @@ using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Services.Commands;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using WampSharp.V2;
 using WampSharp.V2.Core.Contracts;
 using WampSharp.V2.Realm;
@@ -43,7 +44,7 @@ namespace Lykke.Frontend.WampHost.Services.Handlers
                     {
                         Eligible = new[] { long.Parse(notificationId) }
                     },
-                    Arguments = new object[] { signCommand }
+                    Arguments = new object[] { new { signCommand.RequestId, signCommand.RequestType, Context = JObject.Parse(signCommand.Context) } }
                 });                
             }
             catch (Exception ex)
