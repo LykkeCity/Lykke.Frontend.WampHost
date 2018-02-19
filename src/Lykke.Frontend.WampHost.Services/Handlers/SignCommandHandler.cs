@@ -44,7 +44,7 @@ namespace Lykke.Frontend.WampHost.Services.Handlers
                     {
                         Eligible = new[] { long.Parse(notificationId) }
                     },
-                    Arguments = new object[] { new { signCommand.RequestId, signCommand.RequestType, Context = JObject.Parse(signCommand.Context) } }
+                    Arguments = new object[] { new { signCommand.RequestId, signCommand.RequestType, signCommand.Context } }
                 });                
             }
             catch (Exception ex)
