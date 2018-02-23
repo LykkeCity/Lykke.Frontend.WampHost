@@ -10,7 +10,6 @@ using Lykke.Frontend.WampHost.Core.Domain.Quotes;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Quotes;
 using Lykke.Frontend.WampHost.Services.Quotes.Mt.Messages;
-using Lykke.Frontend.WampHost.Services.Quotes.Spot;
 using Lykke.RabbitMqBroker.Subscriber;
 
 namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
@@ -20,22 +19,20 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
     {
         private readonly ILog _log;
         private readonly IQuotesManager _quotesManager;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
 
-        private IStopable _subscriber;
-
-        public MtQuotesSubscriber(ILog log, IQuotesManager quotesManager, IRabbitMqSubscribersFactory subscribersFactory, string connectionString)
+        public MtQuotesSubscriber(ILog log, IQuotesManager quotesManager, IRabbitMqSubscribeHelper rabbitMqSubscribeHelper, string connectionString)
         {
             _log = log;
             _quotesManager = quotesManager;
-            _subscribersFactory = subscribersFactory;
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper;
             _connectionString = connectionString;
         }
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
+            _rabbitMqSubscribeHelper.Subscribe(
                 _connectionString, 
                 MarketType.Mt, 
                 "pricefeed",
@@ -43,12 +40,7 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
                 ProcessQuoteAsync);
         }
 
-        public void Stop()
-        {
-            _subscriber?.Stop();
-        }
-
-        private async Task ProcessQuoteAsync(MtQuoteMessage quote)
+        private Task ProcessQuoteAsync(MtQuoteMessage quote)
         {
             try
             {
@@ -57,8 +49,7 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
                 {
                     var message = string.Join("\r\n", validationErrors);
                     _log.WriteWarning(nameof(ProcessQuoteAsync), quote.ToJson(), message);
-
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 _quotesManager.ProcessQuote(
@@ -80,6 +71,8 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
                 _log.WriteWarning(nameof(ProcessQuoteAsync), quote.ToJson(), "Failed to process quote");
                 throw;
             }
+            
+            return Task.CompletedTask;
         }
 
         private static IReadOnlyCollection<string> ValidateQuote(MtQuoteMessage quote)
@@ -111,11 +104,6 @@ namespace Lykke.Frontend.WampHost.Services.Quotes.Mt
             }
 
             return errors;
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
         }
     }
 }

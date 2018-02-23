@@ -66,13 +66,14 @@ namespace Lykke.Frontend.WampHost
                 Log = CreateLogWithSlack(services, appSettings);
                 builder.Populate(services);
 
-                builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log));
+                builder.RegisterModule(new HostModule(appSettings.CurrentValue, Log, Program.EnvInfo));
                 builder.RegisterModule(new BalancesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new CandlesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new QuotesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new OrderBooksModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new TradesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new CqrsModule(appSettings.Nested(a => a.WampHost), Log));
+                builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue));
 
                 ApplicationContainer = builder.Build();
 
@@ -202,6 +203,7 @@ namespace Lykke.Frontend.WampHost
         private static ILog CreateLogWithSlack(IServiceCollection services, IReloadingManager<AppSettings> settings)
         {
             var consoleLogger = new LogToConsole();
+            services.AddSingleton<IConsole>(consoleLogger);
             var aggregateLogger = new AggregateLogger();
 
             aggregateLogger.AddLog(consoleLogger);

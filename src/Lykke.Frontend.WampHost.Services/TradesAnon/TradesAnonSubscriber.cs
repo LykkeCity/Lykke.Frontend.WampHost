@@ -6,45 +6,41 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
-using Lykke.Frontend.WampHost.Core.Services.Security;
+using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
 using Lykke.Job.TradesConverter.Contract;
 using Lykke.RabbitMqBroker.Subscriber;
-using WampSharp.V2;
-using WampSharp.V2.Core.Contracts;
-using WampSharp.V2.Realm;
 
-namespace Lykke.Frontend.WampHost.Services.Trades
+namespace Lykke.Frontend.WampHost.Services.TradesAnon
 {
-    [UsedImplicitly]
-    public class TradesSubscriber : ISubscriber
+    public class TradesAnonSubscriber : ISubscriber
     {
         private readonly ILog _log;
+        private readonly ITradesAnonManager _tradesAnonManager;
         private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
-        private readonly IWampSubject _subject;
-        private readonly ISessionCache _sessionCache;
+        private readonly MarketType _marketType;
 
-        public TradesSubscriber(
+        public TradesAnonSubscriber(
             [NotNull] ILog log,
+            [NotNull] ITradesAnonManager tradesAnonManager,
             [NotNull] IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
             [NotNull] string connectionString,
-            [NotNull] IWampHostedRealm realm,
-            [NotNull] ISessionCache sessionCache)
+            MarketType marketType)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
-            _sessionCache = sessionCache ?? throw new ArgumentNullException(nameof(sessionCache));
+            _tradesAnonManager = tradesAnonManager ?? throw new ArgumentNullException(nameof(tradesAnonManager));
             _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper ?? throw new ArgumentNullException(nameof(rabbitMqSubscribeHelper));
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
-
-            _subject = realm.Services.GetSubject("trades");
+            _marketType = marketType;
         }
 
         public void Start()
         {
             _rabbitMqSubscribeHelper.Subscribe(
                 connectionString: _connectionString,
-                market: MarketType.Spot,
+                market: _marketType,
                 source: "tradelog",
+                context: "public",
                 deserializer: new MessagePackMessageDeserializer<List<TradeLogItem>>(),
                 handler: ProcessTradeAsync);
         }
@@ -54,21 +50,11 @@ namespace Lykke.Frontend.WampHost.Services.Trades
             if (!messages.Any())
                 return;
 
-            var messagesByUser = messages.GroupBy(x => x.UserId);
-
             try
             {
-                foreach (var userTrades in messagesByUser)
+                foreach (var tradeLogItem in messages)
                 {
-                    var sessionIds = _sessionCache.GetSessionIds(userTrades.First().UserId);
-                    if (sessionIds.Length == 0)
-                        return;
-
-                    _subject.OnNext(new WampEvent
-                    {
-                        Options = new PublishOptions { Eligible = sessionIds },
-                        Arguments = new object[] { userTrades.ToList() }
-                    });
+                    await _tradesAnonManager.ProcessTrade(tradeLogItem, _marketType);
                 }
             }
             catch (Exception ex)

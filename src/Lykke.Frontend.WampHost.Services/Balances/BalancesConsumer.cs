@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Settings;
@@ -21,22 +21,21 @@ namespace Lykke.Frontend.WampHost.Services.Balances
     {
         private readonly ILog _log;
         private readonly RabbitMqSettings _settings;
-        private IStopable _subscriber;
         private readonly IWampSubject _subject;
-        private readonly IClientResolver _clientResolver;
-        private readonly IRabbitMqSubscribersFactory _subscribersFactory;
+        private readonly ISessionCache _sessionCache;
+        private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private const string TopicUri = "balances";
 
         public BalancesConsumer(
             [NotNull] ILog log,
             [NotNull] RabbitMqSettings settings,
             [NotNull] IWampHostedRealm realm,
-            [NotNull] IClientResolver clientResolver,
-            [NotNull] IRabbitMqSubscribersFactory subscribersFactory)
+            [NotNull] ISessionCache sessionCache,
+            [NotNull] IRabbitMqSubscribeHelper rabbitMqSubscribeHelper)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
-            _clientResolver = clientResolver ?? throw new ArgumentNullException(nameof(clientResolver));
-            _subscribersFactory = subscribersFactory ?? throw new ArgumentNullException(nameof(subscribersFactory));
+            _sessionCache = sessionCache ?? throw new ArgumentNullException(nameof(sessionCache));
+            _rabbitMqSubscribeHelper = rabbitMqSubscribeHelper ?? throw new ArgumentNullException(nameof(rabbitMqSubscribeHelper));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             _subject = realm.Services.GetSubject(TopicUri);
@@ -44,35 +43,30 @@ namespace Lykke.Frontend.WampHost.Services.Balances
 
         public void Start()
         {
-            _subscriber = _subscribersFactory.Create(
+            _rabbitMqSubscribeHelper.Subscribe(
                 connectionString: _settings.ConnectionString,
-                source: "lykke.balanceupdate",
+                market: MarketType.Spot,
+                source: "balanceupdate",
                 deserializer: new JsonMessageDeserializer<BalanceUpdateEventModel>(),
                 handler: Process);
         }
 
-        public void Stop()
-        {
-            _subscriber?.Stop();
-        }
-
-        private async Task Process(BalanceUpdateEventModel message)
+        private Task Process(BalanceUpdateEventModel message)
         {
             if (!message.Balances.Any())
-                return;
+                return Task.CompletedTask;
 
             foreach (var balance in message.Balances)
             {
-                var notificationId = _clientResolver.GetNotificationId(balance.Id);
-
-                if (notificationId == null)
+                var sessionIds = _sessionCache.GetSessionIds(balance.Id);
+                if (sessionIds.Length == 0)
                     continue;
 
                 _subject.OnNext(new WampEvent
                 {
                     Options = new PublishOptions
                     {
-                        Eligible = new[] { long.Parse(notificationId) }
+                        Eligible = sessionIds
                     },
                     Arguments = new object[] { new BalanceUpdateMessage
                     {
@@ -82,11 +76,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                     } }
                 });
             }
-        }
-
-        public void Dispose()
-        {
-            _subscriber?.Dispose();
+            return Task.CompletedTask;
         }
     }
 }
