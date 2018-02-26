@@ -9,9 +9,11 @@ using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
 using Lykke.Job.TradesConverter.Contract;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.Service.TradesAdapter.Contract;
 
 namespace Lykke.Frontend.WampHost.Services.TradesAnon
 {
+    [UsedImplicitly]
     public class TradesAnonSubscriber : ISubscriber
     {
         private readonly ILog _log;
@@ -39,13 +41,13 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
             _rabbitMqSubscribeHelper.Subscribe(
                 connectionString: _connectionString,
                 market: _marketType,
-                source: "tradelog",
+                source: "tradesadapter",
                 context: "public",
-                deserializer: new MessagePackMessageDeserializer<List<TradeLogItem>>(),
+                deserializer: new MessagePackMessageDeserializer<List<Trade>>(),
                 handler: ProcessTradeAsync);
         }
 
-        private async Task ProcessTradeAsync(List<TradeLogItem> messages)
+        private async Task ProcessTradeAsync(List<Trade> messages)
         {
             if (!messages.Any())
                 return;

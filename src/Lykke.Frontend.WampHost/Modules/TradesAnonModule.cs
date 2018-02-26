@@ -29,7 +29,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<ISubscriber>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(MarketType.Spot))
-                .WithParameter(TypedParameter.From(_settings.WampHost.ElasticRabbitMqSettings.ConnectionString));
+                .WithParameter(TypedParameter.From(_settings.WampHost.TradesAnonMqSettings.ConnectionString));
 
             builder.RegisterType<TradesAnonManager>()
                 .As<ITradesAnonManager>()

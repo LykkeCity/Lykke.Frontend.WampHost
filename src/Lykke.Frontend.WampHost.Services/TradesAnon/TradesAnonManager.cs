@@ -1,14 +1,16 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
-using Lykke.Frontend.WampHost.Services.TradesAnon.Contract;
 using Lykke.Job.TradesConverter.Contract;
 using Lykke.Service.Assets.Client;
+using Lykke.Service.TradesAdapter.Contract;
 using WampSharp.V2.Realm;
 
 namespace Lykke.Frontend.WampHost.Services.TradesAnon
 {
+    [UsedImplicitly]
     public class TradesAnonManager : ITradesAnonManager
     {
         private readonly IWampHostedRealm _realm;
@@ -21,17 +23,12 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
             _assetsServiceWithCache = assetsServiceWithCache;
         }
 
-        public async Task ProcessTrade(TradeLogItem tradeLogItem, MarketType market)
+        public async Task ProcessTrade(Trade tradeLogItem, MarketType market)
         {
-            var pairId = await GetAssetPairId(tradeLogItem.Asset, tradeLogItem.OppositeAsset);
+            var topic = $"trades.{market.ToString().ToLower()}.{tradeLogItem.AssetPairId.ToLower()}";
+            var subject = _realm.Services.GetSubject<Trade>(topic);
 
-            if (pairId == null)
-                return;
-
-            var topic = $"trades.{market.ToString().ToLower()}.{pairId.ToLower()}";
-            var subject = _realm.Services.GetSubject<TradeAnonClientMessage>(topic);
-
-            subject.OnNext(tradeLogItem.ToTradeAnonClientMessage());
+            subject.OnNext(tradeLogItem);
         }
 
         private async Task<string> GetAssetPairId(string asset1, string asset2)
