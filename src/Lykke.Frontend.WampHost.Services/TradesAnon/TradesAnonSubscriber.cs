@@ -41,7 +41,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
             _rabbitMqSubscribeHelper.Subscribe(
                 connectionString: _connectionString,
                 market: _marketType,
-                source: "tradesadapter",
+                source: "adaptedtrades",
                 context: "public",
                 deserializer: new MessagePackMessageDeserializer<List<Trade>>(),
                 handler: ProcessTradeAsync);
