@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
@@ -43,7 +44,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
 
                 await _cache.SetAsync(
                     redisKey,
-                    new byte[]{},
+                    Encoding.UTF8.GetBytes("data"),
                     new DistributedCacheEntryOptions
                     {
                         AbsoluteExpiration = DateTimeOffset.Now.AddDays(1)
