@@ -44,6 +44,10 @@ namespace Lykke.Frontend.WampHost.Modules
                 .Keyed<IDistributedCache>("tradesAnonData")
                 .SingleInstance();
             
+            builder.RegisterInstance(_settings.WampHost.RedisSettings)
+                .As<RedisSettings>()
+                .SingleInstance();
+            
             builder.RegisterType<TradesAnonManager>()
                 .As<ITradesAnonManager>()
                 .SingleInstance();

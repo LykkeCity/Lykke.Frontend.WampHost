@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
+using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Job.TradesConverter.Contract;
 using Lykke.Service.Assets.Client;
 using Lykke.Service.TradesAdapter.Contract;
@@ -17,18 +18,23 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
     {
         private readonly IWampHostedRealm _realm;
         private readonly IDistributedCache _cache;
+        private readonly RedisSettings _settings;
 
         public TradesAnonManager(
             IWampHostedRealm realm,
-            IDistributedCache cache)
+            IDistributedCache cache,
+            RedisSettings settings)
         {
             _realm = realm;
             _cache = cache;
+            _settings = settings;
         }
 
         public async Task ProcessTrade(Trade tradeLogItem, MarketType market)
         {
-            if (await _cache.GetAsync(tradeLogItem.Id) == null)
+            var redisKey = _settings.GetKeyForTradeAnonId(tradeLogItem.Id);
+            
+            if (await _cache.GetAsync(redisKey) == null)
             {
                 var topic = $"trades.{market.ToString().ToLower()}.{tradeLogItem.AssetPairId.ToLower()}";
                 var subject = _realm.Services.GetSubject<Trade>(topic);
@@ -36,7 +42,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
                 subject.OnNext(tradeLogItem);
 
                 await _cache.SetAsync(
-                    tradeLogItem.Id,
+                    redisKey,
                     new byte[]{},
                     new DistributedCacheEntryOptions
                     {
