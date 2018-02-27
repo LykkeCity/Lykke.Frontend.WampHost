@@ -27,8 +27,6 @@ namespace Lykke.Frontend.WampHost.Services.Projections
 
         public async Task Handle(AssetCreatedEvent evt)
         {
-            _log.WriteInfo(nameof(AssetCreatedEvent), evt, "");
-
             _subjectAssets.OnNext(new AssetUpdateMessage
             {
                 Id = evt.Asset.Id,
@@ -50,8 +48,6 @@ namespace Lykke.Frontend.WampHost.Services.Projections
 
         public async Task Handle(AssetUpdatedEvent evt)
         {
-            _log.WriteInfo(nameof(AssetUpdatedEvent), evt, "");
-
             _subjectAssets.OnNext(new AssetUpdateMessage
             {
                 Id = evt.Asset.Id,
@@ -73,8 +69,6 @@ namespace Lykke.Frontend.WampHost.Services.Projections
 
         public async Task Handle(AssetPairCreatedEvent evt)
         {
-            _log.WriteInfo(nameof(AssetPairCreatedEvent), evt, "");
-
             _subjectAssetPairs.OnNext(new AssetPairUpdateMessage
             {
                 Id = evt.AssetPair.Id,
@@ -91,8 +85,6 @@ namespace Lykke.Frontend.WampHost.Services.Projections
 
         public async Task Handle(AssetPairUpdatedEvent evt)
         {
-            _log.WriteInfo(nameof(AssetPairUpdatedEvent), evt, "");
-
             _subjectAssetPairs.OnNext(new AssetPairUpdateMessage
             {
                 Id = evt.AssetPair.Id,
