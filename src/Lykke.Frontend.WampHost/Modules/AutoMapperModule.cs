@@ -10,22 +10,18 @@ namespace Lykke.Frontend.WampHost.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.FullName.StartsWith("Lykke.Frontend.WampHost")).ToArray();
-            builder.RegisterAssemblyTypes(assemblies)
-                .Where(t => typeof(Profile).IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic)
-                .As<Profile>();
-
-            builder.Register(c => new MapperConfiguration(cfg => {
-                foreach (var profile in c.Resolve<IEnumerable<Profile>>())
+            var autoMapperProfileTypes = AppDomain.CurrentDomain.GetAssemblies().Where(assembly => assembly.FullName.StartsWith("Lykke.Frontend.WampHost"))
+                .SelectMany(a => a.GetTypes().Where(p => typeof(Profile).IsAssignableFrom(p) && p.IsPublic && !p.IsAbstract));
+            var autoMapperProfiles = autoMapperProfileTypes.Select(p => (Profile)Activator.CreateInstance(p));
+            builder.Register(ctx => new MapperConfiguration(cfg =>
+            {
+                foreach (var profile in autoMapperProfiles)
                 {
                     cfg.AddProfile(profile);
                 }
-            })).AsSelf().SingleInstance();
-
-            builder.Register(c => c.Resolve<MapperConfiguration>()
-                    .CreateMapper(c.Resolve))
-                .As<IMapper>()
-                .InstancePerLifetimeScope();
+            }));
+            builder.Register(ctx => ctx.Resolve<MapperConfiguration>().CreateMapper()).As<IMapper>()
+                .PropertiesAutowired();
         }
     }
 }
