@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using Autofac;
 using Common.Log;
-using Inceptum.Cqrs.Configuration;
-using Inceptum.Messaging;
-using Inceptum.Messaging.RabbitMq;
+using Lykke.Cqrs.Configuration;
+using Lykke.Messaging;
+using Lykke.Messaging.RabbitMq;
 using Lykke.Cqrs;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Assets.IncomeMessages;
 using Lykke.Frontend.WampHost.Services.Commands;
 using Lykke.Frontend.WampHost.Services.Handlers;
 using Lykke.Frontend.WampHost.Services.Projections;
-using Lykke.Messaging;
 using Lykke.SettingsReader;
 
 namespace Lykke.Frontend.WampHost.Modules
@@ -29,7 +28,7 @@ namespace Lykke.Frontend.WampHost.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            Inceptum.Messaging.Serialization.MessagePackSerializerFactory.Defaults.FormatterResolver = MessagePack.Resolvers.ContractlessStandardResolver.Instance;
+            Messaging.Serialization.MessagePackSerializerFactory.Defaults.FormatterResolver = MessagePack.Resolvers.ContractlessStandardResolver.Instance;
             var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory { Uri = _settings.CurrentValue.GeneralRabbitMqSettings.ConnectionString };
 
             builder.Register(context => new AutofacDependencyResolver(context)).As<IDependencyResolver>().SingleInstance();
