@@ -27,76 +27,22 @@ namespace Lykke.Frontend.WampHost.Services.Projections
 
         public async Task Handle(AssetCreatedEvent evt)
         {
-            _subjectAssets.OnNext(new AssetUpdateMessage
-            {
-                Id = evt.Asset.Id,
-                Name = evt.Asset.Name,
-                Accuracy = evt.Asset.Accuracy,
-                BankCardsDepositEnabled = evt.Asset.BankCardsDepositEnabled,
-                BlockchainDepositEnabled = evt.Asset.BlockchainDepositEnabled,
-                CategoryId = evt.Asset.CategoryId,
-                DisplayId = evt.Asset.DisplayId,
-                HideDeposit = evt.Asset.HideDeposit,
-                HideWithdraw = evt.Asset.HideWithdraw,
-                IconUrl = evt.Asset.IconUrl,
-                IsBase = evt.Asset.IsBase,
-                KycNeeded = evt.Asset.KycNeeded,
-                SwiftDepositEnabled = evt.Asset.SwiftDepositEnabled,
-                Symbol = evt.Asset.Symbol
-            });
+            _subjectAssets.OnNext(AutoMapper.Mapper.Map<AssetUpdateMessage>(evt.Asset));
         }
 
         public async Task Handle(AssetUpdatedEvent evt)
         {
-            _subjectAssets.OnNext(new AssetUpdateMessage
-            {
-                Id = evt.Asset.Id,
-                Name = evt.Asset.Name,
-                Accuracy = evt.Asset.Accuracy,
-                BankCardsDepositEnabled = evt.Asset.BankCardsDepositEnabled,
-                BlockchainDepositEnabled = evt.Asset.BlockchainDepositEnabled,
-                CategoryId = evt.Asset.CategoryId,
-                DisplayId = evt.Asset.DisplayId,
-                HideDeposit = evt.Asset.HideDeposit,
-                HideWithdraw = evt.Asset.HideWithdraw,
-                IconUrl = evt.Asset.IconUrl,
-                IsBase = evt.Asset.IsBase,
-                KycNeeded = evt.Asset.KycNeeded,
-                SwiftDepositEnabled = evt.Asset.SwiftDepositEnabled,
-                Symbol = evt.Asset.Symbol
-            });
+            _subjectAssets.OnNext(AutoMapper.Mapper.Map<AssetUpdateMessage>(evt.Asset));
         }
 
         public async Task Handle(AssetPairCreatedEvent evt)
         {
-            _subjectAssetPairs.OnNext(new AssetPairUpdateMessage
-            {
-                Id = evt.AssetPair.Id,
-                Accuracy = evt.AssetPair.Accuracy,
-                Name = evt.AssetPair.Name,
-                BaseAssetId = evt.AssetPair.BaseAssetId,
-                InvertedAccuracy = evt.AssetPair.InvertedAccuracy,
-                IsDisabled = evt.AssetPair.IsDisabled,
-                QuotingAssetId = evt.AssetPair.QuotingAssetId,
-                Source = evt.AssetPair.Source,
-                Source2 = evt.AssetPair.Source2
-            });
+            _subjectAssetPairs.OnNext(AutoMapper.Mapper.Map<AssetPairUpdateMessage>(evt.AssetPair));
         }
 
         public async Task Handle(AssetPairUpdatedEvent evt)
         {
-            _subjectAssetPairs.OnNext(new AssetPairUpdateMessage
-            {
-                Id = evt.AssetPair.Id,
-                Accuracy = evt.AssetPair.Accuracy,
-                Name = evt.AssetPair.Name,
-                BaseAssetId = evt.AssetPair.BaseAssetId,
-                InvertedAccuracy = evt.AssetPair.InvertedAccuracy,
-                IsDisabled = evt.AssetPair.IsDisabled,
-                QuotingAssetId = evt.AssetPair.QuotingAssetId,
-                Source = evt.AssetPair.Source,
-                Source2 = evt.AssetPair.Source2
-            });
+            _subjectAssetPairs.OnNext(AutoMapper.Mapper.Map<AssetPairUpdateMessage>(evt.AssetPair));
         }
     }
 }

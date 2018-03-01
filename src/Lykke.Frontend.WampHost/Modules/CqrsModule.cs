@@ -68,8 +68,8 @@ namespace Lykke.Frontend.WampHost.Modules
                                 typeof(AssetUpdatedEvent),
                                 typeof(AssetPairCreatedEvent),
                                 typeof(AssetPairUpdatedEvent))
-                            .From("assets").On(defaultRoute)
-                        .WithProjection(typeof(AssetsProjection), "assets")
+                            .From(BoundedContexts.Assets).On(defaultRoute)
+                        .WithProjection(typeof(AssetsProjection), BoundedContexts.Assets)
                 );
             })
             .As<ICqrsEngine>()
