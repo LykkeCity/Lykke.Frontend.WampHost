@@ -35,8 +35,8 @@ namespace Lykke.Frontend.WampHost.Modules
 
             var tradesAnonRedisCache = new RedisCache(new RedisCacheOptions
             {
-                Configuration = _settings.WampHost.RedisSettings.Configuration,
-                InstanceName = _settings.WampHost.RedisSettings.Instance
+                Configuration = _settings.RedisSettings.Configuration,
+                InstanceName = _settings.WampHost.CacheSettings.Instance
             });
             
             builder.RegisterInstance(tradesAnonRedisCache)
@@ -44,8 +44,8 @@ namespace Lykke.Frontend.WampHost.Modules
                 .Keyed<IDistributedCache>("tradesAnonData")
                 .SingleInstance();
             
-            builder.RegisterInstance(_settings.WampHost.RedisSettings)
-                .As<RedisSettings>()
+            builder.RegisterInstance(_settings.WampHost.CacheSettings)
+                .As<CacheSettings>()
                 .SingleInstance();
             
             builder.RegisterType<TradesAnonManager>()

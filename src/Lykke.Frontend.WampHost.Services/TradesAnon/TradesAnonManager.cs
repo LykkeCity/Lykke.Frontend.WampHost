@@ -19,12 +19,12 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
     {
         private readonly IWampHostedRealm _realm;
         private readonly IDistributedCache _cache;
-        private readonly RedisSettings _settings;
+        private readonly CacheSettings _settings;
 
         public TradesAnonManager(
             IWampHostedRealm realm,
             IDistributedCache cache,
-            RedisSettings settings)
+            CacheSettings settings)
         {
             _realm = realm;
             _cache = cache;
