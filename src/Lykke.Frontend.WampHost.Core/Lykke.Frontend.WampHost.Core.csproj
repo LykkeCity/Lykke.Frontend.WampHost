@@ -14,7 +14,7 @@
     <PackageReference Include="Lykke.MarginTrading.Contracts" Version="1.0.0" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="6.1.0" />
     <PackageReference Include="Lykke.Service.Assets.Client" Version="3.3.2" />
+    <PackageReference Include="Lykke.Service.TradesAdapter.Contract" Version="1.0.0" />
     <PackageReference Include="Lykke.SettingsReader" Version="2.1.0" />
-    <PackageReference Include="Lykke.Service.TradesAdapter.Contract" Version="0.0.2-beta" />
   </ItemGroup>
 </Project>
