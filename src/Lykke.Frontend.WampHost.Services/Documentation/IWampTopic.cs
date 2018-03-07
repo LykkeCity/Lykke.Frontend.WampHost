@@ -13,7 +13,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
 {
     public interface IWampTopics
     {
-        [DocMe(Name = "candle.{spot|mt}.{instrument}.{bid|ask|mid}.{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}", Description = "provides candles. realm = 'prices', all parameters in the lower case.")]
+        [DocMe(Name = "candle.{spot|mt}.{instrument}.{bid|ask|mid|trades}.{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}", Description = "provides candles. realm = 'prices', all parameters in the lower case.")]
         CandleClientMessage CandlesUpdate();
 
         [UsedImplicitly]

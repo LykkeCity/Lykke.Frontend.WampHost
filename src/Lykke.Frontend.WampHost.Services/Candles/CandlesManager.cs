@@ -20,7 +20,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void ProcessCandles(CandlesUpdatedEvent updatedCandles, MarketType market)
         {
-            foreach (var candle in updatedCandles.Candles.Where(c => c.IsLatestCandle))
+            foreach (var candle in updatedCandles.Candles)
             {
                 ProcessCandleAsync(candle, market);
             }
