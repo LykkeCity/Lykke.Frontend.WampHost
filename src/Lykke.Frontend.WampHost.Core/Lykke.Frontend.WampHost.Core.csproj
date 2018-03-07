@@ -7,7 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="4.5.0" />
-    <PackageReference Include="Lykke.Job.CandlesProducer.Contract" Version="2.2.0" />
+    <PackageReference Include="Lykke.Job.CandlesProducer.Contract" Version="3.0.1" />
     <PackageReference Include="Lykke.Job.QuotesProducer.Contract" Version="1.0.0" />
     <PackageReference Include="Lykke.Job.TradesConverter.Contract" Version="2.0.0" />
     <PackageReference Include="Lykke.Logs" Version="3.6.0" />
