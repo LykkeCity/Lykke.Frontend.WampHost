@@ -20,6 +20,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
         private readonly IWampHostedRealm _realm;
         private readonly IDistributedCache _cache;
         private readonly CacheSettings _settings;
+        private readonly byte[] _redisValue;
 
         public TradesAnonManager(
             IWampHostedRealm realm,
@@ -29,6 +30,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
             _realm = realm;
             _cache = cache;
             _settings = settings;
+            _redisValue = Encoding.UTF8.GetBytes("data");
         }
 
         public async Task ProcessTrade(Trade tradeLogItem, MarketType market)
@@ -44,7 +46,7 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
 
                 await _cache.SetAsync(
                     redisKey,
-                    Encoding.UTF8.GetBytes("data"),
+                    _redisValue,
                     new DistributedCacheEntryOptions
                     {
                         AbsoluteExpiration = DateTimeOffset.Now.AddDays(1)
