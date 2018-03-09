@@ -7,6 +7,8 @@ using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.TradesAnon;
 using Lykke.Service.Assets.Client;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Redis;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lykke.Frontend.WampHost.Modules
@@ -29,8 +31,23 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<ISubscriber>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(MarketType.Spot))
-                .WithParameter(TypedParameter.From(_settings.WampHost.ElasticRabbitMqSettings.ConnectionString));
+                .WithParameter(TypedParameter.From(_settings.WampHost.TradesAnonMqSettings.ConnectionString));
 
+            var tradesAnonRedisCache = new RedisCache(new RedisCacheOptions
+            {
+                Configuration = _settings.RedisSettings.Configuration,
+                InstanceName = _settings.WampHost.CacheSettings.Instance
+            });
+            
+            builder.RegisterInstance(tradesAnonRedisCache)
+                .As<IDistributedCache>()
+                .Keyed<IDistributedCache>("tradesAnonData")
+                .SingleInstance();
+            
+            builder.RegisterInstance(_settings.WampHost.CacheSettings)
+                .As<CacheSettings>()
+                .SingleInstance();
+            
             builder.RegisterType<TradesAnonManager>()
                 .As<ITradesAnonManager>()
                 .SingleInstance();
