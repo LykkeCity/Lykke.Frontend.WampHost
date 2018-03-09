@@ -49,7 +49,12 @@ namespace Lykke.Frontend.WampHost.Services.Candles.Contract
         [JsonProperty("l")]
         public double Low { get; set; }
 
+        [DisplayName("Trading volume")]
         [JsonProperty("v")]
         public double TradingVolume { get; set; }
+
+        [DisplayName("Opposite trading volume")]
+        [JsonProperty("ov")]
+        public double OppositeTradingVolume { get; set; }
     }
 }

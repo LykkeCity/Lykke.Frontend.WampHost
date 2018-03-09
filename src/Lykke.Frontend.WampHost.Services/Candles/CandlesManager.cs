@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
@@ -42,7 +41,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 Close = candle.Close,
                 High = candle.High,
                 Low = candle.Low,
-                TradingVolume = candle.TradingVolume
+                TradingVolume = candle.TradingVolume,
+                OppositeTradingVolume = candle.TradingOppositeVolume
             });
         }
     }
