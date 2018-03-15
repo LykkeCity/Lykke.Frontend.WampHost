@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Linq;
+using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services.Candles;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
@@ -19,7 +20,7 @@ namespace Lykke.Frontend.WampHost.Services.Candles
 
         public void ProcessCandles(CandlesUpdatedEvent updatedCandles, MarketType market)
         {
-            foreach (var candle in updatedCandles.Candles)
+            foreach (var candle in updatedCandles.Candles.Where(c => c.IsLatestCandle))
             {
                 ProcessCandleAsync(candle, market);
             }
