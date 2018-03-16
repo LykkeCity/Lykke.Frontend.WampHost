@@ -42,7 +42,8 @@ namespace Lykke.Frontend.WampHost.Services.Candles
                 Close = candle.Close,
                 High = candle.High,
                 Low = candle.Low,
-                TradingVolume = candle.TradingVolume
+                TradingVolume = candle.TradingVolume,
+                OppositeTradingVolume = candle.TradingOppositeVolume
             });
         }
     }
