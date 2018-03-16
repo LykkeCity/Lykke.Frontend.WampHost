@@ -3,7 +3,6 @@ using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Services.Assets.Contracts;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
-using Lykke.Frontend.WampHost.Services.Commands;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 using Lykke.Job.TradesConverter.Contract;
 using Lykke.Service.TradesAdapter.Contract;
@@ -31,11 +30,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "trades", Description = "provides trades for a specific user. realm = 'prices', all parameters in the lower case.")]
         TradeLogItem Trades();
-
-        [UsedImplicitly]
-        [DocMe(Name = "commands.sign", Description = "commands for a phone. PromoteSession - to sign user session by private key.")]
-        SignCommand SignCommands();
-
+        
         [UsedImplicitly]
         [DocMe(Name = "trades.mt", Description = "provides margin trades of all users. realm = 'prices'.")]
         TradeClientContract MtTrades();
