@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
+using Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages;
 using Lykke.Frontend.WampHost.Services.Assets.Contracts;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
@@ -50,5 +51,9 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "assetpairs", Description = "Asset-pairs updates. realm = 'prices'")]
         AssetPairUpdateMessage AssetsPairs();
+
+        [UsedImplicitly]
+        [DocMe(Name = "orders", Description = "Orders. realm = 'prices'")]
+        Order Orders();
     }
 }
