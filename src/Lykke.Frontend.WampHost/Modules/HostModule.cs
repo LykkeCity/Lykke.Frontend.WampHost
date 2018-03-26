@@ -8,6 +8,7 @@ using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Mt;
 using Lykke.Frontend.WampHost.Services.Security;
+using Lykke.Service.ClientAccount.Client;
 using Lykke.Service.Session;
 using WampSharp.V2;
 using WampSharp.V2.Authentication;
@@ -56,6 +57,8 @@ namespace Lykke.Frontend.WampHost.Modules
                 .SingleInstance();
 
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);
+            
+            builder.RegisterLykkeServiceClient(_settings.ClientAccountServiceClient.ServiceUrl);
 
             RegisterWampCommon(builder);
 
