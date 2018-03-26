@@ -24,7 +24,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
         private readonly ISessionCache _sessionCache;
         private readonly IWampSubject _subject;
 
-        private const string Topic = "orders";
+        private const string Topic = "orders.spot";
 
         public OrdersPublisher(
             [NotNull] IClientAccountClient clientAccountClient,
@@ -45,7 +45,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             
             var clientId = await _clientAccountClient.GetClientByWalletAsync(marketOrderWithTrades.Order.ClientId);
 
-            PublishMessageToClient(clientId, await _ordersConverter.Convert(marketOrderWithTrades.Order));
+            PublishOrdersToClient(clientId, new[] { _ordersConverter.Convert(marketOrderWithTrades.Order) });
         }
 
         public async Task Publish(LimitOrders limitOrders)
@@ -54,19 +54,38 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 return;
 
             var idsMappings = new Dictionary<string, string>();
+            var ordersByClients = new Dictionary<string, List<LimitOrderWithTrades>>();
 
-            foreach (var walletId in limitOrders.Orders.Select(x => x.Order.ClientId))
-            {
-                idsMappings[walletId] = await _clientAccountClient.GetClientByWalletAsync(walletId);
-            }
-            
             foreach (var order in limitOrders.Orders)
             {
-                PublishMessageToClient(idsMappings[order.Order.ClientId], await _ordersConverter.Convert(order.Order));
+                var walletId = order.Order.ClientId;
+                
+                if(!idsMappings.ContainsKey(walletId))
+                    idsMappings[walletId] = await _clientAccountClient.GetClientByWalletAsync(walletId);
+
+                var clientId = idsMappings[walletId];
+                
+                if(!ordersByClients.ContainsKey(clientId))
+                    ordersByClients[clientId] = new List<LimitOrderWithTrades>();
+                
+                ordersByClients[clientId].Add(order);
+            }
+            
+            foreach (var clientId in ordersByClients.Keys)
+            {
+                PublishOrdersToClient(
+                    clientId,
+                    ordersByClients[clientId]
+                        .Select(
+                            x =>
+                                _ordersConverter.Convert(
+                                    x.Order,
+                                    x.Trades.Any()))
+                        .ToArray());
             }
         }
 
-        private void PublishMessageToClient(string clientId, Order o)
+        private void PublishOrdersToClient(string clientId, Order[] orders)
         {
             var sessionIds = _sessionCache.GetSessionIds(clientId);
             
@@ -76,7 +95,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             _subject.OnNext(new WampEvent
             {
                 Options = new PublishOptions { Eligible = sessionIds },
-                Arguments = new [] { o }
+                Arguments = new [] { orders }
             });
         }
     }

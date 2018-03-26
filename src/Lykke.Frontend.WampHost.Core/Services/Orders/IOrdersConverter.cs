@@ -6,7 +6,7 @@ namespace Lykke.Frontend.WampHost.Core.Orders
 {
     public interface IOrdersConverter
     {
-        Task<Order> Convert(MarketOrder order);
-        Task<Order> Convert(LimitOrder order);
+        Order Convert(MarketOrder order);
+        Order Convert(LimitOrder order, bool hasTrades);
     }
 }

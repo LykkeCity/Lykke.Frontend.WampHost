@@ -9,22 +9,38 @@ namespace Lykke.Frontend.WampHost.Services.Orders
     [UsedImplicitly]
     public class OrdersConverter : IOrdersConverter
     {
-        public Task<Order> Convert(MarketOrder order)
+        public Order Convert(MarketOrder order)
         {
-            return Task.FromResult(new Order
+            return new Order
             {
                 Id = order.ExternalId,
-                Status = order.Status
-            });
+                Status = order.Status,
+                AssetPairId = order.AssetPairId,
+                Price = order.Price,
+                Volume = order.Volume,
+                RemainingVolume = order.MatchedAt != null ? 0 : order.Volume,
+                Straight = order.Straight
+            };
         }
 
-        public Task<Order> Convert(LimitOrder order)
+        public Order Convert(LimitOrder order, bool hasTrades)
         {
-            return Task.FromResult(new Order
+            string status = order.Status;
+
+            //ME bug workaround
+            if (order.Status == "Processing" && !hasTrades)
+                status = "InOrderBook";
+            
+            return new Order
             {
                 Id = order.ExternalId,
-                Status = order.Status
-            });
+                Status =  status,
+                AssetPairId = order.AssetPairId,
+                Price = order.Price,
+                Volume = order.Volume,
+                RemainingVolume = order.RemainingVolume,
+                Straight = order.Straight
+            };
         }
     }
 }

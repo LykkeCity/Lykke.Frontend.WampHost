@@ -53,7 +53,7 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         AssetPairUpdateMessage AssetsPairs();
 
         [UsedImplicitly]
-        [DocMe(Name = "orders", Description = "Orders. realm = 'prices'")]
-        Order Orders();
+        [DocMe(Name = "orders.spot", Description = "Orders. realm = 'prices'")]
+        Order[] Orders();
     }
 }
