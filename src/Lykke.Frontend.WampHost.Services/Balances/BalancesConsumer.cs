@@ -12,6 +12,7 @@ using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Services.Balances.IncomeMessages;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Service.ClientAccount.Client;
+using Lykke.Service.ClientAccount.Client.AutorestClient.Models;
 using WampSharp.V2;
 using WampSharp.V2.Core.Contracts;
 using WampSharp.V2.Realm;
@@ -65,12 +66,16 @@ namespace Lykke.Frontend.WampHost.Services.Balances
 
             foreach (var balance in message.Balances)
             {
-                var walletId = balance.Id;
+                var meWalletId = balance.Id;
 
-                if (!idsMappings.ContainsKey(walletId))
-                    idsMappings[walletId] = await _clientAccountClient.GetClientByWalletAsync(walletId);
+                if (!idsMappings.ContainsKey(meWalletId))
+                    idsMappings[meWalletId] = await _clientAccountClient.GetClientByWalletAsync(meWalletId);
 
-                var clientId = idsMappings[walletId];
+                var clientId = idsMappings[meWalletId];
+
+                var lykkeWalletId = clientId == meWalletId
+                    ? (await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading)).FirstOrDefault().Id
+                    : meWalletId;
                 
                 var sessionIds = _sessionCache.GetSessionIds(clientId);
                 if (sessionIds.Length == 0)
@@ -84,7 +89,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                     },
                     Arguments = new object[] { new BalanceUpdateMessage
                     {
-                        WalletId = walletId,
+                        WalletId = lykkeWalletId,
                         Asset = balance.Asset,
                         Balance = balance.NewBalance,
                         Reserved = balance.NewReserved ?? default(double)
