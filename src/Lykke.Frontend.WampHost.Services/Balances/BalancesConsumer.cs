@@ -84,6 +84,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                     },
                     Arguments = new object[] { new BalanceUpdateMessage
                     {
+                        WalletId = walletId,
                         Asset = balance.Asset,
                         Balance = balance.NewBalance,
                         Reserved = balance.NewReserved ?? default(double)
