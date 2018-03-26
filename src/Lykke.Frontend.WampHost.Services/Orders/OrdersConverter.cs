@@ -19,7 +19,9 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 Price = order.Price,
                 Volume = order.Volume,
                 RemainingVolume = order.MatchedAt != null ? 0 : order.Volume,
-                Straight = order.Straight
+                Straight = order.Straight,
+                Type = OrderType.Market,
+                CreatedAt = order.CreatedAt
             };
         }
 
@@ -39,7 +41,9 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 Price = order.Price,
                 Volume = order.Volume,
                 RemainingVolume = order.RemainingVolume,
-                Straight = order.Straight
+                Straight = order.Straight,
+                Type = OrderType.Limit,
+                CreatedAt = order.CreatedAt
             };
         }
     }

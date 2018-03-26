@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
 {
@@ -19,5 +21,15 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         public double? RemainingVolume { set; get; }
         
         public bool Straight { set; get; }
+        
+        [JsonConverter(typeof(StringEnumConverter))]
+        public OrderType Type { set; get; }
+        
+        public DateTime CreatedAt { set; get; }
+    }
+
+    public enum OrderType
+    {
+        Limit, Market
     }
 }
