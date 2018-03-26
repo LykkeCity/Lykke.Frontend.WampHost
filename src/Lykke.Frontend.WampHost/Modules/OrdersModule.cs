@@ -6,7 +6,6 @@ using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Orders;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Orders;
-using Lykke.Service.ClientAccount.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lykke.Frontend.WampHost.Modules
@@ -25,8 +24,6 @@ namespace Lykke.Frontend.WampHost.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterLykkeServiceClient(_settings.ClientAccountServiceClient.ServiceUrl);
-            
             builder.RegisterType<LimitOrdersSubscriber>()
                 .As<ISubscriber>()
                 .SingleInstance()
