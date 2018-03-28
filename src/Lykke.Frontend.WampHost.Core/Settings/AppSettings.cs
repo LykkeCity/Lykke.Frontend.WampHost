@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Lykke.Service.ClientAccount.Client;
 
 namespace Lykke.Frontend.WampHost.Core.Settings
 {
@@ -10,5 +11,6 @@ namespace Lykke.Frontend.WampHost.Core.Settings
         public SlackNotificationsSettings SlackNotifications { get; set; }
         public SessionServiceClientSettings SessionServiceClient { get; set; }
         public AssetServiceClientSettings AssetsServiceClient { get; set; }
+        public ClientAccountServiceClientSettings ClientAccountServiceClient { set; get; }
     }
 }

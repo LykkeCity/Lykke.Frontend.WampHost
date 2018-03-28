@@ -5,6 +5,10 @@ namespace Lykke.Frontend.WampHost.Services.Balances.Contracts
 {
     public class BalanceUpdateMessage
     {
+        [DisplayName("Wallet Id")]
+        [JsonProperty("id")]
+        public string WalletId { get; set; }
+        
         [DisplayName("Asset (USD...)")]
         [JsonProperty("a")]
         public string Asset { get; set; }
