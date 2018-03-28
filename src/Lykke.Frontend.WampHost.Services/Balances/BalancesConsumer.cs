@@ -29,6 +29,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
         private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly IClientAccountClient _clientAccountClient;
         private const string TopicUri = "balances";
+        private readonly Dictionary<string, string> _clientIdsMappingsToTradingWalletIds;
 
         public BalancesConsumer(
             [NotNull] ILog log,
@@ -45,6 +46,8 @@ namespace Lykke.Frontend.WampHost.Services.Balances
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             _subject = realm.Services.GetSubject(TopicUri);
+            
+            _clientIdsMappingsToTradingWalletIds = new Dictionary<string, string>();
         }
 
         public void Start()
@@ -63,7 +66,6 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                 return;
 
             var idsMappings = new Dictionary<string, string>();
-            var clientIdsMappingsToTradingWalletIds = new Dictionary<string, string>();
 
             foreach (var balance in message.Balances)
             {
@@ -78,13 +80,13 @@ namespace Lykke.Frontend.WampHost.Services.Balances
 
                 if (clientId == meWalletId)
                 {
-                    if (!clientIdsMappingsToTradingWalletIds.ContainsKey(clientId))
+                    if (!_clientIdsMappingsToTradingWalletIds.ContainsKey(clientId))
                     {
-                        clientIdsMappingsToTradingWalletIds[clientId] =
+                        _clientIdsMappingsToTradingWalletIds[clientId] =
                             (await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading)).First().Id;
                     }
                     
-                    lykkeWalletId = clientIdsMappingsToTradingWalletIds[clientId];
+                    lykkeWalletId = _clientIdsMappingsToTradingWalletIds[clientId];
                 }
                 else
                 {
