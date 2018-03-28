@@ -63,6 +63,7 @@ namespace Lykke.Frontend.WampHost.Services.Balances
                 return;
 
             var idsMappings = new Dictionary<string, string>();
+            var clientIdsMappingsToTradingWalletIds = new Dictionary<string, string>();
 
             foreach (var balance in message.Balances)
             {
@@ -73,10 +74,23 @@ namespace Lykke.Frontend.WampHost.Services.Balances
 
                 var clientId = idsMappings[meWalletId];
 
-                var lykkeWalletId = clientId == meWalletId
-                    ? (await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading)).FirstOrDefault().Id
-                    : meWalletId;
-                
+                string lykkeWalletId;
+
+                if (clientId == meWalletId)
+                {
+                    if (!clientIdsMappingsToTradingWalletIds.ContainsKey(clientId))
+                    {
+                        clientIdsMappingsToTradingWalletIds[clientId] =
+                            (await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading)).First().Id;
+                    }
+                    
+                    lykkeWalletId = clientIdsMappingsToTradingWalletIds[clientId];
+                }
+                else
+                {
+                    lykkeWalletId = meWalletId;
+                }
+
                 var sessionIds = _sessionCache.GetSessionIds(clientId);
                 if (sessionIds.Length == 0)
                     continue;
