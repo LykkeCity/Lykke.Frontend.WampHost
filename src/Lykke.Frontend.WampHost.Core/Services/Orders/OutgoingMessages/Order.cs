@@ -24,11 +24,19 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         [JsonConverter(typeof(StringEnumConverter))]
         public OrderType Type { set; get; }
         
+        [JsonConverter(typeof(StringEnumConverter))]
+        public OrderAction Action { set; get; }
+        
         public DateTime CreatedAt { set; get; }
     }
 
     public enum OrderType
     {
         Limit, Market
+    }
+
+    public enum OrderAction
+    {
+        Buy, Sell
     }
 }

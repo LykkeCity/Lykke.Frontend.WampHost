@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
@@ -17,8 +18,9 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 Status = order.Status,
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
-                Volume = order.Volume,
-                RemainingVolume = order.MatchedAt != null ? 0 : order.Volume,
+                Volume = Math.Abs(order.Volume),
+                Action = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
+                RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
                 Straight = order.Straight,
                 Type = OrderType.Market,
                 CreatedAt = order.CreatedAt
@@ -39,8 +41,9 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 Status =  status,
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
-                Volume = order.Volume,
-                RemainingVolume = order.RemainingVolume,
+                Volume = Math.Abs(order.Volume),
+                Action = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
+                RemainingVolume = Math.Abs(order.RemainingVolume),
                 Straight = order.Straight,
                 Type = OrderType.Limit,
                 CreatedAt = order.CreatedAt
