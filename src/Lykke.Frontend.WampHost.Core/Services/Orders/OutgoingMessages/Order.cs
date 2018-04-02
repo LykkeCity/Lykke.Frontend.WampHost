@@ -29,7 +29,7 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         public OrderType Type { set; get; }
         
         [JsonConverter(typeof(StringEnumConverter))]
-        public OrderAction Action { set; get; }
+        public OrderAction OrderAction { set; get; }
         
         public DateTime CreateDateTime { set; get; }
 
