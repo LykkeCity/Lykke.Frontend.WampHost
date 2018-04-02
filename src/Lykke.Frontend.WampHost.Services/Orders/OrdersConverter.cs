@@ -22,7 +22,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
                 Volume = Math.Abs(order.Volume),
-                OrderAction = order.Straight ? OrderAction.Buy : OrderAction.Sell,
+                OrderAction = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
                 RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
                 Straight = order.Straight,
                 Type = OrderType.Market,
