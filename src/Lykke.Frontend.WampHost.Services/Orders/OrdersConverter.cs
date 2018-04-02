@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
@@ -12,14 +13,16 @@ namespace Lykke.Frontend.WampHost.Services.Orders
     {
         public Order Convert(MarketOrder order)
         {
+            Console.WriteLine(order.ToJson());
             return new Order
             {
                 Id = order.ExternalId,
-                Status = order.Status,
+                Status = Order.GetOrderStatus(order.Status),
+                RejectReason = Order.GetOrderRejectReason(order.Status),
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
                 Volume = Math.Abs(order.Volume),
-                Action = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
+                Action = order.Straight ? OrderAction.Buy : OrderAction.Sell,
                 RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
                 Straight = order.Straight,
                 Type = OrderType.Market,
@@ -38,7 +41,8 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             return new Order
             {
                 Id = order.ExternalId,
-                Status =  status,
+                Status = Order.GetOrderStatus(status),
+                RejectReason = Order.GetOrderRejectReason(status),
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
                 Volume = Math.Abs(order.Volume),
