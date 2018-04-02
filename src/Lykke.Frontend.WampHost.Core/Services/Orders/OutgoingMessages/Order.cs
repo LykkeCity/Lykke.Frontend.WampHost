@@ -31,7 +31,7 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         [JsonConverter(typeof(StringEnumConverter))]
         public OrderAction Action { set; get; }
         
-        public DateTime CreatedAt { set; get; }
+        public DateTime CreateDateTime { set; get; }
 
         public static OrderStatus GetOrderStatus(string status)
         {

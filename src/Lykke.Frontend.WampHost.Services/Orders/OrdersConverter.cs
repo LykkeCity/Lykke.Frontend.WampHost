@@ -26,7 +26,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
                 Straight = order.Straight,
                 Type = OrderType.Market,
-                CreatedAt = order.CreatedAt
+                CreateDateTime = order.CreatedAt
             };
         }
 
@@ -50,7 +50,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 RemainingVolume = Math.Abs(order.RemainingVolume),
                 Straight = order.Straight,
                 Type = OrderType.Limit,
-                CreatedAt = order.CreatedAt
+                CreateDateTime = order.CreatedAt
             };
         }
     }
