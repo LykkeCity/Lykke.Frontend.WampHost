@@ -12,7 +12,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
     [UsedImplicitly]
     public class OrdersConverter : IOrdersConverter
     {
-        private ILog _log;
+        private readonly ILog _log;
 
         public OrdersConverter(ILog log)
         {
