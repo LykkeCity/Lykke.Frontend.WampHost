@@ -32,37 +32,6 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         public OrderAction OrderAction { set; get; }
         
         public DateTime CreateDateTime { set; get; }
-
-        public static OrderStatus GetOrderStatus(string status)
-        {
-            var parsed = MeOrderStatus.TryParse(status, true, out MeOrderStatus meStatusCode);
-
-            if (parsed)
-            {
-                switch (meStatusCode)
-                {
-                    case MeOrderStatus.InOrderBook:
-                        return OrderStatus.InOrderBook;
-                    case MeOrderStatus.Cancelled:
-                        return OrderStatus.Cancelled;
-                    case MeOrderStatus.Matched:
-                        return OrderStatus.Matched;
-                    case MeOrderStatus.Processing:
-                        return OrderStatus.Processing;
-                    default:
-                        return OrderStatus.Rejected;
-                }
-            }
-            else
-            {
-                throw new ArgumentException($"Status {status} did not match any of the expected ME orders' status codes");
-            }
-        }
-
-        public static string GetOrderRejectReason(string status)
-        {
-            return GetOrderStatus(status) == OrderStatus.Rejected ? status : null;
-        }
     }
     
     public enum MeOrderStatus

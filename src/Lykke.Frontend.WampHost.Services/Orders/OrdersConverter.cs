@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common;
+using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
@@ -11,14 +12,20 @@ namespace Lykke.Frontend.WampHost.Services.Orders
     [UsedImplicitly]
     public class OrdersConverter : IOrdersConverter
     {
+        private ILog _log;
+
+        public OrdersConverter(ILog log)
+        {
+            _log = log;
+        }
+
         public Order Convert(MarketOrder order)
         {
-            Console.WriteLine(order.ToJson());
             return new Order
             {
                 Id = order.ExternalId,
-                Status = Order.GetOrderStatus(order.Status),
-                RejectReason = Order.GetOrderRejectReason(order.Status),
+                Status = GetOrderStatus(order.Status),
+                RejectReason = GetOrderRejectReason(order.Status),
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
                 Volume = Math.Abs(order.Volume),
@@ -37,12 +44,12 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             //ME bug workaround
             if (order.Status == "Processing" && !hasTrades)
                 status = "InOrderBook";
-            
+
             return new Order
             {
                 Id = order.ExternalId,
-                Status = Order.GetOrderStatus(status),
-                RejectReason = Order.GetOrderRejectReason(status),
+                Status = GetOrderStatus(status),
+                RejectReason = GetOrderRejectReason(status),
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
                 Volume = Math.Abs(order.Volume),
@@ -52,6 +59,46 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 Type = OrderType.Limit,
                 CreateDateTime = order.CreatedAt
             };
+        }
+
+        private OrderStatus GetOrderStatus(string status)
+        {
+            try
+            {
+                var parsed = MeOrderStatus.TryParse(status, true, out MeOrderStatus meStatusCode);
+
+                if (parsed)
+                {
+                    switch (meStatusCode)
+                    {
+                        case MeOrderStatus.InOrderBook:
+                            return OrderStatus.InOrderBook;
+                        case MeOrderStatus.Cancelled:
+                            return OrderStatus.Cancelled;
+                        case MeOrderStatus.Matched:
+                            return OrderStatus.Matched;
+                        case MeOrderStatus.Processing:
+                            return OrderStatus.Processing;
+                        default:
+                            return OrderStatus.Rejected;
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        $"Status {status} did not match any of the expected ME orders' status codes");
+                }
+            }
+            catch (Exception e)
+            {
+                _log.WriteError(nameof(GetOrderStatus), status, e);
+                return OrderStatus.Rejected;
+            }
+        }
+
+        private string GetOrderRejectReason(string status)
+        {
+            return GetOrderStatus(status) == OrderStatus.Rejected ? status : null;
         }
     }
 }
