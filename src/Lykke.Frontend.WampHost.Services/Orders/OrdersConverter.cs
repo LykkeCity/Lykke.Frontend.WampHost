@@ -21,13 +21,16 @@ namespace Lykke.Frontend.WampHost.Services.Orders
 
         public Order Convert(MarketOrder order)
         {
+            var status = GetOrderStatus(order.Status);
+            
             return new Order
             {
                 Id = order.ExternalId,
-                Status = GetOrderStatus(order.Status),
-                RejectReason = GetOrderRejectReason(order.Status),
+                Status = status,
+                RejectReason = status == OrderStatus.Rejected ? order.Status : null,
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
+                
                 Volume = Math.Abs(order.Volume),
                 OrderAction = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
                 RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
@@ -39,17 +42,17 @@ namespace Lykke.Frontend.WampHost.Services.Orders
 
         public Order Convert(LimitOrder order, bool hasTrades)
         {
-            string status = order.Status;
+            var status = GetOrderStatus(order.Status);
 
             //ME bug workaround
-            if (order.Status == "Processing" && !hasTrades)
-                status = "InOrderBook";
+            if (status == OrderStatus.Processing  && !hasTrades)
+                status = OrderStatus.InOrderBook;
 
             return new Order
             {
                 Id = order.ExternalId,
-                Status = GetOrderStatus(status),
-                RejectReason = GetOrderRejectReason(status),
+                Status = status,
+                RejectReason = status == OrderStatus.Rejected ? order.Status : null,
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
                 Volume = Math.Abs(order.Volume),
@@ -94,11 +97,6 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 _log.WriteError(nameof(GetOrderStatus), status, e);
                 return OrderStatus.Rejected;
             }
-        }
-
-        private string GetOrderRejectReason(string status)
-        {
-            return GetOrderStatus(status) == OrderStatus.Rejected ? status : null;
         }
     }
 }
