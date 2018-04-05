@@ -7,6 +7,9 @@ namespace Lykke.Frontend.WampHost.Core.Settings
     public class WampHostSettings
     {
         public DbSettings Db { get; set; }
+        
+        public string LimitOrdersExchangeName { set; get; }
+        public string MarketOrdersExchangeName { set; get; }
 
         public RabbitMqSettings RabbitMqSettings { get; set; }
         public RabbitMqSettings MeRabbitMqSettings { get; set; }
