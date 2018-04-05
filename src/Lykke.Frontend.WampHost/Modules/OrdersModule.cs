@@ -28,13 +28,15 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<ISubscriber>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(MarketType.Spot))
-                .WithParameter(TypedParameter.From(_settings.WampHost.LimitOrdersRabbitMqSettings.ConnectionString));
+                .WithParameter("connectionString", _settings.WampHost.LimitOrdersRabbitMqSettings.ConnectionString)
+                .WithParameter("exchangeName", _settings.WampHost.LimitOrdersExchangeName);
             
             builder.RegisterType<MarketOrdersSubscriber>()
                 .As<ISubscriber>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(MarketType.Spot))
-                .WithParameter(TypedParameter.From(_settings.WampHost.MarketOrdersMqSettings.ConnectionString));
+                .WithParameter("connectionString", _settings.WampHost.MarketOrdersMqSettings.ConnectionString)
+                .WithParameter("exchangeName", _settings.WampHost.MarketOrdersExchangeName);
             
             builder.RegisterType<OrdersConverter>()
                 .As<IOrdersConverter>()

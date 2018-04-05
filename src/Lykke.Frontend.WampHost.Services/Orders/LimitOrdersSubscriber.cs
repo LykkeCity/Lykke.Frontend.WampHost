@@ -20,12 +20,14 @@ namespace Lykke.Frontend.WampHost.Services.Orders
         private readonly IOrdersPublisher _ordersPublisher;
         private readonly IRabbitMqSubscribeHelper _rabbitMqSubscribeHelper;
         private readonly string _connectionString;
+        private readonly string _exchangeName;
         private readonly MarketType _marketType;
 
         public LimitOrdersSubscriber(
             [NotNull] IRabbitMqSubscribeHelper rabbitMqSubscribeHelper,
             [NotNull] IOrdersPublisher ordersPublisher,
             [NotNull] string connectionString,
+            [NotNull] string exchangeName,
             [NotNull] MarketType marketType,
             [NotNull] ILog log)
         {
@@ -33,6 +35,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             _ordersPublisher = ordersPublisher ?? throw new ArgumentNullException(nameof(ordersPublisher));
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             _marketType = marketType;
+            _exchangeName = exchangeName ?? throw new ArgumentNullException(nameof(exchangeName));
             _log = log ?? throw new ArgumentNullException(nameof(log));
         }
         
@@ -41,7 +44,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             _rabbitMqSubscribeHelper.Subscribe(
                 connectionString: _connectionString,
                 market: _marketType,
-                source: "limitorders.clients",
+                source: _exchangeName,
                 deserializer: new JsonMessageDeserializer<LimitOrders>(),
                 handler: ProcessMessageAsync);
         }
