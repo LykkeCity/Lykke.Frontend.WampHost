@@ -10,7 +10,7 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orderbook
         public DateTime Timestamp { get; set; }
         public List<VolumePrice> Prices { get; set; } = new List<VolumePrice>();
     }
-    
+
     public class OrderbookModel
     {
         public string AssetPair { get; set; }
@@ -25,11 +25,10 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orderbook
         public double Volume { get; set; }
         public double Price { get; set; }
     }
-    
+
     public class Level
     {
         public string Id { get; set; }
-        public string ClientId { get; set; }
         public double Volume { get; set; }
         public double Price { get; set; }
     }
