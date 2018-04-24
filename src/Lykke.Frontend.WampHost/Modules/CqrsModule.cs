@@ -28,7 +28,7 @@ namespace Lykke.Frontend.WampHost.Modules
         protected override void Load(ContainerBuilder builder)
         {
             Messaging.Serialization.MessagePackSerializerFactory.Defaults.FormatterResolver = MessagePack.Resolvers.ContractlessStandardResolver.Instance;
-            var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory { Uri = _settings.CurrentValue.ClientRabbitMqSettings.ConnectionString };
+            var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory { Uri = _settings.CurrentValue.SagasRabbitMqSettings.ConnectionString };
 
             builder.Register(context => new AutofacDependencyResolver(context)).As<IDependencyResolver>().SingleInstance();
 
