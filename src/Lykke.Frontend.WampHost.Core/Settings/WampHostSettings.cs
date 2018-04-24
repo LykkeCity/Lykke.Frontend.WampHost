@@ -19,7 +19,7 @@ namespace Lykke.Frontend.WampHost.Core.Settings
         public RabbitMqSettings MtQuotesRabbitMqSettings { get; set; }
         public MtSubscriberSettings MtSubscriberSettings { get; set; }
         public RabbitMqSettings BalancesRabbitMqSettings { get; set; }
-        public RabbitMqSettings ClientRabbitMqSettings { get; set; }
+        public RabbitMqSettings SagasRabbitMqSettings { get; set; }        
         public RabbitMqSettings TradesAnonMqSettings { get; set; }
         public RabbitMqSettings LimitOrdersRabbitMqSettings { get; set; }        
         public RabbitMqSettings MarketOrdersMqSettings { get; set; }
