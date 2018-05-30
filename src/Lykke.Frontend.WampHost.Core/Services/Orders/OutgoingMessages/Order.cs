@@ -48,7 +48,8 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         LeadToNegativeSpread,
         InvalidFee,
         TooSmallVolume,
-        InvalidPrice
+        InvalidPrice,
+        Replaced
     }
 
     public enum OrderStatus
