@@ -238,11 +238,7 @@ namespace Lykke.Frontend.WampHost
 
                 aggregateLogger.AddLog(azureStorageLogger);
             }
-
-            var logToSlack = LykkeLogToSlack.Create(slackService, "Prices");
-
-            aggregateLogger.AddLog(logToSlack);
-
+            
             return aggregateLogger;
         }
     }
