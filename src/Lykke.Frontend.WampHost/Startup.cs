@@ -210,13 +210,6 @@ namespace Lykke.Frontend.WampHost
 
             aggregateLogger.AddLog(consoleLogger);
 
-            // Creating slack notification service, which logs own azure queue processing messages to aggregate log
-            var slackService = services.UseSlackNotificationsSenderViaAzureQueue(new AzureQueueIntegration.AzureQueueSettings
-            {
-                ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
-                QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
-            }, aggregateLogger);
-
             var dbLogConnectionStringManager = settings.Nested(x => x.WampHost.Db.LogsConnString);
             var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
@@ -227,22 +220,15 @@ namespace Lykke.Frontend.WampHost
                     AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "WampHostLog", consoleLogger),
                     consoleLogger);
 
-                var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
-
                 var azureStorageLogger = new LykkeLogToAzureStorage(
                     persistenceManager,
-                    slackNotificationsManager,
-                    consoleLogger);
+                    lastResortLog: consoleLogger);
 
                 azureStorageLogger.Start();
 
                 aggregateLogger.AddLog(azureStorageLogger);
             }
-
-            var logToSlack = LykkeLogToSlack.Create(slackService, "Prices");
-
-            aggregateLogger.AddLog(logToSlack);
-
+            
             return aggregateLogger;
         }
     }
