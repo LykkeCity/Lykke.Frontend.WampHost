@@ -46,7 +46,7 @@ namespace Lykke.Frontend.WampHost
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             try
-            {                
+            {
                 services.AddMvc()
                     .AddJsonOptions(options =>
                     {
@@ -73,7 +73,7 @@ namespace Lykke.Frontend.WampHost
                 builder.RegisterModule(new QuotesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new OrderBooksModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new TradesModule(appSettings.CurrentValue.WampHost));
-                builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue, Log));
+                builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue));
                 builder.RegisterModule(new OrdersModule(appSettings.CurrentValue));
 
                 ApplicationContainer = builder.Build();
@@ -237,7 +237,7 @@ namespace Lykke.Frontend.WampHost
 
                 aggregateLogger.AddLog(azureStorageLogger);
             }
-            
+
             return aggregateLogger;
         }
     }

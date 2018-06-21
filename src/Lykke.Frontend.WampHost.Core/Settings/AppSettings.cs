@@ -10,7 +10,6 @@ namespace Lykke.Frontend.WampHost.Core.Settings
         public WampHostSettings WampHost { get; set; }
         public SlackNotificationsSettings SlackNotifications { get; set; }
         public SessionServiceClientSettings SessionServiceClient { get; set; }
-        public AssetServiceClientSettings AssetsServiceClient { get; set; }
         public ClientAccountServiceClientSettings ClientAccountServiceClient { set; get; }
     }
 }
