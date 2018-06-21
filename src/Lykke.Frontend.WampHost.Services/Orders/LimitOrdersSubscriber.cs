@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
@@ -9,7 +7,6 @@ using Lykke.Frontend.WampHost.Core.Orders.Contract;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Orders;
 using Lykke.RabbitMqBroker.Subscriber;
-using Lykke.Service.TradesAdapter.Contract;
 
 namespace Lykke.Frontend.WampHost.Services.Orders
 {

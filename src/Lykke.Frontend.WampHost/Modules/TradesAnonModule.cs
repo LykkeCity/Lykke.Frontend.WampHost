@@ -1,6 +1,7 @@
 ﻿using System;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Common.Log;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
@@ -17,10 +18,12 @@ namespace Lykke.Frontend.WampHost.Modules
     {
         private readonly AppSettings _settings;
         private readonly IServiceCollection _services;
+        private readonly ILog _log;
 
-        public TradesAnonModule(AppSettings settings)
+        public TradesAnonModule(AppSettings settings, ILog log)
         {
             _settings = settings;
+            _log = log;
 
             _services = new ServiceCollection();
         }
@@ -55,7 +58,7 @@ namespace Lykke.Frontend.WampHost.Modules
             var cacheExpirationPeriod = TimeSpan.FromMinutes(5);
             _services.RegisterAssetsClient(AssetServiceSettings.Create(
                 new Uri(_settings.AssetsServiceClient.ServiceUrl),
-                cacheExpirationPeriod));
+                cacheExpirationPeriod), _log);
 
             builder.Populate(_services);
         }

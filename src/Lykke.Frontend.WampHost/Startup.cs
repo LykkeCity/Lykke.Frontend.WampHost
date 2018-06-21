@@ -22,7 +22,6 @@ using WampSharp.V2.Realm;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Models;
-using Lykke.Logs.Slack;
 
 namespace Lykke.Frontend.WampHost
 {
@@ -74,7 +73,7 @@ namespace Lykke.Frontend.WampHost
                 builder.RegisterModule(new QuotesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new OrderBooksModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new TradesModule(appSettings.CurrentValue.WampHost));
-                builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue));
+                builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue, Log));
                 builder.RegisterModule(new OrdersModule(appSettings.CurrentValue));
 
                 ApplicationContainer = builder.Build();

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
-using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Orders;
 using Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages;
 using Lykke.Frontend.WampHost.Core.Services.Security;

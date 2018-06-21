@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
 using Lykke.Frontend.WampHost.Core.Settings;
-using Lykke.Job.TradesConverter.Contract;
-using Lykke.Service.Assets.Client;
 using Lykke.Service.TradesAdapter.Contract;
 using Microsoft.Extensions.Caching.Distributed;
 using WampSharp.V2.Realm;
