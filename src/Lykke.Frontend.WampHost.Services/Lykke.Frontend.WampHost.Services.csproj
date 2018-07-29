@@ -12,6 +12,7 @@
     <PackageReference Include="Lykke.Job.TradesConverter.Contract" Version="2.0.0" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.3.0" />
     <PackageReference Include="Lykke.Service.Assets.Client" Version="3.3.2" />
+    <PackageReference Include="Lykke.Service.Assets.Contract" Version="1.0.0" />
     <PackageReference Include="Lykke.Service.ClientAccount.Client" Version="1.3.0" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
     <PackageReference Include="Lykke.Service.Session.Client" Version="1.11.1" />

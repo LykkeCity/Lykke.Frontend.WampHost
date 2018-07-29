@@ -61,9 +61,9 @@ namespace Lykke.Frontend.WampHost.Modules
                         exclusiveQueuePostfix: "k8s")),
 
                     Register.BoundedContext("wamp")
-                        .ListeningEvents(
-                                typeof(AssetCreatedEvent),
-                                typeof(AssetUpdatedEvent),
+                        .ListeningEvents(                                
+                                typeof(Service.Assets.Contract.Events.AssetCreatedEvent),                                
+                                typeof(Service.Assets.Contract.Events.AssetUpdatedEvent),
                                 typeof(AssetPairCreatedEvent),
                                 typeof(AssetPairUpdatedEvent))
                             .From(BoundedContexts.Assets).On(defaultRoute)
