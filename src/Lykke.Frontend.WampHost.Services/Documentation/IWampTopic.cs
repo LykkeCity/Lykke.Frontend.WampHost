@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Lykke.Frontend.WampHost.Core.Services.HistoryExport;
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages;
@@ -55,5 +56,10 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "orders.spot", Description = "Orders. realm = 'prices'")]
         Order[] Orders();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "history.export", Description = "Generated csv urls. realm = 'prices'")]
+        HistoryExportGeneratedMessage HsistoryExports();
+        
     }
 }
