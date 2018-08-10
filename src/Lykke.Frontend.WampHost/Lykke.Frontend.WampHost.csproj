@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <OutputType>Exe</OutputType>
     <Version>1.0.1</Version>
     <MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
@@ -9,11 +9,11 @@
     <RootNamespace>Lykke.Frontend.WampHost</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netcoreapp2.0\Lykke.Frontend.WampHost.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp2.1\Lykke.Frontend.WampHost.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp2.0\Lykke.Frontend.WampHost.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netcoreapp2.1\Lykke.Frontend.WampHost.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -33,15 +33,15 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="6.2.2" />
-    <PackageReference Include="Lykke.Common" Version="6.8.1" />
+    <PackageReference Include="Lykke.Common" Version="7.0.3" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.7.1" />
-    <PackageReference Include="Lykke.Messaging" Version="5.0.0" />
-    <PackageReference Include="Lykke.Messaging.RabbitMq" Version="2.0.0" />
-    <PackageReference Include="Lykke.Logs" Version="4.3.4" />
+    <PackageReference Include="Lykke.Messaging" Version="6.0.1" />
+    <PackageReference Include="Lykke.Messaging.RabbitMq" Version="2.1.0" />
+    <PackageReference Include="Lykke.Logs" Version="5.2.0" />
     <PackageReference Include="Lykke.MarginTrading.Contracts" Version="1.0.0" />
     <PackageReference Include="Lykke.Service.Session.Client" Version="1.11.1" />
-    <PackageReference Include="Lykke.SettingsReader" Version="2.4.0" />
-    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.4" />
+    <PackageReference Include="Lykke.SettingsReader" Version="3.0.0" />
+    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.5" />
     <PackageReference Include="Lykke.WampSharp.AspNetCore.WebSockets.Server" Version="1.0.2" />
     <PackageReference Include="Lykke.WampSharp.NewtonsoftJson" Version="1.0.2" />
     <PackageReference Include="Lykke.WampSharp.NewtonsoftMsgpack" Version="1.0.2" />
@@ -52,10 +52,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.1" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Frontend.WampHost.Core\Lykke.Frontend.WampHost.Core.csproj" />

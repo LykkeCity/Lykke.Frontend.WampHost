@@ -9,6 +9,9 @@ using Lykke.Cqrs;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Assets.IncomeMessages;
 using Lykke.Frontend.WampHost.Services.Projections;
+using Lykke.Job.HistoryExportBuilder.Contract;
+using Lykke.Job.HistoryExportBuilder.Contract.Events;
+using Lykke.Messaging.Serialization;
 using Lykke.Service.Session.Contracts;
 using Lykke.SettingsReader;
 
@@ -40,6 +43,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 new RabbitMqTransportFactory());
             
             builder.RegisterType<AssetsProjection>();
+            builder.RegisterType<HistoryExportProjection>();
             
             builder.Register(ctx =>
             {                
@@ -52,7 +56,7 @@ namespace Lykke.Frontend.WampHost.Modules
                     true,
                     Register.DefaultEndpointResolver(new RabbitMqConventionEndpointResolver(
                         "RabbitMq",
-                        "messagepack",
+                        SerializationFormat.MessagePack,
                         environment: "lykke",
                         exclusiveQueuePostfix: "k8s")),
 
@@ -64,6 +68,10 @@ namespace Lykke.Frontend.WampHost.Modules
                                 typeof(AssetPairUpdatedEvent))
                             .From(BoundedContexts.Assets).On(defaultRoute)
                         .WithProjection(typeof(AssetsProjection), BoundedContexts.Assets)
+                        .ListeningEvents(
+                                typeof(ClientHistoryExportedEvent))
+                            .From(HistoryExportBuilderBoundedContext.Name).On(defaultRoute)
+                        .WithProjection(typeof(HistoryExportProjection), HistoryExportBuilderBoundedContext.Name)
                 );
             })
             .As<ICqrsEngine>()
