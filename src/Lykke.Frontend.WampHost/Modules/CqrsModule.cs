@@ -12,6 +12,7 @@ using Lykke.Frontend.WampHost.Services.Projections;
 using Lykke.Job.HistoryExportBuilder.Contract;
 using Lykke.Job.HistoryExportBuilder.Contract.Events;
 using Lykke.Messaging.Serialization;
+using Lykke.Service.Assets.Contract.Events;
 using Lykke.Service.Session.Contracts;
 using Lykke.SettingsReader;
 
@@ -61,8 +62,8 @@ namespace Lykke.Frontend.WampHost.Modules
                         exclusiveQueuePostfix: "k8s")),
 
                     Register.BoundedContext("wamp")
-                        .ListeningEvents(
-                                typeof(AssetCreatedEvent),
+                        .ListeningEvents(                                
+                                typeof(AssetCreatedEvent),                                
                                 typeof(AssetUpdatedEvent),
                                 typeof(AssetPairCreatedEvent),
                                 typeof(AssetPairUpdatedEvent))

@@ -30,14 +30,14 @@ namespace Lykke.Frontend.WampHost.Services.Projections
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task Handle(AssetCreatedEvent evt)
+        public async Task Handle(Service.Assets.Contract.Events.AssetCreatedEvent evt)
         {
-            _subjectAssets.OnNext(_mapper.Map<AssetUpdateMessage>(evt.Asset));
+            _subjectAssets.OnNext(_mapper.Map<AssetUpdateMessage>(evt));
         }
 
-        public async Task Handle(AssetUpdatedEvent evt)
+        public async Task Handle(Service.Assets.Contract.Events.AssetUpdatedEvent evt)
         {
-            _subjectAssets.OnNext(_mapper.Map<AssetUpdateMessage>(evt.Asset));
+            _subjectAssets.OnNext(_mapper.Map<AssetUpdateMessage>(evt));
         }
 
         public async Task Handle(AssetPairCreatedEvent evt)
