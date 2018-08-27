@@ -18,6 +18,18 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         
         [JsonProperty(NullValueHandling=NullValueHandling.Include)]
         public double? Price { set; get; }
+
+        [JsonProperty(NullValueHandling=NullValueHandling.Include)]
+        public double? LowerLimitPrice { set; get; }
+
+        [JsonProperty(NullValueHandling=NullValueHandling.Include)]
+        public double? LowerPrice { set; get; }
+
+        [JsonProperty(NullValueHandling=NullValueHandling.Include)]
+        public double? UpperLimitPrice { set; get; }
+
+        [JsonProperty(NullValueHandling=NullValueHandling.Include)]
+        public double? UpperPrice { set; get; }
         
         public double Volume { set; get; }
         
@@ -49,7 +61,8 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         InvalidFee,
         TooSmallVolume,
         InvalidPrice,
-        Replaced
+        Replaced,
+        Pending
     }
 
     public enum OrderStatus
@@ -58,12 +71,13 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         Processing,
         Matched,
         Cancelled,
-        Rejected
+        Rejected,
+        Pending
     }
 
     public enum OrderType
     {
-        Limit, Market
+        Limit, Market, StopLimit
     }
 
     public enum OrderAction
