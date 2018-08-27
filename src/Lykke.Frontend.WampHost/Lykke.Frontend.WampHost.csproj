@@ -22,9 +22,15 @@
     <None Remove="Views\Shared\TypesListPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Shared\MethodsListPartial.cshtml" />
-    <Content Include="Views\Shared\TypesListPartial.cshtml" />
+    <Content Include="Views\Home\Index.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Shared\MethodsListPartial.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Shared\TypesListPartial.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Update="Dockerfile">
@@ -32,15 +38,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="6.2.2" />
+    <PackageReference Include="AutoMapper" Version="7.0.1" />
     <PackageReference Include="Lykke.Common" Version="7.0.3" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.10.1" />
     <PackageReference Include="Lykke.Messaging" Version="6.0.1" />
     <PackageReference Include="Lykke.Messaging.RabbitMq" Version="2.1.0" />
     <PackageReference Include="Lykke.Logs" Version="5.2.0" />
-    <PackageReference Include="Lykke.MarginTrading.Contracts" Version="1.0.0" />
-    <PackageReference Include="Lykke.Service.Session.Client" Version="1.11.1" />
-    <PackageReference Include="Lykke.SettingsReader" Version="3.0.0" />
+    <PackageReference Include="Lykke.MarginTrading.Contracts" Version="1.1.4" />
+    <PackageReference Include="Lykke.Service.Session.Client" Version="1.23.0" />
+    <PackageReference Include="Lykke.SettingsReader" Version="4.0.1" />
     <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.5" />
     <PackageReference Include="Lykke.WampSharp.AspNetCore.WebSockets.Server" Version="1.0.2" />
     <PackageReference Include="Lykke.WampSharp.NewtonsoftJson" Version="1.0.2" />
@@ -52,7 +58,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.1" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Frontend.WampHost.Core\Lykke.Frontend.WampHost.Core.csproj" />

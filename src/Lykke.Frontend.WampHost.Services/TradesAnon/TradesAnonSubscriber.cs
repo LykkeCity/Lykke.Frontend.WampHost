@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
-using Lykke.Job.TradesConverter.Contract;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Service.TradesAdapter.Contract;
 
