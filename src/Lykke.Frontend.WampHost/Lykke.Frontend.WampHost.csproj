@@ -22,9 +22,15 @@
     <None Remove="Views\Shared\TypesListPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Shared\MethodsListPartial.cshtml" />
-    <Content Include="Views\Shared\TypesListPartial.cshtml" />
+    <Content Include="Views\Home\Index.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Shared\MethodsListPartial.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Shared\TypesListPartial.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Update="Dockerfile">
