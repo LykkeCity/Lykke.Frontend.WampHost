@@ -13,19 +13,24 @@ namespace Lykke.Frontend.WampHost.Services.Security
     {
         private readonly ILog _log;
         private readonly IMemoryCache _cache;
+        [NotNull] private readonly IOAuthTokenValidator _authTokenValidator;
         private readonly IClientsSessionsRepository _sessionService;
 
         private readonly MemoryCacheEntryOptions _tokenCacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
         private readonly MemoryCacheEntryOptions _sessionCacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(14));
 
+        private const int LykkeTokenLength = 64;
+
         public ClientResolver(
             [NotNull] ILog log,
             [NotNull] IClientsSessionsRepository sessionService,
-            [NotNull] IMemoryCache cache)
+            [NotNull] IMemoryCache cache,
+            [NotNull] IOAuthTokenValidator authTokenValidator)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _authTokenValidator = authTokenValidator;
         }
 
         public bool Validate(string token)
@@ -45,8 +50,14 @@ namespace Lykke.Frontend.WampHost.Services.Security
 
             try
             {
-                var sessionModel = _sessionService.GetAsync(token).Result;
-                clientId = sessionModel?.ClientId;
+                if (token.Length == LykkeTokenLength)
+                {
+                    clientId = _sessionService.GetAsync(token).GetAwaiter().GetResult()?.ClientId;
+                }
+                else
+                {
+                    clientId = _authTokenValidator.GetClientId(token).GetAwaiter().GetResult();
+                }
             }
             catch (Exception exception)
             {

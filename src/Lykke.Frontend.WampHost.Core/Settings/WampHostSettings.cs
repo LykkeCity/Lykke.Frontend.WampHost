@@ -6,6 +6,8 @@ namespace Lykke.Frontend.WampHost.Core.Settings
     [UsedImplicitly]
     public class WampHostSettings
     {
+        public OAuthSettings OAuthSettings { get; set; }
+
         public DbSettings Db { get; set; }
         
         public string LimitOrdersExchangeName { set; get; }

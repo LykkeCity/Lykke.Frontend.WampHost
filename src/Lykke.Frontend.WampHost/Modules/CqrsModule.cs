@@ -13,6 +13,7 @@ using Lykke.Frontend.WampHost.Services.Assets.IncomeMessages;
 using Lykke.Frontend.WampHost.Services.Projections;
 using Lykke.Job.HistoryExportBuilder.Contract;
 using Lykke.Job.HistoryExportBuilder.Contract.Events;
+using Lykke.Messaging.Contract;
 using Lykke.Messaging.Serialization;
 using Lykke.Service.Assets.Contract.Events;
 using Lykke.Service.Operations.Contracts;
@@ -47,19 +48,21 @@ namespace Lykke.Frontend.WampHost.Modules
 
             builder.Register(context => new AutofacDependencyResolver(context)).As<IDependencyResolver>().SingleInstance();
 
-            var messagingEngine = new MessagingEngine(_log,
+            builder.Register(c=> 
+             new MessagingEngine(_log,
                 new TransportResolver(new Dictionary<string, TransportInfo>
                 {
                     {"RabbitMq", new TransportInfo(rabbitMqSettings.Endpoint.ToString(), rabbitMqSettings.UserName, rabbitMqSettings.Password, "None", "RabbitMq")}
                 }),
-                new RabbitMqTransportFactory());
-
+                new RabbitMqTransportFactory()))
+                .As<IMessagingEngine>();
+            
             builder.RegisterType<ConfirmationCommandHandler>();
 
             builder.RegisterType<AssetsProjection>();
             builder.RegisterType<HistoryExportProjection>();
             builder.RegisterType<OperationsProjection>();
-
+            
             var protobufEndpointResolver = new RabbitMqConventionEndpointResolver(
                 "RabbitMq",
                 SerializationFormat.ProtoBuf,
@@ -67,12 +70,12 @@ namespace Lykke.Frontend.WampHost.Modules
                 exclusiveQueuePostfix: _env);
 
             builder.Register(ctx =>
-            {
+            {                
                 const string defaultRoute = "self";
 
                 return new CqrsEngine(_log,
                     ctx.Resolve<IDependencyResolver>(),
-                    messagingEngine,
+                    ctx.Resolve<IMessagingEngine>(),
                     new DefaultEndpointProvider(),
                     true,
                     Register.DefaultEndpointResolver(new RabbitMqConventionEndpointResolver(
@@ -82,8 +85,8 @@ namespace Lykke.Frontend.WampHost.Modules
                         exclusiveQueuePostfix: _env)),
 
                     Register.BoundedContext(WampHostBoundedContext.Name)
-                        .ListeningEvents(
-                                typeof(AssetCreatedEvent),
+                        .ListeningEvents(                                
+                                typeof(AssetCreatedEvent),                                
                                 typeof(AssetUpdatedEvent),
                                 typeof(AssetPairCreatedEvent),
                                 typeof(AssetPairUpdatedEvent))
