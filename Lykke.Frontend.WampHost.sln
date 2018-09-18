@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Tests", "3. Tests", "{8F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lykke.Frontend.WampHost", "src\Lykke.Frontend.WampHost\Lykke.Frontend.WampHost.csproj", "{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lykke.Frontend.WampHost.Contracts", "src\Lykke.Frontend.WampHost.Contracts\Lykke.Frontend.WampHost.Contracts.csproj", "{146841E7-CB00-49AA-92D7-260FF4E780A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{146841E7-CB00-49AA-92D7-260FF4E780A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{146841E7-CB00-49AA-92D7-260FF4E780A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{146841E7-CB00-49AA-92D7-260FF4E780A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{146841E7-CB00-49AA-92D7-260FF4E780A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

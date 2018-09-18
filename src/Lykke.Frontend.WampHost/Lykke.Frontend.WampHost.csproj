@@ -61,6 +61,7 @@
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Lykke.Frontend.WampHost.Contracts\Lykke.Frontend.WampHost.Contracts.csproj" />
     <ProjectReference Include="..\Lykke.Frontend.WampHost.Core\Lykke.Frontend.WampHost.Core.csproj" />
     <ProjectReference Include="..\Lykke.Frontend.WampHost.Services\Lykke.Frontend.WampHost.Services.csproj" />
   </ItemGroup>
