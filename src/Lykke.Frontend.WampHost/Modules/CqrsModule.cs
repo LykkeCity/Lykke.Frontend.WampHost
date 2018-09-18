@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Autofac;
 using Common.Log;
+using JetBrains.Annotations;
 using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
 using Lykke.Messaging.RabbitMq;
@@ -22,11 +23,13 @@ namespace Lykke.Frontend.WampHost.Modules
     {
         private readonly IReloadingManager<WampHostSettings> _settings;
         private readonly ILog _log;
+        private readonly string _env;
 
-        public CqrsModule(IReloadingManager<WampHostSettings> settings, ILog log)
+        public CqrsModule(IReloadingManager<WampHostSettings> settings, ILog log, [CanBeNull] string env)
         {
             _settings = settings;
             _log = log;
+            _env = env ?? "DefaultEnv";
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -42,12 +45,12 @@ namespace Lykke.Frontend.WampHost.Modules
                     {"RabbitMq", new TransportInfo(rabbitMqSettings.Endpoint.ToString(), rabbitMqSettings.UserName, rabbitMqSettings.Password, "None", "RabbitMq")}
                 }),
                 new RabbitMqTransportFactory());
-            
+
             builder.RegisterType<AssetsProjection>();
             builder.RegisterType<HistoryExportProjection>();
-            
+
             builder.Register(ctx =>
-            {                
+            {
                 const string defaultRoute = "self";
 
                 return new CqrsEngine(_log,
@@ -59,11 +62,11 @@ namespace Lykke.Frontend.WampHost.Modules
                         "RabbitMq",
                         SerializationFormat.MessagePack,
                         environment: "lykke",
-                        exclusiveQueuePostfix: "k8s")),
+                        exclusiveQueuePostfix: _env)),
 
                     Register.BoundedContext("wamp")
-                        .ListeningEvents(                                
-                                typeof(AssetCreatedEvent),                                
+                        .ListeningEvents(
+                                typeof(AssetCreatedEvent),
                                 typeof(AssetUpdatedEvent),
                                 typeof(AssetPairCreatedEvent),
                                 typeof(AssetPairUpdatedEvent))
