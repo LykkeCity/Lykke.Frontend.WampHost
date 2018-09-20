@@ -64,7 +64,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 "RabbitMq",
                 SerializationFormat.ProtoBuf,
                 environment: "lykke",
-                exclusiveQueuePostfix: "k8s");
+                exclusiveQueuePostfix: _env);
 
             builder.Register(ctx =>
             {
