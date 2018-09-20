@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Services.HistoryExport;
@@ -15,73 +16,53 @@ namespace Lykke.Frontend.WampHost.Services.Projections
     [UsedImplicitly]
     public class OperationsProjection
     {
-        private readonly ILog _log;
         private readonly IWampSubject _subject;
         private readonly ISessionCache _sessionCache;
 
         private const string Topic = "operations";
 
         public OperationsProjection(
-            ILog log,
             IWampHostedRealm realm,
             ISessionCache sessionCache)
         {
-            _log = log;
             _subject = realm?.Services.GetSubject(Topic);
             _sessionCache = sessionCache;
         }
 
         public Task Handle(OperationConfirmedEvent evt)
         {
-            var sessionIds = _sessionCache.GetSessionIds(evt.ClientId.ToString());
-            if (sessionIds.Length == 0)
-                return Task.CompletedTask;
+            SendOperationStatus(evt.ClientId, evt.OperationId, OperationStatus.Confirmed);
 
-            _subject.OnNext(new WampEvent
-            {
-                Options = new PublishOptions { Eligible = sessionIds },
-                Arguments = new object[]
-                {
-                    new OperationStatusChangedMessage
-                    {
-                        Status = OperationStatus.Confirmed,
-                        OperationId = evt.OperationId
-                    }
-                }
-            });
+            return Task.CompletedTask;
+        }
+
+        public Task Handle(OperationCompletedEvent evt)
+        {
+            SendOperationStatus(evt.ClientId, evt.OperationId, OperationStatus.Completed);
 
             return Task.CompletedTask;
         }
 
         public Task Handle(OperationFailedEvent evt)
         {
-            var sessionIds = _sessionCache.GetSessionIds(evt.ClientId.ToString());
-            if (sessionIds.Length == 0)
-                return Task.CompletedTask;
-
-            _subject.OnNext(new WampEvent
-            {
-                Options = new PublishOptions { Eligible = sessionIds },
-                Arguments = new object[]
-                {
-                    new OperationStatusChangedMessage
-                    {
-                        Status = OperationStatus.Failed,
-                        OperationId = evt.OperationId,
-                        ErrorCode = evt.ErrorCode,
-                        ErrorMessage = evt.ErrorMessage
-                    }
-                }
-            });
+            SendOperationStatus(evt.ClientId, evt.OperationId, OperationStatus.Failed, evt.ErrorCode, evt.ErrorMessage);
 
             return Task.CompletedTask;
         }
 
         public Task Handle(OperationCorruptedEvent evt)
         {
-            var sessionIds = _sessionCache.GetSessionIds(evt.ClientId.ToString());
+            SendOperationStatus(evt.ClientId, evt.OperationId, OperationStatus.Failed);
+
+            return Task.CompletedTask;
+        }
+
+        private void SendOperationStatus(Guid clientId, Guid operationId, OperationStatus status,
+            string errorCode = null, string errorMessage = null)
+        {
+            var sessionIds = _sessionCache.GetSessionIds(clientId.ToString());
             if (sessionIds.Length == 0)
-                return Task.CompletedTask;
+                return;
 
             _subject.OnNext(new WampEvent
             {
@@ -90,13 +71,13 @@ namespace Lykke.Frontend.WampHost.Services.Projections
                 {
                     new OperationStatusChangedMessage
                     {
-                        Status = OperationStatus.Failed,
-                        OperationId = evt.OperationId
+                        Status = status,
+                        OperationId = operationId,
+                        ErrorCode = errorCode,
+                        ErrorMessage = errorMessage
                     }
                 }
             });
-
-            return Task.CompletedTask;
         }
     }
 }

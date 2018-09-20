@@ -8,6 +8,7 @@ namespace Lykke.Frontend.WampHost.Core.Services.Operations
     {
         ConfirmationRequested,
         Confirmed,
+        Completed,
         Failed,
     }
 

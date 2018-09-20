@@ -93,7 +93,7 @@ namespace Lykke.Frontend.WampHost.Modules
                                 typeof(ClientHistoryExportedEvent))
                             .From(HistoryExportBuilderBoundedContext.Name).On(defaultRoute)
                         .WithProjection(typeof(HistoryExportProjection), HistoryExportBuilderBoundedContext.Name)
-                        .ListeningEvents(typeof(OperationFailedEvent), typeof(OperationConfirmedEvent))
+                        .ListeningEvents(typeof(OperationFailedEvent), typeof(OperationConfirmedEvent), typeof(OperationCompletedEvent), typeof(OperationCorruptedEvent))
                             .From(OperationsBoundedContext.Name).On(defaultRoute)
                         .WithProjection(typeof(OperationsProjection), OperationsBoundedContext.Name)
                         .ListeningCommands(typeof(RequestConfirmationCommand)).On("commands")
