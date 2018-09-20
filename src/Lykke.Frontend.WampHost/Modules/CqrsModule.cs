@@ -7,6 +7,7 @@ using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Cqrs;
+using Lykke.Frontend.WampHost.Contracts;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Assets.IncomeMessages;
 using Lykke.Frontend.WampHost.Services.Projections;
@@ -14,8 +15,12 @@ using Lykke.Job.HistoryExportBuilder.Contract;
 using Lykke.Job.HistoryExportBuilder.Contract.Events;
 using Lykke.Messaging.Serialization;
 using Lykke.Service.Assets.Contract.Events;
+using Lykke.Service.Operations.Contracts;
+using Lykke.Service.Operations.Contracts.Events;
 using Lykke.Service.Session.Contracts;
 using Lykke.SettingsReader;
+using Lykke.Frontend.WampHost.Contracts.Commands;
+using Lykke.Frontend.WampHost.Services.CommandHandlers;
 
 namespace Lykke.Frontend.WampHost.Modules
 {
@@ -35,7 +40,10 @@ namespace Lykke.Frontend.WampHost.Modules
         protected override void Load(ContainerBuilder builder)
         {
             Messaging.Serialization.MessagePackSerializerFactory.Defaults.FormatterResolver = MessagePack.Resolvers.ContractlessStandardResolver.Instance;
-            var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory { Uri = _settings.CurrentValue.SagasRabbitMqSettings.ConnectionString };
+            var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory
+            {
+                Uri = _settings.CurrentValue.SagasRabbitMqSettings.ConnectionString
+            };
 
             builder.Register(context => new AutofacDependencyResolver(context)).As<IDependencyResolver>().SingleInstance();
 
@@ -46,8 +54,17 @@ namespace Lykke.Frontend.WampHost.Modules
                 }),
                 new RabbitMqTransportFactory());
 
+            builder.RegisterType<ConfirmationCommandHandler>();
+
             builder.RegisterType<AssetsProjection>();
             builder.RegisterType<HistoryExportProjection>();
+            builder.RegisterType<OperationsProjection>();
+
+            var protobufEndpointResolver = new RabbitMqConventionEndpointResolver(
+                "RabbitMq",
+                SerializationFormat.ProtoBuf,
+                environment: "lykke",
+                exclusiveQueuePostfix: _env);
 
             builder.Register(ctx =>
             {
@@ -64,7 +81,7 @@ namespace Lykke.Frontend.WampHost.Modules
                         environment: "lykke",
                         exclusiveQueuePostfix: _env)),
 
-                    Register.BoundedContext("wamp")
+                    Register.BoundedContext(WampHostBoundedContext.Name)
                         .ListeningEvents(
                                 typeof(AssetCreatedEvent),
                                 typeof(AssetUpdatedEvent),
@@ -76,6 +93,12 @@ namespace Lykke.Frontend.WampHost.Modules
                                 typeof(ClientHistoryExportedEvent))
                             .From(HistoryExportBuilderBoundedContext.Name).On(defaultRoute)
                         .WithProjection(typeof(HistoryExportProjection), HistoryExportBuilderBoundedContext.Name)
+                        .ListeningEvents(typeof(OperationFailedEvent), typeof(OperationConfirmedEvent), typeof(OperationCompletedEvent), typeof(OperationCorruptedEvent))
+                            .From(OperationsBoundedContext.Name).On(defaultRoute)
+                        .WithProjection(typeof(OperationsProjection), OperationsBoundedContext.Name)
+                        .ListeningCommands(typeof(RequestConfirmationCommand)).On("commands")
+                        .WithEndpointResolver(protobufEndpointResolver)
+                        .WithCommandsHandler<ConfirmationCommandHandler>()
                 );
             })
             .As<ICqrsEngine>()
