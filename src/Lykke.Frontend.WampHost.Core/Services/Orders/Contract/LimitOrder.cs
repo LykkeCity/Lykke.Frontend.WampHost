@@ -16,6 +16,14 @@ namespace Lykke.Frontend.WampHost.Core.Orders.Contract
 
         public double Price { get; set; }
 
+        public double? LowerLimitPrice { get; set; }
+
+        public double? LowerPrice { get; set; }
+
+        public double? UpperLimitPrice { get; set; }
+
+        public double? UpperPrice { get; set; }
+
         public string Status { get; set; }
 
         public DateTime CreatedAt { get; set; }

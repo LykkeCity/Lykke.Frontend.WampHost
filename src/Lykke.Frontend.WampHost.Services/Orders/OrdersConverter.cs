@@ -50,14 +50,24 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             {
                 Id = order.ExternalId,
                 Status = status,
-                RejectReason = status == OrderStatus.Rejected ? order.Status : null,
+                RejectReason = status == OrderStatus.Rejected 
+                    ? order.Status 
+                    : null,
                 AssetPairId = order.AssetPairId,
-                Price = order.Price,
+                Price = status == OrderStatus.Pending 
+                    ? (double?) null 
+                    : order.Price,
+                LowerLimitPrice = order.LowerLimitPrice,
+                LowerPrice = order.LowerPrice,
+                UpperLimitPrice = order.UpperLimitPrice,
+                UpperPrice = order.UpperPrice,
                 Volume = Math.Abs(order.Volume),
-                OrderAction = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
+                OrderAction = order.Volume > 0 
+                    ? OrderAction.Buy 
+                    : OrderAction.Sell,
                 RemainingVolume = Math.Abs(order.RemainingVolume),
                 Straight = order.Straight,
-                Type = OrderType.Limit,
+                Type = GetLimitOrderType(order),
                 CreateDateTime = order.CreatedAt
             };
         }
@@ -80,21 +90,29 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                             return OrderStatus.Matched;
                         case MeOrderStatus.Processing:
                             return OrderStatus.Processing;
+                        case MeOrderStatus.Pending:
+                            return OrderStatus.Pending;
                         default:
                             return OrderStatus.Rejected;
                     }
                 }
-                else
-                {
-                    throw new ArgumentException(
-                        $"Status {status} did not match any of the expected ME orders' status codes");
-                }
+
+                throw new ArgumentException(
+                    $"Status {status} did not match any of the expected ME orders' status codes");
             }
             catch (Exception e)
             {
                 _log.WriteError(nameof(GetOrderStatus), status, e);
                 return OrderStatus.Rejected;
             }
+        }
+
+        private OrderType GetLimitOrderType(LimitOrder order)
+        {
+            return order.LowerPrice.HasValue || order.LowerLimitPrice.HasValue ||
+                   order.UpperPrice.HasValue || order.UpperLimitPrice.HasValue
+                ? OrderType.StopLimit
+                : OrderType.Limit;
         }
     }
 }
