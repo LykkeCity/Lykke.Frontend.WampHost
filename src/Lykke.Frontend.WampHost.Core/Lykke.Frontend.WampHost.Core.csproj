@@ -6,11 +6,11 @@
     <Version>1.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="7.0.3" />
+    <PackageReference Include="Lykke.Common" Version="7.0.4" />
     <PackageReference Include="Lykke.Job.CandlesProducer.Contract" Version="4.1.1" />
     <PackageReference Include="Lykke.Job.QuotesProducer.Contract" Version="1.0.0" />
     <PackageReference Include="Lykke.Job.TradesConverter.Contract" Version="3.2.0" />
-    <PackageReference Include="Lykke.Logs" Version="5.2.0" />
+    <PackageReference Include="Lykke.Logs" Version="6.0.0" />
     <PackageReference Include="Lykke.MarginTrading.Contracts" Version="1.1.4" />
     <PackageReference Include="Lykke.MatchingEngineConnector.Abstractions" Version="6.0.3" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.3.0" />

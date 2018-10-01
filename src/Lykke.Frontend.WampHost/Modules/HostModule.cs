@@ -56,8 +56,18 @@ namespace Lykke.Frontend.WampHost.Modules
                 .As<ISessionCache>()
                 .SingleInstance();
 
+            builder.RegisterType<OAuthTokenValidator>()
+                .WithParameter(TypedParameter.From(new OAuth2IntrospectionOptions
+                {
+                    ClientId = _settings.WampHost.OAuthSettings.ClientId,
+                    ClientSecret = _settings.WampHost.OAuthSettings.ClientSecret,
+                    Authority = _settings.WampHost.OAuthSettings.Authority
+                }))
+                .As<IOAuthTokenValidator>()
+                .SingleInstance();
+
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);
-            
+
             builder.RegisterLykkeServiceClient(_settings.ClientAccountServiceClient.ServiceUrl);
 
             RegisterWampCommon(builder);
@@ -73,7 +83,7 @@ namespace Lykke.Frontend.WampHost.Modules
                 .SingleInstance();
         }
 
-        private void RegisterWampCommon(ContainerBuilder builder)
+        private static void RegisterWampCommon(ContainerBuilder builder)
         {
             builder.RegisterType<WampSessionAuthenticatorFactory>()
                 .As<IWampSessionAuthenticatorFactory>()
