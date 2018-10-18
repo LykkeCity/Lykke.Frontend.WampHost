@@ -1,9 +1,9 @@
-﻿using System;
-using Common.Log;
+﻿using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
 using Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages;
+using System;
 
 namespace Lykke.Frontend.WampHost.Services.Orders
 {
@@ -20,7 +20,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
         public Order Convert(MarketOrder order)
         {
             var status = GetOrderStatus(order.Status);
-            
+
             return new Order
             {
                 Id = order.ExternalId,
@@ -28,7 +28,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 RejectReason = status == OrderStatus.Rejected ? order.Status : null,
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
-                
+
                 Volume = Math.Abs(order.Volume),
                 OrderAction = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
                 RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
@@ -43,27 +43,27 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             var status = GetOrderStatus(order.Status);
 
             //ME bug workaround
-            if (status == OrderStatus.Processing  && !hasTrades)
+            if (status == OrderStatus.Processing && !hasTrades)
                 status = OrderStatus.InOrderBook;
 
             return new Order
             {
                 Id = order.ExternalId,
                 Status = status,
-                RejectReason = status == OrderStatus.Rejected 
-                    ? order.Status 
+                RejectReason = status == OrderStatus.Rejected
+                    ? order.Status
                     : null,
                 AssetPairId = order.AssetPairId,
-                Price = status == OrderStatus.Pending 
-                    ? (double?) null 
+                Price = status == OrderStatus.Pending
+                    ? (double?)null
                     : order.Price,
                 LowerLimitPrice = order.LowerLimitPrice,
                 LowerPrice = order.LowerPrice,
                 UpperLimitPrice = order.UpperLimitPrice,
                 UpperPrice = order.UpperPrice,
                 Volume = Math.Abs(order.Volume),
-                OrderAction = order.Volume > 0 
-                    ? OrderAction.Buy 
+                OrderAction = order.Volume > 0
+                    ? OrderAction.Buy
                     : OrderAction.Sell,
                 RemainingVolume = Math.Abs(order.RemainingVolume),
                 Straight = order.Straight,
@@ -74,37 +74,27 @@ namespace Lykke.Frontend.WampHost.Services.Orders
 
         private OrderStatus GetOrderStatus(string status)
         {
-            try
+            if (MeOrderStatus.TryParse(status, true, out MeOrderStatus meStatusCode))
             {
-                var parsed = MeOrderStatus.TryParse(status, true, out MeOrderStatus meStatusCode);
-
-                if (parsed)
+                switch (meStatusCode)
                 {
-                    switch (meStatusCode)
-                    {
-                        case MeOrderStatus.InOrderBook:
-                            return OrderStatus.InOrderBook;
-                        case MeOrderStatus.Cancelled:
-                            return OrderStatus.Cancelled;
-                        case MeOrderStatus.Matched:
-                            return OrderStatus.Matched;
-                        case MeOrderStatus.Processing:
-                            return OrderStatus.Processing;
-                        case MeOrderStatus.Pending:
-                            return OrderStatus.Pending;
-                        default:
-                            return OrderStatus.Rejected;
-                    }
+                    case MeOrderStatus.InOrderBook:
+                        return OrderStatus.InOrderBook;
+                    case MeOrderStatus.Cancelled:
+                        return OrderStatus.Cancelled;
+                    case MeOrderStatus.Matched:
+                        return OrderStatus.Matched;
+                    case MeOrderStatus.Processing:
+                        return OrderStatus.Processing;
+                    case MeOrderStatus.Pending:
+                        return OrderStatus.Pending;
+                    default:
+                        return OrderStatus.Rejected;
                 }
+            }
 
-                throw new ArgumentException(
-                    $"Status {status} did not match any of the expected ME orders' status codes");
-            }
-            catch (Exception e)
-            {
-                _log.WriteError(nameof(GetOrderStatus), status, e);
-                return OrderStatus.Rejected;
-            }
+            _log.WriteWarning(nameof(GetOrderStatus), status, $"Status {status} did not match any of the expected ME orders' status codes");
+            return OrderStatus.Rejected;
         }
 
         private OrderType GetLimitOrderType(LimitOrder order)
