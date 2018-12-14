@@ -25,12 +25,13 @@ namespace Lykke.Frontend.WampHost.Modules
                 .WithParameter(TypedParameter.From(_settings.RabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
-            builder.RegisterType<CandlesSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(MarketType.Mt))
-                .WithParameter(TypedParameter.From(_settings.MtRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
+            if (!_settings.IsMtDisabled.HasValue || !_settings.IsMtDisabled.Value)
+                builder.RegisterType<CandlesSubscriber>()
+                    .As<ISubscriber>()
+                    .SingleInstance()
+                    .WithParameter(TypedParameter.From(MarketType.Mt))
+                    .WithParameter(TypedParameter.From(_settings.MtRabbitMqSettings.ConnectionString))
+                    .PreserveExistingDefaults();
 
             builder.RegisterType<CandlesManager>()
                 .As<ICandlesManager>()
