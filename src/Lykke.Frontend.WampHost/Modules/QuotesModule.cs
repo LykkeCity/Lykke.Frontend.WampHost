@@ -25,11 +25,12 @@ namespace Lykke.Frontend.WampHost.Modules
                 .WithParameter(TypedParameter.From(_settings.SpotQuotesRabbitMqSettings.ConnectionString))
                 .PreserveExistingDefaults();
 
-            builder.RegisterType<MtQuotesSubscriber>()
-                .As<ISubscriber>()
-                .SingleInstance()
-                .WithParameter(TypedParameter.From(_settings.MtQuotesRabbitMqSettings.ConnectionString))
-                .PreserveExistingDefaults();
+            if (!_settings.IsMtDisabled.HasValue || !_settings.IsMtDisabled.Value)
+                builder.RegisterType<MtQuotesSubscriber>()
+                    .As<ISubscriber>()
+                    .SingleInstance()
+                    .WithParameter(TypedParameter.From(_settings.MtQuotesRabbitMqSettings.ConnectionString))
+                    .PreserveExistingDefaults();
 
             builder.RegisterType<QuotesManager>()
                 .As<IQuotesManager>()

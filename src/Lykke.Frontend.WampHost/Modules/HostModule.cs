@@ -62,7 +62,8 @@ namespace Lykke.Frontend.WampHost.Modules
 
             RegisterWampCommon(builder);
 
-            RegisterMt(builder);
+            if (!_settings.WampHost.IsMtDisabled.HasValue || !_settings.WampHost.IsMtDisabled.Value)
+                RegisterMt(builder);
         }
 
         private void RegisterMt(ContainerBuilder builder)
