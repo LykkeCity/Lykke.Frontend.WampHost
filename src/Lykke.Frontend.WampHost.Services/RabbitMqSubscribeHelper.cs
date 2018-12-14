@@ -66,7 +66,6 @@ namespace Lykke.Frontend.WampHost.Services
                     .CreateDefaultBinding()
                     .Subscribe(handler)
                     .SetLogger(_log)
-                    .SetConsole(_consoleWriter)
                     .Start();
 
             _stopables.Add(rabbitMqSubscriber);

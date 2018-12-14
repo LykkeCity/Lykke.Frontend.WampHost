@@ -8,17 +8,17 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.1" />
     <PackageReference Include="IdentityModel" Version="3.9.0" />
-    <PackageReference Include="Lykke.Common" Version="7.0.4" />
+    <PackageReference Include="Lykke.Common" Version="7.3.1" />
     <PackageReference Include="Lykke.Cqrs" Version="5.0.1" />
     <PackageReference Include="Lykke.Job.TradesConverter.Contract" Version="3.2.0" />
-    <PackageReference Include="Lykke.RabbitMqBroker" Version="7.3.0" />
+    <PackageReference Include="Lykke.RabbitMqBroker" Version="7.6.0" />
     <PackageReference Include="Lykke.Service.Assets.Contract" Version="3.0.0" />
     <PackageReference Include="Lykke.Service.ClientAccount.Client" Version="2.2.3" />
     <PackageReference Include="Lykke.Service.Operations.Contracts" Version="1.3.0" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
     <PackageReference Include="Lykke.Service.Session.Client" Version="1.23.0" />
     <PackageReference Include="Lykke.Service.TradesAdapter.Contract" Version="1.0.1" />
-    <PackageReference Include="Lykke.Job.HistoryExportBuilder.Contract" Version="1.0.5" />
+    <PackageReference Include="Lykke.Job.HistoryExportBuilder.Contract" Version="1.0.8" />
     <PackageReference Include="Lykke.WampSharp" Version="1.0.2" />
   </ItemGroup>
   <ItemGroup>
