@@ -33,6 +33,7 @@ namespace Lykke.Frontend.WampHost.Services
             _realms = realms;
             _healthService = healthService;
             _sessionCache = sessionCache;
+            _cqrsEngine = cqrsEngine;
         }
 
         public async Task StartAsync()
