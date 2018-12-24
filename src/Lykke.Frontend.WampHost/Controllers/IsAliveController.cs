@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Net;
+using Lykke.Common;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +22,6 @@ namespace Lykke.Frontend.WampHost.Controllers
         /// <summary>
         /// Checks service is alive
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [SwaggerOperation("IsAlive")]
         [ProducesResponseType(typeof(IsAliveResponse), (int)HttpStatusCode.OK)]
@@ -39,7 +39,8 @@ namespace Lykke.Frontend.WampHost.Controllers
             // NOTE: Feel free to extend IsAliveResponse, to display job-specific indicators
             return Ok(new IsAliveResponse
             {
-                Version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion,
+                Name = AppEnvironment.Name,
+                Version = AppEnvironment.Version,
                 Env = Program.EnvInfo,
 #if DEBUG
                 IsDebug = true,

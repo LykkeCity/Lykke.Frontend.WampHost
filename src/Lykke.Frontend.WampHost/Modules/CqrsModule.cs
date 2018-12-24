@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using Autofac;
 using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Cqrs.Configuration;
-using Lykke.Messaging;
-using Lykke.Messaging.RabbitMq;
 using Lykke.Cqrs;
+using Lykke.Cqrs.Configuration;
 using Lykke.Frontend.WampHost.Contracts;
+using Lykke.Frontend.WampHost.Contracts.Commands;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services.Assets.IncomeMessages;
+using Lykke.Frontend.WampHost.Services.CommandHandlers;
 using Lykke.Frontend.WampHost.Services.Projections;
 using Lykke.Job.HistoryExportBuilder.Contract;
 using Lykke.Job.HistoryExportBuilder.Contract.Events;
+using Lykke.Messaging;
 using Lykke.Messaging.Contract;
+using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
 using Lykke.Service.Assets.Contract.Events;
 using Lykke.Service.Operations.Contracts;
 using Lykke.Service.Operations.Contracts.Events;
-using Lykke.Service.Session.Contracts;
 using Lykke.SettingsReader;
-using Lykke.Frontend.WampHost.Contracts.Commands;
-using Lykke.Frontend.WampHost.Services.CommandHandlers;
 
 namespace Lykke.Frontend.WampHost.Modules
 {
@@ -70,10 +69,11 @@ namespace Lykke.Frontend.WampHost.Modules
                 exclusiveQueuePostfix: _env);
 
             builder.Register(ctx =>
-            {                
+            {
                 const string defaultRoute = "self";
 
-                return new CqrsEngine(_log,
+                var engine = new CqrsEngine(
+                    _log,
                     ctx.Resolve<IDependencyResolver>(),
                     ctx.Resolve<IMessagingEngine>(),
                     new DefaultEndpointProvider(),
@@ -85,8 +85,8 @@ namespace Lykke.Frontend.WampHost.Modules
                         exclusiveQueuePostfix: _env)),
 
                     Register.BoundedContext(WampHostBoundedContext.Name)
-                        .ListeningEvents(                                
-                                typeof(AssetCreatedEvent),                                
+                        .ListeningEvents(
+                                typeof(AssetCreatedEvent),
                                 typeof(AssetUpdatedEvent),
                                 typeof(AssetPairCreatedEvent),
                                 typeof(AssetPairUpdatedEvent))
@@ -103,6 +103,8 @@ namespace Lykke.Frontend.WampHost.Modules
                         .WithEndpointResolver(protobufEndpointResolver)
                         .WithCommandsHandler<ConfirmationCommandHandler>()
                 );
+                engine.StartPublishers();
+                return engine;
             })
             .As<ICqrsEngine>()
             .SingleInstance()

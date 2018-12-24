@@ -1,9 +1,11 @@
-﻿using Common.Log;
+﻿using System;
+using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
+using Lykke.Frontend.WampHost.Core.Services.Clients;
 using Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages;
-using System;
 
 namespace Lykke.Frontend.WampHost.Services.Orders
 {
@@ -11,15 +13,18 @@ namespace Lykke.Frontend.WampHost.Services.Orders
     public class OrdersConverter : IOrdersConverter
     {
         private readonly ILog _log;
+        private readonly IClientToWalletMapper _clientToWalletMapper;
 
-        public OrdersConverter(ILog log)
+        public OrdersConverter(ILog log, [NotNull] IClientToWalletMapper clientToWalletMapper)
         {
             _log = log;
+            _clientToWalletMapper = clientToWalletMapper ?? throw new ArgumentNullException(nameof(clientToWalletMapper));
         }
 
-        public Order Convert(MarketOrder order)
+        public async Task<Order> ConvertAsync(MarketOrder order)
         {
             var status = GetOrderStatus(order.Status);
+            var (_, walletId) = await _clientToWalletMapper.GetClientIdAndWalletIdAsync(order.ClientId);
 
             return new Order
             {
@@ -28,7 +33,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 RejectReason = status == OrderStatus.Rejected ? order.Status : null,
                 AssetPairId = order.AssetPairId,
                 Price = order.Price,
-
+                WalletId = walletId,
                 Volume = Math.Abs(order.Volume),
                 OrderAction = order.Volume > 0 ? OrderAction.Buy : OrderAction.Sell,
                 RemainingVolume = order.MatchedAt != null ? 0 : Math.Abs(order.Volume),
@@ -38,13 +43,15 @@ namespace Lykke.Frontend.WampHost.Services.Orders
             };
         }
 
-        public Order Convert(LimitOrder order, bool hasTrades)
+        public async Task<Order> ConvertAsync(LimitOrder order, bool hasTrades)
         {
             var status = GetOrderStatus(order.Status);
 
             //ME bug workaround
             if (status == OrderStatus.Processing && !hasTrades)
                 status = OrderStatus.InOrderBook;
+
+            var (_, walletId) = await _clientToWalletMapper.GetClientIdAndWalletIdAsync(order.ClientId);
 
             return new Order
             {
@@ -57,6 +64,7 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                 Price = status == OrderStatus.Pending
                     ? (double?)null
                     : order.Price,
+                WalletId = walletId,
                 LowerLimitPrice = order.LowerLimitPrice,
                 LowerPrice = order.LowerPrice,
                 UpperLimitPrice = order.UpperLimitPrice,

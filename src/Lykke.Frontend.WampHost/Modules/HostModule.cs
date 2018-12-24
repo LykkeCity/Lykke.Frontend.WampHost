@@ -2,10 +2,12 @@
 using Common.Log;
 using Lykke.Frontend.WampHost.Core.Mt;
 using Lykke.Frontend.WampHost.Core.Services;
+using Lykke.Frontend.WampHost.Core.Services.Clients;
 using Lykke.Frontend.WampHost.Security;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services;
+using Lykke.Frontend.WampHost.Services.Clients;
 using Lykke.Frontend.WampHost.Services.Mt;
 using Lykke.Frontend.WampHost.Services.Security;
 using Lykke.Service.ClientAccount.Client;
@@ -64,6 +66,10 @@ namespace Lykke.Frontend.WampHost.Modules
                     Authority = _settings.WampHost.OAuthSettings.Authority
                 }))
                 .As<IOAuthTokenValidator>()
+                .SingleInstance();
+
+            builder.RegisterType<ClientToWalletMapper>()
+                .As<IClientToWalletMapper>()
                 .SingleInstance();
 
             builder.RegisterClientSessionService(_settings.SessionServiceClient.SessionServiceUrl, _log);
