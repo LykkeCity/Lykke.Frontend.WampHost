@@ -25,13 +25,11 @@ namespace Lykke.Frontend.WampHost.Services
             };
 
         private readonly ILog _log;
-        private readonly IConsole _consoleWriter;
         private readonly string _env;
 
-        public RabbitMqSubscribeHelper(ILog log, IConsole consoleWriter, [CanBeNull] string env)
+        public RabbitMqSubscribeHelper(ILog log, [CanBeNull] string env)
         {
             _log = log;
-            _consoleWriter = consoleWriter;
             _env = env ?? "DefaultEnv";
         }
 
@@ -43,21 +41,36 @@ namespace Lykke.Frontend.WampHost.Services
             }
         }
 
-        public void Subscribe<TMessage>(string connectionString, MarketType market, string source,
-            IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
+        public void Subscribe<TMessage>(
+            string connectionString,
+            MarketType market,
+            string source,
+            IMessageDeserializer<TMessage> deserializer,
+            Func<TMessage, Task> handler)
         {
-            Subscribe(connectionString, market, source, null, deserializer, handler);
+            Subscribe(
+                connectionString,
+                market,
+                source,
+                null,
+                deserializer,
+                handler);
         }
 
-        public void Subscribe<TMessage>(string connectionString, MarketType market, string source, string context,
-            IMessageDeserializer<TMessage> deserializer, Func<TMessage, Task> handler)
+        public void Subscribe<TMessage>(
+            string connectionString,
+            MarketType market,
+            string source,
+            string context,
+            IMessageDeserializer<TMessage> deserializer,
+            Func<TMessage, Task> handler)
         {
             var ns = NamespaceMap[market];
 
             var applicationName = "wamphost";
             var endpoint = context == null ? string.Empty : $".{context}";
             endpoint = $"{applicationName}{endpoint}.{_env}";
-            var settings = RabbitMqSubscriptionSettings.CreateForSubscriber(connectionString, ns, source, ns, endpoint);
+            var settings = RabbitMqSubscriptionSettings.ForSubscriber(connectionString, ns, source, ns, endpoint);
             settings.DeadLetterExchangeName = null;
 
             var rabbitMqSubscriber =
