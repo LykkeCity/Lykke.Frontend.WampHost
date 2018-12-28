@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Orders;
 using Lykke.Frontend.WampHost.Core.Orders.Contract;
@@ -41,10 +42,11 @@ namespace Lykke.Frontend.WampHost.Services.Orders
         {
             if (marketOrderWithTrades == null)
                 return;
-            
-            var clientId = await _clientAccountClient.GetClientByWalletAsync(marketOrderWithTrades.Order.ClientId);
 
-            PublishOrdersToClient(clientId, new[] { _ordersConverter.Convert(marketOrderWithTrades.Order) });
+            var clientId = await _clientAccountClient.GetClientByWalletAsync(marketOrderWithTrades.Order.ClientId);
+            var order = await _ordersConverter.ConvertAsync(marketOrderWithTrades.Order);
+
+            PublishOrdersToClient(clientId, new[] { order });
         }
 
         public async Task Publish(LimitOrders limitOrders)
@@ -63,34 +65,29 @@ namespace Lykke.Frontend.WampHost.Services.Orders
                     idsMappings[walletId] = await _clientAccountClient.GetClientByWalletAsync(walletId);
 
                 var clientId = idsMappings[walletId];
-                
+
                 if(!ordersByClients.ContainsKey(clientId))
                     ordersByClients[clientId] = new List<LimitOrderWithTrades>();
-                
+
                 ordersByClients[clientId].Add(order);
             }
-            
+
             foreach (var clientId in ordersByClients.Keys)
             {
-                PublishOrdersToClient(
-                    clientId,
-                    ordersByClients[clientId]
-                        .Select(
-                            x =>
-                                _ordersConverter.Convert(
-                                    x.Order,
-                                    x.Trades.Any()))
-                        .ToArray());
+                var orders = await ordersByClients[clientId].SelectAsync(async x =>
+                    await _ordersConverter.ConvertAsync(x.Order, x.Trades.Any()));
+
+                PublishOrdersToClient(clientId, orders.ToArray());
             }
         }
 
         private void PublishOrdersToClient(string clientId, Order[] orders)
         {
             var sessionIds = _sessionCache.GetSessionIds(clientId);
-            
+
             if (sessionIds.Length == 0)
                 return;
-            
+
             _subject.OnNext(new WampEvent
             {
                 Options = new PublishOptions { Eligible = sessionIds },

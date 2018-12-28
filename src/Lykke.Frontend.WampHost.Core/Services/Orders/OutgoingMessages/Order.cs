@@ -44,6 +44,8 @@ namespace Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages
         public OrderAction OrderAction { set; get; }
 
         public DateTime CreateDateTime { set; get; }
+
+        public string WalletId { get; set; }
     }
 
     public enum MeOrderStatus

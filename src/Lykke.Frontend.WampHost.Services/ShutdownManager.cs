@@ -26,9 +26,9 @@ namespace Lykke.Frontend.WampHost.Services
             _healthService = healthService;
         }
 
-        public async Task StopAsync()
+        public Task StopAsync()
         {
-            await _log.WriteInfoAsync(nameof(ShutdownManager), nameof(StopAsync), "", "Unsubscribing from the realms sessions...");
+            _log.WriteInfo(nameof(ShutdownManager), nameof(StopAsync), "Unsubscribing from the realms sessions...");
 
             foreach (var realm in _realms)
             {
@@ -36,7 +36,8 @@ namespace Lykke.Frontend.WampHost.Services
                 realm.SessionClosed -= _healthService.TraceWampSessionClosed;
                 realm.HostMetaApiService().Dispose();
             }
-;
+
+            return Task.CompletedTask;
         }
     }
 }

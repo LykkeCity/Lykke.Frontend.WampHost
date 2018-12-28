@@ -11,15 +11,18 @@ namespace Lykke.Frontend.WampHost.Services.Security
 {
     public class ClientResolver : ITokenValidator, ISessionCache
     {
+        private const int LykkeTokenLength = 64;
+
+        private static readonly long[] ZeroSessionsValue = new long[0];
+
         private readonly ILog _log;
         private readonly IMemoryCache _cache;
-        [NotNull] private readonly IOAuthTokenValidator _authTokenValidator;
+        [NotNull]
+        private readonly IOAuthTokenValidator _authTokenValidator;
         private readonly IClientsSessionsRepository _sessionService;
 
         private readonly MemoryCacheEntryOptions _tokenCacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(10));
         private readonly MemoryCacheEntryOptions _sessionCacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromDays(14));
-
-        private const int LykkeTokenLength = 64;
 
         public ClientResolver(
             [NotNull] ILog log,
@@ -44,20 +47,13 @@ namespace Lykke.Frontend.WampHost.Services.Security
         private string GetClientId(string token)
         {
             if (_cache.TryGetValue(token, out string clientId))
-            {
                 return clientId;
-            }
 
             try
             {
-                if (token.Length == LykkeTokenLength)
-                {
-                    clientId = _sessionService.GetAsync(token).GetAwaiter().GetResult()?.ClientId;
-                }
-                else
-                {
-                    clientId = _authTokenValidator.GetClientId(token).GetAwaiter().GetResult();
-                }
+                clientId = token.Length == LykkeTokenLength
+                    ? _sessionService.GetAsync(token).GetAwaiter().GetResult()?.ClientId
+                    : _authTokenValidator.GetClientId(token).GetAwaiter().GetResult();
             }
             catch (Exception exception)
             {
@@ -66,20 +62,15 @@ namespace Lykke.Frontend.WampHost.Services.Security
             }
 
             if (clientId != null)
-            {
                 _cache.Set(token, clientId, _tokenCacheOptions);
-            }
 
             return clientId;
         }
 
-        private static readonly long[] ZeroSessionsValue = new long[0];
         public long[] GetSessionIds(string clientId)
         {
             if (_cache.TryGetValue(clientId, out long[] sessionIds))
-            {
                 return sessionIds;
-            }
 
             return ZeroSessionsValue;
         }
@@ -103,20 +94,18 @@ namespace Lykke.Frontend.WampHost.Services.Security
 
         public bool TryRemoveSessionId(long sessionId)
         {
-            if (_cache.TryGetValue(sessionId, out string clientId))
-            {
-                _cache.Remove(sessionId);
+            if (!_cache.TryGetValue(sessionId, out string clientId))
+                return false;
 
-                // working with HashSet is not effective, but more readable than working with Array; type 'long[]' is stored for performance needs
-                var sessionIds = _cache.Get<long[]>(clientId);
-                var sessions = new HashSet<long>(sessionIds);
-                sessions.Remove(sessionId);
-                _cache.Set(clientId, sessions.ToArray(), _sessionCacheOptions);
+            _cache.Remove(sessionId);
 
-                return true;
-            }
+            // working with HashSet is not effective, but more readable than working with Array; type 'long[]' is stored for performance needs
+            var sessionIds = _cache.Get<long[]>(clientId);
+            var sessions = new HashSet<long>(sessionIds);
+            sessions.Remove(sessionId);
+            _cache.Set(clientId, sessions.ToArray(), _sessionCacheOptions);
 
-            return false;
+            return true;
         }
     }
 }

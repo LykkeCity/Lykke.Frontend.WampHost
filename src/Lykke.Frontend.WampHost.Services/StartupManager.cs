@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Cqrs;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Security;
 using WampSharp.V2.Realm;
@@ -16,6 +17,7 @@ namespace Lykke.Frontend.WampHost.Services
         private readonly IEnumerable<ISubscriber> _subscribers;
         private readonly IEnumerable<IWampHostedRealm> _realms;
         private readonly IHealthService _healthService;
+        private readonly ICqrsEngine _cqrsEngine;
         private readonly ISessionCache _sessionCache;
 
         public StartupManager(
@@ -23,6 +25,7 @@ namespace Lykke.Frontend.WampHost.Services
             IEnumerable<ISubscriber> subscribers,
             IEnumerable<IWampHostedRealm> realms,
             IHealthService healthService,
+            ICqrsEngine cqrsEngine,
             ISessionCache sessionCache)
         {
             _log = log;
@@ -30,6 +33,7 @@ namespace Lykke.Frontend.WampHost.Services
             _realms = realms;
             _healthService = healthService;
             _sessionCache = sessionCache;
+            _cqrsEngine = cqrsEngine;
         }
 
         public async Task StartAsync()
@@ -46,6 +50,8 @@ namespace Lykke.Frontend.WampHost.Services
             _log.WriteInfo(nameof(StartAsync), "", "Starting subscribers...");
 
             var tasks = _subscribers.Select(s => Task.Run(() => s.Start()));
+
+            _cqrsEngine.StartSubscribers();
 
             await Task.WhenAll(tasks);
         }
