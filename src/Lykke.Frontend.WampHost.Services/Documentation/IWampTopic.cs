@@ -7,6 +7,7 @@ using Lykke.Frontend.WampHost.Services.Assets.Contracts;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 using Lykke.Job.TradesConverter.Contract;
+using Lykke.Service.IndicesFacade.Contract;
 using Lykke.Service.TradesAdapter.Contract;
 using MarginTrading.Contract.ClientContracts;
 
@@ -61,5 +62,8 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [DocMe(Name = "history.export", Description = "Generated csv urls. realm = 'prices'")]
         HistoryExportGeneratedMessage HsistoryExports();
         
+        [UsedImplicitly]
+        [DocMe(Name = "indices.{AssetId}", Description = "Indices updates. realm = 'prices'")]
+        Index Index();
     }
 }

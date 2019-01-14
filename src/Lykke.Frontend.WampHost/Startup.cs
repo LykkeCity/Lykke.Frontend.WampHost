@@ -81,6 +81,7 @@ namespace Lykke.Frontend.WampHost
                 builder.RegisterModule(new TradesModule(appSettings.CurrentValue.WampHost));
                 builder.RegisterModule(new TradesAnonModule(appSettings.CurrentValue));
                 builder.RegisterModule(new OrdersModule(appSettings.CurrentValue));
+                builder.RegisterModule(new IndicesModule(appSettings.CurrentValue));
 
                 ApplicationContainer = builder.Build();
 
