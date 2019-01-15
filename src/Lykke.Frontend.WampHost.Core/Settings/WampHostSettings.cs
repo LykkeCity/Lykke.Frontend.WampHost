@@ -25,7 +25,8 @@ namespace Lykke.Frontend.WampHost.Core.Settings
         public RabbitMqSettings SagasRabbitMqSettings { get; set; }        
         public RabbitMqSettings TradesAnonMqSettings { get; set; }
         public RabbitMqSettings LimitOrdersRabbitMqSettings { get; set; }        
-        public RabbitMqSettings MarketOrdersMqSettings { get; set; }
+        public RabbitMqSettings MarketOrdersMqSettings { get; set; }       
+        public RabbitMqSettings IndicesMqSettings { get; set; }
         [Optional]
         public bool? IsMtDisabled { get; set; }
         public CacheSettings CacheSettings { get; set; }
