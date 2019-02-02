@@ -1,5 +1,4 @@
 ﻿using JetBrains.Annotations;
-using Lykke.Frontend.WampHost.Core.Mt;
 using Lykke.SettingsReader.Attributes;
 
 namespace Lykke.Frontend.WampHost.Core.Settings
@@ -17,18 +16,13 @@ namespace Lykke.Frontend.WampHost.Core.Settings
         public RabbitMqSettings RabbitMqSettings { get; set; }
         public RabbitMqSettings MeRabbitMqSettings { get; set; }
         public RabbitMqSettings ElasticRabbitMqSettings { get; set; }
-        public RabbitMqSettings MtRabbitMqSettings { get; set; }
         public RabbitMqSettings SpotQuotesRabbitMqSettings { get; set; }
-        public RabbitMqSettings MtQuotesRabbitMqSettings { get; set; }
-        public MtSubscriberSettings MtSubscriberSettings { get; set; }
         public RabbitMqSettings BalancesRabbitMqSettings { get; set; }
         public RabbitMqSettings SagasRabbitMqSettings { get; set; }        
         public RabbitMqSettings TradesAnonMqSettings { get; set; }
         public RabbitMqSettings LimitOrdersRabbitMqSettings { get; set; }        
         public RabbitMqSettings MarketOrdersMqSettings { get; set; }       
         public RabbitMqSettings IndicesMqSettings { get; set; }
-        [Optional]
-        public bool? IsMtDisabled { get; set; }
         public CacheSettings CacheSettings { get; set; }
     }
 }
