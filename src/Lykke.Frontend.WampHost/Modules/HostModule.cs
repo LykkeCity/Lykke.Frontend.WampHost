@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Common.Log;
-using Lykke.Frontend.WampHost.Core.Mt;
 using Lykke.Frontend.WampHost.Core.Services;
 using Lykke.Frontend.WampHost.Core.Services.Clients;
 using Lykke.Frontend.WampHost.Security;
@@ -8,7 +7,6 @@ using Lykke.Frontend.WampHost.Core.Services.Security;
 using Lykke.Frontend.WampHost.Core.Settings;
 using Lykke.Frontend.WampHost.Services;
 using Lykke.Frontend.WampHost.Services.Clients;
-using Lykke.Frontend.WampHost.Services.Mt;
 using Lykke.Frontend.WampHost.Services.Security;
 using Lykke.Service.ClientAccount.Client;
 using Lykke.Service.Session;
@@ -77,17 +75,6 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterLykkeServiceClient(_settings.ClientAccountServiceClient.ServiceUrl);
 
             RegisterWampCommon(builder);
-
-            if (!_settings.WampHost.IsMtDisabled.HasValue || !_settings.WampHost.IsMtDisabled.Value)
-                RegisterMt(builder);
-        }
-
-        private void RegisterMt(ContainerBuilder builder)
-        {
-            builder.RegisterType<MtRabbitMqHandler>().As<IMtRabbitMqHandler>().SingleInstance();
-            builder.RegisterType<MtSubscriber>().As<ISubscriber>()
-                .WithParameter(TypedParameter.From(_settings.WampHost.MtSubscriberSettings))
-                .SingleInstance();
         }
 
         private static void RegisterWampCommon(ContainerBuilder builder)
