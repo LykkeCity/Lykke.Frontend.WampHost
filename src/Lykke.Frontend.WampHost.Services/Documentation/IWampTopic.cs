@@ -5,6 +5,7 @@ using Lykke.Frontend.WampHost.Core.Services.Orderbook;
 using Lykke.Frontend.WampHost.Core.Services.Orders.OutgoingMessages;
 using Lykke.Frontend.WampHost.Services.Assets.Contracts;
 using Lykke.Frontend.WampHost.Services.Candles.Contract;
+using Lykke.Frontend.WampHost.Services.EasyBuy.Contract;
 using Lykke.Frontend.WampHost.Services.Quotes.Contract;
 using Lykke.Job.TradesConverter.Contract;
 using Lykke.Service.IndicesFacade.Contract;
@@ -17,6 +18,10 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
     {
         [DocMe(Name = "candle.{spot|mt}.{instrument}.{bid|ask|mid|trades}.{sec|minute|min5|min15|min30|hour|hour4|hour6|hour12|day|week|month}", Description = "provides candles. realm = 'prices', all parameters in the lower case.")]
         CandleClientMessage CandlesUpdate();
+
+        [UsedImplicitly]
+        [DocMe(Name = "easybuy.price.{assetPairId}", Description = "provides easybuy price updates")]
+        PriceUpdateMessage EasyBuyPriceUpdate();
 
         [UsedImplicitly]
         [DocMe(Name = "quote.{spot|mt}.{instrument}.{bid|ask}", Description = "provides quotes. realm = 'prices', all parameters in the lower case.")]
