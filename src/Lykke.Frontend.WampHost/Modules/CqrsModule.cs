@@ -5,6 +5,7 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
+using Lykke.Exchange.Api.MarketData.Contract;
 using Lykke.Frontend.WampHost.Contracts;
 using Lykke.Frontend.WampHost.Contracts.Commands;
 using Lykke.Frontend.WampHost.Core.Settings;
@@ -61,6 +62,7 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<AssetsProjection>();
             builder.RegisterType<HistoryExportProjection>();
             builder.RegisterType<OperationsProjection>();
+            builder.RegisterType<MarketDataProjection>();
             
             var protobufEndpointResolver = new RabbitMqConventionEndpointResolver(
                 "RabbitMq",
@@ -99,6 +101,9 @@ namespace Lykke.Frontend.WampHost.Modules
                         .ListeningEvents(typeof(OperationFailedEvent), typeof(OperationConfirmedEvent), typeof(OperationCompletedEvent), typeof(OperationCorruptedEvent))
                             .From(OperationsBoundedContext.Name).On(defaultRoute)
                         .WithProjection(typeof(OperationsProjection), OperationsBoundedContext.Name)
+                        .ListeningEvents(typeof(MarketDataChangedEvent))
+                            .From(MarketDataBoundedContext.Name).On(defaultRoute)
+                        .WithProjection(typeof(MarketDataProjection), MarketDataBoundedContext.Name)
                         .ListeningCommands(typeof(RequestConfirmationCommand)).On("commands")
                         .WithEndpointResolver(protobufEndpointResolver)
                         .WithCommandsHandler<ConfirmationCommandHandler>()
