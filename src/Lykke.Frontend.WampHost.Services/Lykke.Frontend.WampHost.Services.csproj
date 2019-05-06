@@ -9,6 +9,7 @@
     <PackageReference Include="AutoMapper" Version="7.0.1" />
     <PackageReference Include="IdentityModel" Version="3.9.0" />
     <PackageReference Include="Lykke.Cqrs" Version="8.1.0" />
+    <PackageReference Include="Lykke.Exchange.Api.MarketData.Contract" Version="1.0.0" />
     <PackageReference Include="Lykke.Service.Assets.Contract" Version="3.0.0" />
     <PackageReference Include="Lykke.Service.IndicesFacade.Contract" Version="1.0.1" />
     <PackageReference Include="Lykke.Service.Operations.Contracts" Version="1.3.0" />

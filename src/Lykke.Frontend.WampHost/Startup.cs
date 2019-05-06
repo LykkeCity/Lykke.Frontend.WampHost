@@ -48,7 +48,9 @@ namespace Lykke.Frontend.WampHost
         {
             try
             {
-                services.AddMvc()
+                services
+                    .AddMemoryCache()
+                    .AddMvc()
                     .AddJsonOptions(options =>
                     {
                         options.SerializerSettings.ContractResolver =
