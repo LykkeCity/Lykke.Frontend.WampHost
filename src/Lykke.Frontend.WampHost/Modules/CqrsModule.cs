@@ -62,7 +62,8 @@ namespace Lykke.Frontend.WampHost.Modules
             builder.RegisterType<AssetsProjection>();
             builder.RegisterType<HistoryExportProjection>();
             builder.RegisterType<OperationsProjection>();
-            builder.RegisterType<MarketDataProjection>();
+            builder.RegisterType<MarketDataProjection>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.CacheSettings.MarketDataCacheInterval));
             
             var protobufEndpointResolver = new RabbitMqConventionEndpointResolver(
                 "RabbitMq",
