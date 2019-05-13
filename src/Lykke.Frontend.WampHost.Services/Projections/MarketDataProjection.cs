@@ -15,13 +15,15 @@ namespace Lykke.Frontend.WampHost.Services.Projections
         private readonly IMemoryCache _memoryCache;
         private readonly ISubject<MarketDataChangedEvent> _subject;
         private const string MarketDataTopic = "marketdata";
-        private readonly TimeSpan _cacheInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan _cacheInterval;
         
         public MarketDataProjection(
             [NotNull] IWampHostedRealm realm,
+            TimeSpan cacheInterval,
             IMemoryCache memoryCache)
         {
             _realm = realm;
+            _cacheInterval = cacheInterval;
             _memoryCache = memoryCache;
             _subject = _realm.Services.GetSubject<MarketDataChangedEvent>(MarketDataTopic);
         }
