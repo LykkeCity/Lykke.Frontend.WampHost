@@ -6,7 +6,7 @@ namespace Lykke.Frontend.WampHost.Core.Settings
     {
         public string Instance { set; get; }
         public string TradeAnonIdKeyPattern { set; get; }
-        public TimeSpan MarketDataCacheInterval { get; set; }
+        public TimeSpan MarketDataCacheInterval { get; set; } = TimeSpan.FromSeconds(1);
     }
 
     public static class CacheSettingsExt
