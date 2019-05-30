@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Lykke.Exchange.Api.MarketData.Contract;
 using Lykke.Frontend.WampHost.Core.Services.HistoryExport;
 using Lykke.Frontend.WampHost.Services.Balances.Contracts;
 using Lykke.Frontend.WampHost.Core.Services.Orderbook;
@@ -65,5 +66,13 @@ namespace Lykke.Frontend.WampHost.Services.Documentation
         [UsedImplicitly]
         [DocMe(Name = "indices.{AssetId}", Description = "Indices updates. realm = 'prices'")]
         Index Index();
+        
+        [UsedImplicitly]
+        [DocMe(Name = "marketdata", Description = "Market data changes. realm = 'prices'")]
+        MarketDataChangedEvent MarketDataChanges();
+
+        [UsedImplicitly]
+        [DocMe(Name = "marketdata.{assetPairId}", Description = "Market data changes by asset pair. realm = 'prices'")]
+        MarketDataChangedEvent MarketDataAssetPairChanges();
     }
 }
