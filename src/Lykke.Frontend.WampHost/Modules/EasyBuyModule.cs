@@ -16,10 +16,10 @@ namespace Lykke.Frontend.WampHost.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            // builder.RegisterType<EasyBuyPricesSubscriber>()
-            //     .As<ISubscriber>()
-            //     .WithParameter(TypedParameter.From(_settings.EasyBuyRabbitMqSettings.ConnectionString))
-            //     .SingleInstance();
+            builder.RegisterType<EasyBuyPricesSubscriber>()
+                .As<ISubscriber>()
+                .WithParameter(TypedParameter.From(_settings.EasyBuyRabbitMqSettings.ConnectionString))
+                .SingleInstance();
         }
     }
 }

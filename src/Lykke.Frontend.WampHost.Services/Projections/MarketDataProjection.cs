@@ -31,14 +31,13 @@ namespace Lykke.Frontend.WampHost.Services.Projections
 
         public Task Handle(MarketDataChangedEvent evt)
         {
-            Console.WriteLine($"MarketDataChangedEvent = {evt.ToJson()}");
             if (_memoryCache.TryGetValue(evt.AssetPairId, out _))
             {
                 return Task.CompletedTask;
             }
 
             _subject.OnNext(evt);
-            var assetPairSubject = _realm.Services.GetSubject<MarketDataChangedEvent>($"{MarketDataTopic}.{evt.AssetPairId}");
+            var assetPairSubject = _realm.Services.GetSubject<MarketDataChangedEvent>($"{MarketDataTopic}.{evt.AssetPairId.ToLower()}");
             assetPairSubject.OnNext(evt);
             _memoryCache.Set(evt.AssetPairId, evt.AssetPairId, _cacheInterval);
             return Task.CompletedTask;
