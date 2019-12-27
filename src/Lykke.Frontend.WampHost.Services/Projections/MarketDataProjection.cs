@@ -16,7 +16,7 @@ namespace Lykke.Frontend.WampHost.Services.Projections
         private readonly ISubject<MarketDataChangedEvent> _subject;
         private const string MarketDataTopic = "marketdata";
         private readonly TimeSpan _cacheInterval;
-        
+
         public MarketDataProjection(
             [NotNull] IWampHostedRealm realm,
             TimeSpan cacheInterval,
@@ -27,14 +27,14 @@ namespace Lykke.Frontend.WampHost.Services.Projections
             _memoryCache = memoryCache;
             _subject = _realm.Services.GetSubject<MarketDataChangedEvent>(MarketDataTopic);
         }
-        
+
         public Task Handle(MarketDataChangedEvent evt)
         {
             if (_memoryCache.TryGetValue(evt.AssetPairId, out _))
                 return Task.CompletedTask;
-            
+
             _subject.OnNext(evt);
-            var assetPairSubject = _realm.Services.GetSubject<MarketDataChangedEvent>($"{MarketDataTopic}.{evt.AssetPairId}");
+            var assetPairSubject = _realm.Services.GetSubject<MarketDataChangedEvent>($"{MarketDataTopic}.{evt.AssetPairId.ToLower()}");
             assetPairSubject.OnNext(evt);
             _memoryCache.Set(evt.AssetPairId, evt.AssetPairId, _cacheInterval);
             return Task.CompletedTask;
