@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
+using Common;
 using JetBrains.Annotations;
 using Lykke.Frontend.WampHost.Core.Domain;
 using Lykke.Frontend.WampHost.Core.Services.TradesAnon;
@@ -33,12 +34,13 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
         public async Task ProcessTrade(Trade tradeLogItem, MarketType market)
         {
             var redisKey = _settings.GetKeyForTradeAnonId(tradeLogItem.Id);
-            
+
             if (await _cache.GetAsync(redisKey) == null)
             {
                 var topic = $"trades.{market.ToString().ToLower()}.{tradeLogItem.AssetPairId.ToLower()}";
                 var subject = _realm.Services.GetSubject<Trade>(topic);
 
+                Console.WriteLine($"Send trade event: {tradeLogItem.ToJson()}");
                 subject.OnNext(tradeLogItem);
 
                 await _cache.SetAsync(
@@ -48,6 +50,10 @@ namespace Lykke.Frontend.WampHost.Services.TradesAnon
                     {
                         AbsoluteExpiration = DateTimeOffset.Now.AddDays(1)
                     });
+            }
+            else
+            {
+                Console.WriteLine($"Skip sending trade event: {tradeLogItem.ToJson()}");
             }
         }
     }
